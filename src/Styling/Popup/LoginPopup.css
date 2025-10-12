@@ -1,0 +1,217 @@
+/* Popup container */
+.login-popup-overlay {
+  position: relative;
+  width: 90%;
+  max-width: 480px;
+  padding: 2rem 2rem 3rem 2rem;
+  background: #fff;
+  border-radius: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Close button */
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  z-index: 10;
+}
+
+.close-button img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Logo container */
+.logo-container {
+  margin-bottom: 1rem;
+}
+
+/* Logo image */
+.SaralBuyLogoLayout {
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  aspect-ratio: 198 / 89;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Main title */
+.login-text {
+  width: 100%;
+  max-width: 400px;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #000;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+/* Subtitle */
+.login-text-content {
+  width: 100%;
+  max-width: 400px;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #000;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+/* Input field (e.g., mobile number) */
+.login-number-input {
+  width: 100%;
+  max-width: 400px;
+  height: 50px;
+  padding: 0 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  margin-bottom: 0.7rem;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Red border for invalid input */
+.login-number-input.invalid-input {
+  border-color: #e74c3c;
+}
+
+/* Error message */
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Main button (Send OTP, Continue) */
+.send-otp-button {
+  width: 100%;
+  max-width: 400px;
+  height: 50px;
+  background: #2c3e50;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+.send-otp-button:hover {
+  background: #1a252f;
+}
+
+.send-otp-button:disabled {
+  background: rgba(44, 62, 80, 0.5);
+  cursor: not-allowed;
+}
+
+/* Button text */
+.send-otp-text {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: capitalize;
+  font-family: "Poppins", sans-serif;
+  line-height: 110%;
+}
+
+/* ----------- 6-digit OTP input ----------- */
+.otp-input-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 1rem;
+}
+
+.otp-input-box {
+  width: 100%;
+  max-width: 60px;
+  height: 50px; /* Match button height */
+  font-size: 1.5rem;
+  text-align: center;
+  border-radius: 5px; /* Match button radius */
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-family: "Poppins", sans-serif;
+  transition: border-color 0.3s ease;
+  outline: none;
+  background-color: #fff;
+}
+
+.otp-input-box:focus {
+  border-color: #2c3e50;
+}
+
+.otp-input-box.invalid-input {
+  border-color: #e74c3c;
+}
+
+/* ---------- Responsive styles ---------- */
+@media (max-width: 480px) {
+  .login-popup-overlay {
+    padding: 1.5rem 1.5rem 2rem 1.5rem;
+  }
+
+  .SaralBuyLogoLayout {
+    width: 90px;
+  }
+
+  .login-text {
+    font-size: 1.5rem;
+    max-width: 100%;
+  }
+
+  .login-text-content {
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
+
+  .login-number-input,
+  .send-otp-button {
+    max-width: 100%;
+  }
+
+  .send-otp-text {
+    font-size: 0.9rem;
+  }
+
+  .error-message {
+    max-width: 100%;
+    font-size: 0.8rem;
+  }
+
+  .otp-input-container {
+    gap: 8px;
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .otp-input-box {
+    max-width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+}

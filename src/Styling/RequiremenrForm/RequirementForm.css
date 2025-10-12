@@ -1,0 +1,524 @@
+/* =============== REQUIREMENT FORM HEADER =============== */
+.requirement-header {
+  width: 86%;
+  max-width: 1486px;
+  margin: 123px auto 0 auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.requirement-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Back Arrow Icon */
+.back-arrow {
+  width: 20px;
+  height: auto;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Selected Category Text */
+.selected-text {
+  color: rgba(0, 0, 0, 0.5);
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 40px;
+  margin-left: 17px;
+}
+
+/* Title Text */
+.requirement-title {
+  color: #d35400;
+  font-family: Poppins, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 26px;
+  margin-left: 4px;
+}
+
+/* Titles inside boxes */
+.box-title {
+  margin-left: 40px;
+  margin-top: 35px;
+  color: #000;
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 40px; /* 200% */
+}
+
+/* Action Button */
+.requirement-btn {
+  display: inline-flex;
+  height: 50px;
+  padding: 11px 32px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  background: #d35400;
+  border-radius: 5px;
+  border: none;
+  margin-left: auto;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  color: #fff;
+  text-align: center;
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%;
+  text-decoration-line: underline;
+  text-transform: capitalize;
+}
+
+.requirement-btn:hover {
+  background: #b84300;
+}
+
+/* =============== MAIN CONTENT =============== */
+.requirement-content {
+  width: 86%;
+  max-width: 1486px;
+  margin: 33px auto 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: flex-start;
+  gap: 30px;
+  align-items: flex-start;
+  position: relative;
+  left: -135px; /* Moves the block 135px left */
+}
+
+.requirement-left-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Description */
+.requirement-description {
+  width: 446px;
+  margin-top: 67px;
+  margin-left: 100px;
+  text-align: center;
+}
+
+.horizontal-labels {
+  display: flex;
+  flex-direction: row;
+  gap: 17px;
+  margin-left: 40px;
+}
+
+.upload-container {
+  width: 456px;
+  height: 135px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px dashed rgba(0, 0, 0, 0.4);
+  margin-top: 8px;
+}
+
+.description-group {
+  margin-left: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-image {
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+}
+
+.upload-image-text {
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.browse-document-icon {
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+}
+
+.browse-document-header {
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.browse-document-subheader {
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Poppins;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.payment-input {
+  width: 456px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  margin-top: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+}
+
+.paymentButtonPlaceholder {
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  margin-right: 255px;
+}
+
+.description-textarea {
+  width: 910px;
+  height: 100px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #fff;
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  padding-top: 16px;
+  padding-left: 20px;
+  resize: none;
+  margin-top: 14px;
+}
+
+.field-label {
+  color: rgba(0, 0, 0, 0.6);
+  font-family: Poppins, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.requirement-description .line-bold {
+  color: #000;
+  text-align: center;
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.requirement-description .line-normal {
+  color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 26px;
+  margin-top: 4px;
+}
+
+/* Image */
+.requirement-image {
+  width: 569px;
+  height: 392px;
+  flex-shrink: 0;
+  margin-top: 20px;
+}
+
+/* Right Side Column */
+.requirement-right-content {
+  display: flex;
+  flex-direction: column;
+  gap: 33px;
+}
+
+/* First Box */
+.requirement-box {
+  width: 1009px;
+  height: 535px;
+  border-radius: 10px;
+  background: rgba(44, 62, 80, 0.05);
+}
+
+/* Second Box */
+.second-box {
+  width: 1009px;
+  height: 391px;
+  border-radius: 10px;
+  background: rgba(44, 62, 80, 0.05);
+}
+
+.draft-button {
+  display: flex;
+  width: 180px;
+  height: 50px;
+  padding: 11px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  border: 1px solid #2c3e50;
+  background: #fff;
+  color: #2c3e50;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%; /* 17.6px */
+  text-transform: capitalize;
+}
+
+.submit-button {
+  display: flex;
+  width: 180px;
+  height: 50px;
+  padding: 11px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  background: #2c3e50;
+  color: #fff;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 110%; /* 17.6px */
+  text-transform: capitalize;
+  margin-bottom: 85px;
+}
+
+.button-right-content {
+  display: flex;
+  flex-direction: row;
+  gap: 33px;
+  margin-top: 15px;
+  margin-right: 220px;
+  margin-bottom: 58px;
+  justify-content: end;
+}
+
+/* Third Box */
+.third-box {
+  width: 1009px;
+  height: 305px;
+  border-radius: 10px;
+  background: rgba(44, 62, 80, 0.05);
+}
+
+.calenderIcon {
+  width: 20px;
+  height: 20px;
+  margin-left: 416px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* =============== RESPONSIVE BREAKPOINTS =============== */
+
+/* For tablets (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .requirement-header {
+    width: 90%;
+    margin-top: 100px;
+  }
+
+  .selected-text {
+    font-size: 15px;
+    line-height: 32px;
+  }
+
+  .requirement-title {
+    font-size: 18px;
+  }
+
+  .back-arrow {
+    width: 18px;
+  }
+
+  .requirement-btn {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .requirement-content {
+    flex-direction: column;
+    align-items: center;
+    left: 0; /* Reset left shift */
+  }
+
+  .requirement-description {
+    width: 400px;
+    margin-top: 50px;
+  }
+
+  .requirement-description .line-bold,
+  .requirement-description .line-normal {
+    font-size: 15px;
+  }
+
+  .requirement-image {
+    width: 450px;
+    height: auto;
+    margin-top: 40px;
+  }
+
+  .requirement-right-content {
+    width: 90%;
+    gap: 20px;
+  }
+
+  .requirement-box,
+  .second-box,
+  .third-box {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+  }
+}
+
+/* For mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  .requirement-header {
+    width: 95%;
+    margin-top: 90px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .selected-text {
+    font-size: 14px;
+    line-height: 28px;
+  }
+
+  .requirement-title {
+    font-size: 16px;
+  }
+
+  .back-arrow {
+    width: 16px;
+  }
+
+  .requirement-btn {
+    align-self: flex-end;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .requirement-description {
+    width: 90%;
+    margin-top: 40px;
+    text-align: left;
+  }
+
+  .requirement-description .line-bold,
+  .requirement-description .line-normal {
+    font-size: 14px;
+  }
+
+  .requirement-image {
+    width: 100%;
+    max-width: 95%;
+    height: auto;
+    margin-top: 20px;
+  }
+
+  .requirement-right-content {
+    width: 95%;
+  }
+
+  .requirement-box,
+  .second-box,
+  .third-box {
+    width: 100%;
+    height: auto;
+    min-height: 180px;
+  }
+}
+
+/* For very small mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .requirement-header {
+    margin-top: 80px;
+  }
+
+  .selected-text {
+    font-size: 12px;
+    line-height: 24px;
+  }
+
+  .requirement-title {
+    font-size: 14px;
+  }
+
+  .back-arrow {
+    width: 14px;
+  }
+
+  .requirement-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .requirement-description {
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .requirement-description .line-bold,
+  .requirement-description .line-normal {
+    font-size: 13px;
+  }
+
+  .requirement-image {
+    width: 100%;
+    max-width: 90%;
+    margin-top: 20px;
+  }
+
+  .requirement-box,
+  .second-box,
+  .third-box {
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+  }
+}
