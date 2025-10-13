@@ -285,19 +285,14 @@ useEffect(() => {
   }, [errors])
 
 const handleDocumentDownload = (url: string) => {
-  const fileName = url.split('/').pop() || 'downloaded-file';
-  instance
-    .get(url, {
-      responseType: 'blob',
-    })
-    .then((res) => {
-      fileDownload(res.data, fileName);
-    })
-    .catch((error) => {
-      console.error("Download failed:", error);
-    });
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = url.split('/').pop() || 'document';
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
-
 const handleBidView =async(productId:string)=>{
   await getBidByProductIdFn(productId)
 }
@@ -675,7 +670,12 @@ useEffect(()=>{
 
                       <p className="flex items-center justify-between py-2 border-b-2 capitalize"><span className="font-semibold">Payment Mode:</span> {bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.paymentMode : item?.paymentAndDelivery?.paymentMode || 'N/A'}</p>
 
-                      <p className="flex items-center justify-between py-2 border-b-2  "><span className="font-semibold">Supporting Documents:</span>{(item?.document || bidOverviewRes?.product?.document) ? <span className="flex gap-1 items-center hover:underline cursor-pointer"><Paperclip className="w-4 h-4 text-orange-600" /> {item?.document || bidOverviewRes?.product?.document}</span> : 'N/A'}</p>
+                      <p className="flex items-center justify-between py-2 border-b-2  "
+                      ><span className="font-semibold">Supporting Documents:</span>{(item?.document || bidOverviewRes?.product?.document) ? <span
+                      onClick={()=>{
+                        handleDocumentDownload(item?.document || bidOverviewRes?.product?.document)
+                      }}
+                      className="flex gap-1 items-center hover:underline cursor-pointer"><Paperclip className="w-4 h-4 text-orange-600" /> {item?.document || bidOverviewRes?.product?.document}</span> : 'N/A'}</p>
 
                     </div>
                   </div>
