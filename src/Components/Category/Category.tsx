@@ -629,8 +629,11 @@ const CategoryForm = ({
                   onChange={(e: any) => {
                     if (e.target.files?.[0]) {
                       const newDocument = e.target.files[0];
+                      if(newDocument.size === 0){
+                        toast.error("Invalid Doc");
+                        return;
+                      }
                       setFileDoc(newDocument);
-
                       const currentFormData = {
                         ...getValues(),
                         image: image,
