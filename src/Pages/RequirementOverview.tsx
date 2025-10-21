@@ -6,45 +6,73 @@ import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Banknote, CalendarDays, MoveLeft } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import requirementService from '@/services/requirement.service'
 
 const RequirementOverview = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { requirementId } = useParams<{ requirementId: string }>()
   const productData = location.state?.products || []
   const [currentProduct, setCurrentProduct] = useState<any>(null)
   const [bidData, setBidData] = useState<any[]>([])
   const [iterateData, setIterateData] = useState<any[]>([])
-console.log(productData,"productData")
+  const [requirementData, setRequirementData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  console.log(productData,"productData")
+
   useEffect(() => {
-    if (productData && productData.length > 0) {
-      const product = productData[0] // Get the first product from array
-      setCurrentProduct(product)
-      
-      // Create array with main product and subProducts (similar to static implementation)
-      if (product.product) {
-        const allProducts = [
-          product.product,
-          ...(product.product.subProducts || [])
-        ]
-        setIterateData(allProducts)
-      }
-      
-      // Transform sellers data into bid table format
-      if (product.sellers && product.sellers.length > 0) {
-        const transformedBids = product.sellers.map((seller: any) => ({
-          avtar: seller.seller?.profileImage || "https://github.com/shubhamsharma20007.png", // Use seller's profile image or default
-          date: seller.date ? dateFormatter(seller.date) : (seller.createdAt ? dateFormatter(seller.createdAt) : (product.createdAt ? dateFormatter(product.createdAt) : 'N/A')),
-          bid_buy: `${seller.seller?.firstName || ''} ${seller.seller?.lastName || ''}`.trim() || "Anonymous Seller",
-          bid_amount: seller.budgetAmount ? `₹${seller.budgetAmount}` : "N/A",
-          chat_message: seller.message || "Interested in your requirement",
-          action: "chat",
-          sellerId: seller.seller?._id || seller._id || seller.userId
-        }))
-        setBidData(transformedBids)
+    const fetchRequirementData = async () => {
+      if (requirementId) {
+        try {
+          const data = await requirementService.getRequirementById(requirementId)
+          console.log(data, "Fetched requirement data")
+          setRequirementData(data)
+          setLoading(false)
+        } catch (error) {
+          console.error("Error fetching requirement data:", error)
+          setLoading(false)
+        }
       }
     }
-  }, [productData])
+
+    fetchRequirementData()
+  }, [requirementId])
+
+  useEffect(() => {
+    if (requirementData) {
+      // Use fetched data if available, otherwise fall back to location state
+      const dataToUse = requirementData || (productData && productData.length > 0 ? productData[0] : null)
+
+      if (dataToUse) {
+        setCurrentProduct(dataToUse)
+
+        // Create array with main product and subProducts
+        if (dataToUse.product) {
+          const allProducts = [
+            dataToUse.product,
+            ...(dataToUse.product.subProducts || [])
+          ]
+          setIterateData(allProducts)
+        }
+
+        // Transform sellers data into bid table format
+        if (dataToUse.sellers && dataToUse.sellers.length > 0) {
+          const transformedBids = dataToUse.sellers.map((seller: any) => ({
+            avtar: seller.seller?.profileImage || "https://github.com/shubhamsharma20007.png",
+            date: seller.date ? dateFormatter(seller.date) : (seller.createdAt ? dateFormatter(seller.createdAt) : (dataToUse.createdAt ? dateFormatter(dataToUse.createdAt) : 'N/A')),
+            bid_buy: `${seller.seller?.firstName || ''} ${seller.seller?.lastName || ''}`.trim() || "Anonymous Seller",
+            bid_amount: seller.budgetAmount ? `₹${seller.budgetAmount}` : "N/A",
+            chat_message: seller.message || "Interested in your requirement",
+            action: "chat",
+            sellerId: seller.seller?._id || seller._id || seller.userId
+          }))
+          setBidData(transformedBids)
+        }
+      }
+    }
+  }, [requirementData, productData])
 console.log(currentProduct,"curr")
   const handleChatNavigate = (sellerId?: string) => {
     if (currentProduct) {
@@ -120,6 +148,14 @@ console.log(currentProduct,"curr")
       )
     },
   ]
+
+  if (loading) {
+    return (
+      <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
+        <div className="text-center">Loading...</div>
+      </div>
+    )
+  }
 
   if (!currentProduct) {
     return (

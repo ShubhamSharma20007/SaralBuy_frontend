@@ -18,6 +18,11 @@ class RequirementService {
         return instance.post('/requirement/close-deal', params, { withCredentials: true })
             .then(res => res.data?.data || res.data);
     }
-    
+
+    getRequirementById(id: string) {
+        return instance.get(`/requirement/get-requirement/${id}`, { withCredentials: true })
+            .then(res => res.data?.data || res.data);
+    }
+
 }
 export default new RequirementService();
