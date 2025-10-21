@@ -135,6 +135,18 @@ export default function ProductListing() {
     return () => clearTimeout(timeoutId);
   }, [watchAll.category, watchAll.sort, watchAll.subCategory, values, setSearchParams]);
 
+  // Clear subcategory when category changes
+  useEffect(() => {
+    if (watchAll.category && watchAll.category !== searchParams.get('category')) {
+      formState.setValue('subCategory', '');
+      setSearchParams(prevParams => {
+        const newParams = new URLSearchParams(prevParams);
+        newParams.delete('subCategory');
+        return newParams;
+      });
+    }
+  }, [watchAll.category, searchParams, formState, setSearchParams]);
+
 
   useEffect(() => {
     if (searchParams.get("min_budget")) {
@@ -204,6 +216,7 @@ export default function ProductListing() {
 
     // Extract filters from searchParams
     const category = searchParams.get("category") || undefined;
+    const subCategoryId = searchParams.get("subCategory") || undefined;
     const min_budget = searchParams.get("min_budget") ? Number(searchParams.get("min_budget")) : undefined;
     const max_budget = searchParams.get("max_budget") ? Number(searchParams.get("max_budget")) : undefined;
     const sort = searchParams.get("sort") || undefined;
@@ -213,7 +226,7 @@ export default function ProductListing() {
         title,
         currentPage,
         limit,
-        { category, min_budget, max_budget, sort }
+        { category, subCategoryId, min_budget, max_budget, sort }
       );
       // Console log the data as requested
       console.log("Fetched products data:", response);
