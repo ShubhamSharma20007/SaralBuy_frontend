@@ -38,7 +38,7 @@ const RequirementSlider = ({ product, tab, target }: { product: any, tab?: strin
   const [loaded, setLoaded] = useState(false);
 
   const navigate = useNavigate();
- const modifiedProducts = target ==='drafts' ? [product, ...(product?.subProducts || [])] : [product, ...(product?.product?.subProducts || [])];
+ const modifiedProducts = target =='drafts' ? [product, ...(product?.subProducts || [])] : [product, ...(product?.product?.subProducts || [])];
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     initial: 0,
     slides: {

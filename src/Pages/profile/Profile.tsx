@@ -151,8 +151,8 @@ const Profile = () => {
           </div>
 
           {/* Main Content */}
-          <div className="space-y-10">
-            <section  >
+          <div className="min-h-[300px">
+            <section className="">
               <Outlet />
             </section>
           </div>

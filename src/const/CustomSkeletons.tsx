@@ -197,3 +197,29 @@ export  function ProductListingCardSkeleton() {
     </Card>
   )
 }
+
+
+export const RequirementCardSkeleton = () => {
+  return (
+    <div className="border-2 border-gray-200 rounded-lg p-4 w-full">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-shrink-0">
+          <Skeleton className="h-24 w-24 rounded-md" />
+        </div>
+        <div className="flex-1 space-y-3">
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-32" />
+
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </div>
+        <div className="flex flex-col items-end justify-between h-24 flex-shrink-0">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-10 w-32 rounded-md" />
+        </div>
+      </div>
+    </div>
+  );
+};

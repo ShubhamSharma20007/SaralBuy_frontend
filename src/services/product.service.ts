@@ -28,9 +28,12 @@ class ProductService{
          },
        });
      }
-getDrafts(){
+getDrafts(page = 1,limit=10){
   return instance.get('/product/get-draft-products',{
-    withCredentials:true
+    withCredentials:true,params:{
+      page,
+      limit
+    }
   }).then(res => res.data?.data|| res.data)
 }
 
