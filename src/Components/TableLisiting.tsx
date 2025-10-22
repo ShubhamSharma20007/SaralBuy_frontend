@@ -71,7 +71,7 @@ const totalPages = Math.ceil(total / limit);
          <div className={`flex ${title ? 'justify-between  gap-4' :"justify-end"} items-center`}>
 
        {
-        title &&  <p className={`font-bold text-xl whitespace-nowrap   tracking-tight text-${colorPalette}-600  pl-3 tracking-tight`}>
+        title &&  <p className={`font-bold text-xl whitespace-nowrap   tracking-tight text-${colorPalette}-600  tracking-tight`}>
           {title}
         </p>
        }

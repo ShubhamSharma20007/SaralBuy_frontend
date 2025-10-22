@@ -5,7 +5,7 @@ import { ListFilter } from 'lucide-react'
 const Notification = () => {
   return (
     <div className='grid space-y-5'>
-      <div className={`flex justify-between  gap-4 items-center`}>
+      <div className={`flex justify-between items-center mb-3`}>
         <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600">
           Notifications
         </p>

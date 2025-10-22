@@ -188,7 +188,7 @@ console.log(currentProduct,"curr")
             <img
               src={ item.image ||"/no-image.webp"}
               alt={item.title || "Product"}
-              className="object-contain h-full w-full rounded-lg"
+              className="object-contain h-full w-full rounded-lg mix-blend-darken"
            
             />
           </div>

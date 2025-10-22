@@ -101,8 +101,8 @@ export function AccountSettings() {
   return (
     <div className="space-y-4">
       {/* Personal Details */}
-      <div className='flex justify-between items-center font-semibold w-full'>
-          <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600">
+      <div className='flex justify-between items-center font-semibold w-full mb-3'>
+          <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600 ">
            Profile
           </p>
     

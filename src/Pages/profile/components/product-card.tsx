@@ -9,7 +9,7 @@ const ProductCard = ({ product ,target}: { product: any,target:string }) => {
           <img
             src={product.image  || '/no-image.webp'}
             alt={product.name}
-            className='w-full h-full object-contain rounded-md'
+            className='w-full h-full object-contain rounded-md mix-blend-darken'
           />
         </div>
         <div className='flex flex-col justify-between text-sm'>

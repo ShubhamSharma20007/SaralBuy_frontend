@@ -32,7 +32,7 @@ const ProductListingCard = ({product}:{product:any}) => {
   
             src={product?.image || 'no-image.webp'}
             alt={product?.title}
-            className="w-full h-full object-contain rounded-lg"
+            className="w-full h-full object-contain rounded-lg mix-blend-darken"
             />
             </div>
         

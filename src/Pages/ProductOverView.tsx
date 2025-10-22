@@ -351,7 +351,7 @@ useEffect(()=>{
                   src={(bidOverviewRes ? bidOverviewRes?.product?.image : productResponse?.mainProduct?.image) || '/no-image.webp'}
                   alt="Product"
 
-                  className="object-contain h-full w-full"
+                  className="object-contain h-full w-full mix-blend-darken"
                 />
               </div>
 
@@ -554,7 +554,7 @@ useEffect(()=>{
                       src={(bidOverviewRes ? bidOverviewRes?.product?.image : item?.image) || '/no-image.webp'}
                       alt="Product"
 
-                      className="object-contain h-full w-full"
+                      className="object-contain h-full w-full mix-blend-darken"
                     />
                   </div>
 

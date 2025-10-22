@@ -375,7 +375,7 @@ const HomeNavbar = () => {
                     >
                       <div className="flex gap-4">
                         <img
-                          className="w-14 h-14 object-contain rounded-lg"
+                          className="w-14 h-14 object-contain rounded-lg mix-blend-darken"
                           src={p.image || '/no-image.webp'}
                           alt={p.title}
                         />
@@ -597,7 +597,7 @@ const HomeNavbar = () => {
                     <Link to="/" className="flex items-center gap-2">
                       <img
                         src={saralBuyLogo}
-                        className="max-h-8 dark:invert"
+                        className="max-h-8 dark:invert mix-blend-darken"
                         alt={'company logo'}
                       />
                     </Link>
