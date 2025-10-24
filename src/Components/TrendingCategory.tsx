@@ -3,25 +3,25 @@ const RING_CLASS =['ring-gray-600','ring-gray-500','ring-yellow-500','ring-red-7
 
 const TrendingCategory = ({categories}:{categories:any}) => {
 
-  const data=[
-    {
-      title:'Electronics',
-      image:''
-    },
-    {
-      title:'Fashion'
-    },
-    {
-      title:'Furiture'
-    },
-    {
-      title:'Automobile'
-    },
-    {
-      title:'Sports & fitness'
-    }
+  // const data=[
+  //   {
+  //     title:'Electronics',
+  //     image:''
+  //   },
+  //   {
+  //     title:'Fashion'
+  //   },
+  //   {
+  //     title:'Furiture'
+  //   },
+  //   {
+  //     title:'Automobile'
+  //   },
+  //   {
+  //     title:'Sports & fitness'
+  //   }
 
-  ]
+  // ]
   return (
 <div className="px-4  bg-no-repeat z-0 bg-cover  py-10  min-h-82  max-w-7xl mx-auto">
      <div className="flex  items-center mb-4 ">

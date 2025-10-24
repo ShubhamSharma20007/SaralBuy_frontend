@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useKeenSlider } from 'keen-slider/react';
 import { CircleChevronLeft, CircleChevronRight, MoveRight } from 'lucide-react';
 
@@ -36,7 +36,7 @@ function Arrow({ disabled, left, onClick }: {
 const RequirementSlider = ({ product, tab, target }: { product: any, tab?: string, target: string }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
-
+  console.log(tab, 'tab in requirement slider');
   const navigate = useNavigate();
  const modifiedProducts = target =='drafts' ? [product, ...(product?.subProducts || [])] : [product, ...(product?.product?.subProducts || [])];
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({

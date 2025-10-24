@@ -5,8 +5,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/Components/ui/breadcrumb";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
-import { Banknote, CalendarDays, Camera, House, List, MapPin, User, UserRound } from 'lucide-react';
+import { useNavigate, useParams } from "react-router-dom";
+import { Banknote, CalendarDays, House, } from 'lucide-react';
 import { Avatar, AvatarImage } from "@/Components/ui/avatar";
 
 import { Button } from "@/Components/ui/button";

@@ -16,7 +16,7 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import { getUserProfile } from "@/zustand/userProfile";
 import { Spinner } from "../ui/shadcn-io/spinner";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 type Props={
   open:boolean;
@@ -31,7 +31,7 @@ const OtpPopup:React.FC<Props> = ({open,setOpen,number,sessionId}) => {
   const navigate = useNavigate();
   const handleVerify = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(!sessionId) return toast.error('sessionId is missing')
+    // if(!sessionId) return toast.error('sessionId is missing')
     await fn(number,value,sessionId);
   }
 

@@ -10,7 +10,7 @@ import {
 import { Button } from "../../Components/ui/button";
 import { Input } from "../../Components/ui/input";
 import { Textarea } from "../../Components/ui/textarea";
-import { PlusIcon, Upload, FileUp, MoveLeft, XIcon, Trash2, CloudUpload } from "lucide-react";
+import { PlusIcon, FileUp, MoveLeft, XIcon, Trash2, CloudUpload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -980,12 +980,12 @@ const Category = () => {
 
       toast.success(`${formsArray.length} product form(s) ${isDraft ? 'saved as draft' : 'submitted'} successfully!`)
 
-      // setResetForms(true);
-      // setTimeout(() => {
-      //   setForms([0]);
-      //   setFormsData({});
-      //   setResetForms(false);
-      // }, 100);
+      setResetForms(true);
+      setTimeout(() => {
+        setForms([0]);
+        setFormsData({});
+        setResetForms(false);
+      }, 100);
       // window.scrollTo(0, 0);
 
     } catch (error) {

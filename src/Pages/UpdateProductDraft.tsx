@@ -10,7 +10,7 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
-import { PlusIcon, Upload, FileUp, MoveLeft, XIcon, Trash2, CloudUpload } from "lucide-react";
+import {FileUp, MoveLeft, XIcon, CloudUpload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,7 +20,6 @@ import {
 } from "@/Components/ui/select";
 import { DatePicker } from "@/utils/DatePicker";
 import { Range } from "react-range";
-import { Navigate } from "react-router-dom";
 import { CategoryFormSchema } from "@/validations/Schema";
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from "react-hook-form";
@@ -99,7 +98,7 @@ const UpdateProductDraftForm = ({
   const imageRef = useRef(null);
   const fileDocRef = useRef<HTMLInputElement>(null);
 
-  const { watch, setValue, formState: { }, register, getValues, reset: resetFormHook } = useForm({
+  const { watch, setValue, formState: { }, register, getValues, } = useForm({
     resolver: zodResolver(CategoryFormSchema),
     defaultValues: {
       title: initialData?.title || '',
@@ -730,7 +729,7 @@ const UpdateDraft = () => {
   const [open, setOpen] = useState(false);
   const { fn, data, loading } = useFetch(productService.updateDrafts)
   const [subCategoriesData, setSubCategoriesData] = useState([]);
-  const [resetForms, setResetForms] = useState(false);
+  const [resetForms, _] = useState(false);
 
   useEffect(() => {
     if (productId) {
@@ -843,7 +842,7 @@ const UpdateDraft = () => {
     const formDataToSend = new FormData();
     const productsData = [] as any
 
-    Object.entries(formsData).forEach(([formIndex, formData]: any) => {
+    Object.entries(formsData).forEach(([_, formData]: any) => {
 
       const productData: any = {
         _id: formData._id // Include ID for update

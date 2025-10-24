@@ -1,7 +1,5 @@
 import { dateFormatter } from '@/helper/dateFormatter'
 import { Button } from './ui/button'
-import { List, MapPin, User } from 'lucide-react'
-import React from 'react'
 import { mergeName } from '@/helper/mergeName'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,7 +21,7 @@ const DyanmicHomeCard = ({ bg, item }: { bg: string, item: any }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-5 max-w-7xl mx-auto sm:px-4">
                 {
-                    item?.products?.map((item: any, idx:number) => <div className={`p-5 ${bg ? 'bg-white' : 'bg-orange-50'} rounded-[5px] shadow-none outline-none border-none`}>
+                    item?.products?.map((item: any) => <div className={`p-5 ${bg ? 'bg-white' : 'bg-orange-50'} rounded-[5px] shadow-none outline-none border-none`}>
                         <div className='flex justify-between items-center'>
                             <p className="text-sm text-gray-600 font-semibold ">Dated: {dateFormatter(item?.createdAt)}</p>
                             <Button

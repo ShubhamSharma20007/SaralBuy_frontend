@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/Components/ui/button";
-import bidService from "@/services/bid.service";
 import requirementService from "@/services/requirement.service";
 import { useFetch } from "@/helper/use-fetch";
 import { dateFormatter } from "@/helper/dateFormatter";
@@ -131,7 +130,7 @@ const Deal = () => {
       completedApproveFn()
     }
   }, [tab])
-  console.log(completedApproveData,1232)
+  console.log({pendingApprovedData,completedApproveData})
 
   useEffect(() => {
     if (completedApproveData) {

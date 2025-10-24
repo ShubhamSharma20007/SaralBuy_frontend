@@ -1,4 +1,4 @@
-import { Box, Home, List, MapPin, Paperclip, User, UserCircle } from "lucide-react";
+import { Box, Home, Paperclip, } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,8 +27,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import SellerVerificationPopup from "@/Components/Popup/SellerVerificationPopup";
 import { Spinner } from "@/Components/ui/shadcn-io/spinner";
 import Authentication from "@/Components/auth/Authentication";
-import fileDownload from "js-file-download";
-import instance from "@/lib/instance";
+// import fileDownload from "js-file-download";
+// import instance from "@/lib/instance";
 import { CategoryFormSkeleton } from "@/const/CustomSkeletons";
 const ProductOverview = () => {
   const [searchParams] = useSearchParams();

@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 
 const Cart = () => {
   const {fn:getCartFn,data:getCartRes,loading:getCartLoading,setData:setCartItems} = useFetch(cartService.getCart)
-  const {fn:removeCartFn,data:removeCartRes,loading:removeCartLoading} = useFetch(cartService.removeCart)
+  const {fn:removeCartFn,data:removeCartRes} = useFetch(cartService.removeCart)
 useEffect(()=>{
   getCartFn()
 },[])

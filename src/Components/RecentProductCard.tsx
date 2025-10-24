@@ -1,7 +1,6 @@
 
 import { mergeName } from "@/helper/mergeName";
 import { Button } from "../Components/ui/button";
-import { User, MapPin, List } from "lucide-react";
 import { dateFormatter } from "@/helper/dateFormatter";
 import { useNavigate } from "react-router-dom";
 const RecentProductCard = ({item}:{item:any}) => {

@@ -15,7 +15,7 @@ import { useCategoriesStore } from '@/zustand/getCategories'
 import { Range } from "react-range";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSearchParams } from 'react-router-dom'
-import { Spinner } from '../Components/ui/shadcn-io/spinner';
+// import { Spinner } from '../Components/ui/shadcn-io/spinner';
 import productService from '@/services/product.service'
 import ProductListingCard from '@/Components/ProductListingCard'
 import { ProductListingCardSkeleton } from '@/const/CustomSkeletons'
@@ -83,7 +83,6 @@ export default function ProductListing() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [maxBudget, setMaxBudget] = useState(0)
   const limit = 10;
   const formState = useForm({
     defaultValues: {

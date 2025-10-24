@@ -6,7 +6,7 @@ import {
   BreadcrumbSeparator,
 } from "../../Components/ui/breadcrumb";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Camera, House, SquarePen } from 'lucide-react';
+import { Camera, House } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "../../Components/ui/avatar";
 import { NavLink } from 'react-router-dom';
 import { useFetch } from "@/helper/use-fetch";

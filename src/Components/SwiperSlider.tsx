@@ -4,7 +4,6 @@ import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
 import { MoveRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "./ui/button";
 type Props = {
   title: string,
   color: string,

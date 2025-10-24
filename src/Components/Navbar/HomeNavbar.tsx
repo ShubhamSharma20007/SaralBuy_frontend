@@ -16,7 +16,7 @@ import {
   SheetTrigger,
 } from "../../Components/ui/sheet";
 import { useDebounce } from 'use-debounce';
-import { Skeleton } from "../../Components/ui/skeleton"
+import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 //Logo and Icons
 import saralBuyLogo from "../../image/Logo/saralBuyLogo.png";
@@ -26,10 +26,9 @@ import { Card } from "../ui/card";
 import { useFetch } from "@/helper/use-fetch";
 import ProductService from "@/services/product.service";
 import { useEffect, useRef, useState } from "react";
-import TooltipComp from "@/utils/TooltipComp";
 import { getLocation } from "@/helper/locationAPI";
 import { getUserProfile } from "@/zustand/userProfile";
-import userService from "@/services/user.service";
+// import userService from "@/services/user.service";
 import ChatService from "@/services/chat.service";
 import {
   Popover,
@@ -107,7 +106,7 @@ const HomeNavbar = () => {
   const [currenLocation, setCurrentLocation] = useState('')
   const [showDropdown, setShowDropdown] = useState(false);
   const productsRef = useRef<HTMLDivElement>(null);
-  const { fn: updateProfile } = useFetch(userService.updateProfile)
+  // const { fn: updateProfile } = useFetch(userService.updateProfile)
   const handleRaiseAReuirement = () => {
     navigate("/requirement");
   };
@@ -183,10 +182,10 @@ const HomeNavbar = () => {
   };
 
   // Show/hide product notification dropdown
-  const handleProductBellClick = () => {
-    setShowProductNotifDropdown((prev) => !prev);
-    // Do not clear product notifications here; let user see them in dropdown
-  };
+  // const handleProductBellClick = () => {
+  //   setShowProductNotifDropdown((prev) => !prev);
+  //   // Do not clear product notifications here; let user see them in dropdown
+  // };
 
   // Remove notification on click and optionally navigate to chat
   // Notification click: navigate to chat with all IDs, then clear notification

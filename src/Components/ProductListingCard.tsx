@@ -1,7 +1,6 @@
 
 import { format } from "date-fns";
 import { Button } from "../Components/ui/button";
-import { User, MapPin, List, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Authentication from "./auth/Authentication";
