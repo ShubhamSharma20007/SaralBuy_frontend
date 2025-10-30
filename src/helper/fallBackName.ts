@@ -1,14 +1,12 @@
-export const fallBackName = (name: string) => {
-    let fallback =''
-    if(name){
-        name.split(" ").map((name:string)=>{
-            fallback += name[0].toUpperCase()
-        }
-    )
-    }else{
-        return name // fallback
+export const fallBackName = (name: string | undefined | null) => {
+    if (typeof name !== "string" || !name.trim()) {
+        return "?";
     }
-    return fallback
-   
-    
+    let fallback = "";
+    name.split(" ").forEach((part: string) => {
+        if (part && typeof part[0] === "string") {
+            fallback += part[0].toUpperCase();
+        }
+    });
+    return fallback || "?";
 }
