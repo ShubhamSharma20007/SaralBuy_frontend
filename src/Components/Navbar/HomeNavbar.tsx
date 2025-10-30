@@ -49,35 +49,21 @@ interface MenuItem {
 
 const menu: MenuItem[] = [
   {
-    title: "Cart",
-    url: "/",
+    title: "Messages",
+    url: "/chat",
     icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
   },
-  {
-    title: "Categories",
-    url: "#",
-    icon: <Book className="w-4 h-4 text-blue-500" />,
-    items: [
-      {
-        title: "Electronics",
-        url: "/categories/electronics",
-        description: "Mobiles, laptops, accessories, and more",
-        icon: <Zap className="w-4 h-4" />,
-      },
-      {
-        title: "Fashion",
-        url: "/categories/fashion",
-        description: "Clothing, shoes, and accessories",
-        icon: <User className="w-4 h-4" />,
-      },
-      {
-        title: "Books",
-        url: "/categories/books",
-        description: "Explore a wide variety of books",
-        icon: <Book className="w-4 h-4" />,
-      },
-    ],
+    {
+    title: "Notifications",
+    url: "/account/notification",
+    icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
   },
+    {
+    title: "Cart",
+    url: "/account/cart",
+    icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
+  },
+
 ];
 
 
@@ -106,9 +92,11 @@ const HomeNavbar = () => {
   const [currenLocation, setCurrentLocation] = useState('')
   const [showDropdown, setShowDropdown] = useState(false);
   const productsRef = useRef<HTMLDivElement>(null);
+  const [openSheet, setOpenSheet] = useState(false);
   // const { fn: updateProfile } = useFetch(userService.updateProfile)
   const handleRaiseAReuirement = () => {
     navigate("/requirement");
+    setOpenSheet(false);
   };
   const handleProfileClick = () => {
     navigate("/account");
@@ -584,7 +572,7 @@ const HomeNavbar = () => {
                 alt={'company logo'}
               />
             </Link>
-            <Sheet>
+            <Sheet open={openSheet} onOpenChange={setOpenSheet}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
                   <Menu className="size-4" />
@@ -608,7 +596,7 @@ const HomeNavbar = () => {
                     collapsible
                     className="flex w-full flex-col gap-4"
                   >
-                    {menu.map((item) => renderMobileMenuItem(item))}
+                    {menu.map((item) => renderMobileMenuItem(item,setOpenSheet))}
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
@@ -639,34 +627,37 @@ const HomeNavbar = () => {
 
 
 
-const renderMobileMenuItem = (item: MenuItem) => {
+const renderMobileMenuItem = (item: MenuItem,setOpenSheet:any) => {
+  const navigate = useNavigate();
   if (item.items) {
     return (
       <AccordionItem key={item.title} value={item.title} className="border-b-0">
         <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
           {item.title}
         </AccordionTrigger>
-        <AccordionContent className="mt-2">
+        {/* <AccordionContent className="mt-2">
           {item.items.map((subItem) => (
             <SubMenuLink key={subItem.title} item={subItem} />
           ))}
-        </AccordionContent>
+        </AccordionContent> */}
       </AccordionItem>
     );
   }
 
   return (
-    <a key={item.title} href={item.url} className="text-md font-semibold">
+    <p key={item.title} onClick={()=>{navigate(item.url);
+      setOpenSheet(false)
+    }} className="text-md font-semibold">
       {item.title}
-    </a>
+    </p>
   );
 };
 
 const SubMenuLink = ({ item }: { item: MenuItem }) => {
   return (
-    <a
+    <Link
       className="hover:bg-muted hover:text-accent-foreground flex select-none flex-row gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-      href={item.url}
+      to={item.url}
     >
       <div className="text-foreground">{item.icon}</div>
       <div>
@@ -677,7 +668,7 @@ const SubMenuLink = ({ item }: { item: MenuItem }) => {
           </p>
         )}
       </div>
-    </a>
+    </Link>
   );
 };
 

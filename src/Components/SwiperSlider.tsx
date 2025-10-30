@@ -18,6 +18,7 @@ const SwiperSlider = ({ title, color, target,data }: Props) => {
       perView: 1.2,
       spacing: 15,
     },
+
   })
   const navigate = useNavigate()
 

@@ -3,10 +3,25 @@ import ItemCard from '@/Components/ItemCard'
 import { useCategoriesStore } from '@/zustand/getCategories';
 
 import { MoveRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Requirement = () => {
  const { data} = useCategoriesStore();
+  const [currentWinSize, setCurrentWinSize] = useState(0)
+  
+  useEffect(()=>{
+    const handleResize = () =>{
+      setCurrentWinSize(window.innerWidth)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+
+  },[window.innerWidth])
+
+
 
 
   return (

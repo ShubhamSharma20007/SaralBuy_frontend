@@ -14,7 +14,7 @@ const Requirement = () => {
   const { fn: getDrafts, data: getDraftsRes, loading: getDraftLoading } = useFetch(productService.getDrafts)
   const { fn: getMyRequirements, data: getMyRequirementsRes, loading: getMyRequirementsLoading } = useFetch(bidService.getMyRequirements)
   const [drafts, setDrafts] = useState<any>([])
-
+ 
   useEffect(() => {
     if (tab === 'requirements') {
       getMyRequirements(1, limit)
