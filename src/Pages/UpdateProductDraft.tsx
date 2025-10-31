@@ -451,7 +451,8 @@ const UpdateProductDraftForm = ({
                       <>
                         <div className="w-full max-w-md border-[1.5px] border-gray-200 rounded-lg bg-white p-3">
                           <div className="flex justify-between items-center mb-3">
-                            <Label className="font-medium text-gray-500">Old Product</Label>
+                          <Label className="font-medium text-gray-500 ">Old Product <sup className="hidden sm:block">(in Years)</sup></Label>
+
                             <XIcon
                               className="w-4 h-4 text-gray-400 cursor-pointer"
                               onClick={() => setValue('productType', 'new_product')}
@@ -487,16 +488,16 @@ const UpdateProductDraftForm = ({
                           />
                           <div className="flex justify-between items-center mt-3 text-sm">
                             <div className="flex items-center gap-2">
-                              <Label className="text-gray-600 text-sm">Min.</Label>
+                              <Label className="text-gray-600 text-sm hidden sm:block">Min.</Label>
                               <div className="flex items-center gap-1 border rounded px-2 py-1">
-                                {values[0].toString().padStart(2, "0")} yr
+                                {values[0].toString().padStart(2, "0")} 
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex items-center gap-1 border rounded px-2 py-1">
-                                {values[1]} yr
+                                {values[1]}
                               </div>
-                              <Label className="text-gray-600 text-sm">Max.</Label>
+                              <Label className="text-gray-600 text-sm hidden sm:block">Max.</Label>
                             </div>
                           </div>
                         </div>
