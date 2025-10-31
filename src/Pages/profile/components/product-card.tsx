@@ -3,8 +3,16 @@ import { dateFormatter } from "@/helper/dateFormatter"
 const ProductCard = ({ product ,target}: { product: any,target:string }) => {
   product = product.product || product || {}
   return (
+   <>
+  <style>{`
+        @media (max-width: 640px) {
+          .keen-slider__slide {
+          min-width: 100% !important;
+        }
+        }
+      `}</style>
     <div className={`w-full  border-r-2 border-gray-200 p-2 b shadow-sm  ${target === "requirements" ? 'cursor-pointer': ''}`}>
-      <div className='flex gap-6 pl-12 items-center'>
+      <div className='flex-col sm:flex-row flex gap-6 sm:pl-12 items-center'>
         <div className='w-24 h-24 flex-shrink-0'>
           <img
             src={product.image  || '/no-image.webp'}
@@ -16,7 +24,7 @@ const ProductCard = ({ product ,target}: { product: any,target:string }) => {
           <div>
             <span className="cc">
               {product?.categoryId?.categoryName}
-            </span>
+            </span> 
           </div>
           <p className=' capitalize line-clamp-1 font-semibold'>{product.title}</p>
           <p>Delivery By: <strong>{dateFormatter(product?.paymentAndDelivery?.ex_deliveryDate) || 'N/A'}</strong></p>
@@ -24,6 +32,7 @@ const ProductCard = ({ product ,target}: { product: any,target:string }) => {
         </div>
       </div>
     </div>
+   </>
   )
 }
 

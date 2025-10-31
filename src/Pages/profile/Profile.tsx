@@ -151,7 +151,7 @@ const Profile = () => {
           </div>
 
           {/* Main Content */}
-          <div className="min-h-[300px">
+          <div className="min-h-[300px]">
             <section className="">
               <Outlet />
             </section>

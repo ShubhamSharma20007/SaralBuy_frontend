@@ -4,7 +4,7 @@ import  { useEffect, useState } from "react";
 //Images and Banners
 import smartPhoneBanner from "../../image/Banners/smartPhoneBanner.png";
 import raiseAQuotationBanner from "../../image/Banners/raiseAQuoationBanner.png";
-
+import { useNavigate } from "react-router-dom";
 //Styles
 import "../../Styling/Banner/Banner.css";
 
@@ -39,6 +39,7 @@ const banners = [
 const Banner = () => {
   //useState
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
 
   //useEffect
   useEffect(() => {
@@ -65,7 +66,11 @@ const Banner = () => {
                 <div className={banner.headerClass}>{banner.header}</div>
               )}
               <div className={banner.textClass}>{banner.text}</div>
-              <button className={banner.buttonClass}>
+              <button className={banner.buttonClass}
+              onClick={()=>{
+                navigate('/requirement')
+              }}
+              >
                 {banner.buttonLabel}
               </button>
             </div>
