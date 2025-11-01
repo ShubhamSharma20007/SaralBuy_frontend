@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ChatService from '../services/chat.service'
-import { Search, Send, Menu, Circle, List, LayoutGrid, Paperclip } from 'lucide-react'
+import { Search, Send, Menu, Circle, List, Paperclip } from 'lucide-react'
 import { Input } from '../Components/ui/input'
 import { Button } from '../Components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar'

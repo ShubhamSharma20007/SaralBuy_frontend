@@ -1,8 +1,7 @@
-  import { Bell, Book, Box, MapPin, Menu, MessageCircle, MessageSquareText, SearchIcon, ShoppingCart, User, UserRound, Zap } from "lucide-react";
+  import { Bell, Box, MapPin, Menu, MessageCircle, MessageSquareText, SearchIcon, ShoppingCart, UserRound } from "lucide-react";
 
   import {
     Accordion,
-    AccordionContent,
     AccordionItem,
     AccordionTrigger,
   } from "../../Components/ui/accordion";
@@ -762,23 +761,23 @@ const renderMobileMenuItem = (item: MenuItem, setOpenSheet: any, navigate: any) 
 };
 
 
-  const SubMenuLink = ({ item }: { item: MenuItem }) => {
-    return (
-      <Link
-        className="hover:bg-muted hover:text-accent-foreground flex select-none flex-row gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-        to={item.url}
-      >
-        <div className="text-foreground">{item.icon}</div>
-        <div>
-          <div className="text-sm font-semibold">{item.title}</div>
-          {item.description && (
-            <p className="text-muted-foreground text-sm leading-snug">
-              {item.description}
-            </p>
-          )}
-        </div>
-      </Link>
-    );
-  };
+  // const SubMenuLink = ({ item }: { item: MenuItem }) => {
+  //   return (
+  //     <Link
+  //       className="hover:bg-muted hover:text-accent-foreground flex select-none flex-row gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors"
+  //       to={item.url}
+  //     >
+  //       <div className="text-foreground">{item.icon}</div>
+  //       <div>
+  //         <div className="text-sm font-semibold">{item.title}</div>
+  //         {item.description && (
+  //           <p className="text-muted-foreground text-sm leading-snug">
+  //             {item.description}
+  //           </p>
+  //         )}
+  //       </div>
+  //     </Link>
+  //   );
+  // };
 
   export default HomeNavbar;
