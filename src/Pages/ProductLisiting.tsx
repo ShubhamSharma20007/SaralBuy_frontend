@@ -271,6 +271,7 @@ export default function ProductListing() {
 
 
 const handleRemoveFilter = () => {
+  setMobileFiltersOpen(false);
   formState.reset({
     category: '',
     subCategory: '',
@@ -331,6 +332,128 @@ const handleRemoveFilter = () => {
               </div>
 
               {/* Filters */}
+
+                <form className="mt-4 border-t border-gray-200 p-6">
+                <h3 className="sr-only">Categories</h3>
+
+                {filters.map((section) => (
+                  section.id !== 'budget' ? (
+                    <>
+                    <Disclosure key={section.id} as="div" className={`border-b border-gray-200 pb-3 mt-3 ${section.id === 'subCategory' && !formState.getValues('category') ? 'hidden':'block'}`}>
+                      <h3 className="-my-3 flow-root">
+                        <DisclosureButton className="group flex w-full items-center justify-between py-2 text-sm text-gray-400 hover:text-gray-500" onChange={(e) => { alert(e) }}>
+                          <span className="font-regular text-[16px] text-orange-700">{section.name}</span>
+                          <span className="ml-6 flex items-center">
+                            <ChevronUp aria-hidden="true" className="size-5 group-data-open:hidden" />
+                            <ChevronDown aria-hidden="true" className="size-5 group-not-data-open:hidden" />
+                          </span>
+                        </DisclosureButton>
+                      </h3>
+                      <DisclosurePanel className="pt-6">
+                        <div className="space-y-4">
+                          <Controller
+                            name={section.id as keyof FilterForm}
+                            control={formState.control}
+                            render={({ field }) => (
+                              <RadioGroup
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  console.log(`${section.id} changed to:`, value);
+                                }}
+                              >
+                                {section.options.map((option, optionIdx) => (
+                                  <div key={option.value} className="flex items-center gap-2">
+                                    <RadioGroupItem
+                                      value={option.value}
+                                      className='border border-orange-700 focus-visible:border-orange-700 focus-visible:ring-orange-700'
+                                      id={`filter-${section.id}-${optionIdx}`}
+                                    />
+                                    <Label htmlFor={`filter-${section.id}-${optionIdx}`} className="text-sm text-gray-700 capitalize tracking-wide">
+                                      {option.label}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            )}
+                          />
+                        </div>
+                      </DisclosurePanel>
+                    </Disclosure>
+                    </>
+                  ) : (
+                    <Disclosure key={section.id} as="div" className="border-b border-gray-200 pb-3 mt-3">
+                      <h3 className="-my-3 flow-root">
+                        <DisclosureButton className="group flex w-full items-center justify-between py-3 text-sm text-gray-400 hover:text-gray-500">
+                          <span className="font-regular text-[16px] text-orange-700">{section.name}</span>
+                          <span className="ml-6 flex items-center">
+                            <ChevronUp aria-hidden="true" className="size-5 group-data-open:hidden" />
+                            <ChevronDown aria-hidden="true" className="size-5 group-not-data-open:hidden" />
+                          </span>
+                        </DisclosureButton>
+                      </h3>
+                      <DisclosurePanel className="pt-6">
+                        <div className="w-full max-w-md">
+                          <Range
+                            values={values}
+                            step={100}
+                            min={0}
+                            max={50001}
+                            onChange={(vals) => {
+                              setValues(vals);
+                              console.log('Price range changed:', vals);
+                            }}
+                            renderTrack={({ props, children }) => {
+                              const min = 100;
+                              const max = 50001;
+                              const range = max - min;
+
+                              const leftPercent = ((values[0] - min) / range) * 100;
+                              const rightPercent = ((values[1] - min) / range) * 100;
+
+                              return (
+                                <div {...props} className="h-1 w-full bg-gray-300 rounded relative">
+                                  <div
+                                    className="absolute h-1 bg-orange-700 rounded"
+                                    style={{
+                                      left: `${leftPercent}%`,
+                                      width: `${rightPercent - leftPercent}%`,
+                                    }}
+                                  />
+                                  {children}
+                                </div>
+                              );
+                            }}
+                            renderThumb={({ props }) => (
+                              <div
+                                {...props}
+                                className="w-4 h-4 border-orange-700 border-2 bg-white rounded-full flex items-center justify-center shadow"
+                              />
+                            )}
+                          />
+
+                          <div className="flex justify-between items-center mt-3 text-sm">
+                            Price : {Number(values[0].toString().padStart(2, "0")).toLocaleString()} - {values[1] > 50000 ? '50000+': Number(values[1].toString().padStart(2, "0")).toLocaleString()}
+                          </div>
+                        </div>
+                      </DisclosurePanel>
+                    </Disclosure>
+                  )
+                ))}
+                {/* buttons */}
+                {
+                  isFilterActive && (
+                    <Button
+                      type='button'
+                      onClick={handleRemoveFilter}
+                      variant="ghost" size="lg" className="border w-full mt-5 shadow-orange-500 border-orange-600 text-orange-600 rounded-[5px]  hover:bg-orange-500 hover:text-white transition-all duration-300 ease-in-out underline-0 cursor-pointer">
+                      Remove Filter's
+                    </Button>
+                  )
+                }
+
+              </form>
+
               {/* <form className="mt-4 border-t border-gray-200 p-6">
                 <h3 className="sr-only">Categories</h3>
                 {filters.map((section) => (
@@ -428,7 +551,7 @@ const handleRemoveFilter = () => {
 
         {/*  Desktop */}
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-          <div className="flex items-baseline justify-between  ">
+          <div className="flex items-baseline justify-end  ">
             {/* <Breadcrumb className="sm:block hidden">
           <BreadcrumbList >
             <BreadcrumbItem className="flex items-center gap-2 cursor-pointer" >
@@ -446,7 +569,7 @@ const handleRemoveFilter = () => {
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
+              className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden float-right inline-block"
             >
               <span className="sr-only">Filters</span>
               <FunnelIcon aria-hidden="true" className="size-5" />

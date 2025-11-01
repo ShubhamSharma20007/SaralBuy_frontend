@@ -82,7 +82,7 @@ const Profile = () => {
    },[updateProfileRes])
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-6 space-y-6 px-4">
+    <div className="w-full max-w-7xl mx-auto py-6 space-y-6 px-4 overflow-auto">
       {/* Breadcrumb */}
       <Breadcrumb className="hidden sm:block">
         <BreadcrumbList>

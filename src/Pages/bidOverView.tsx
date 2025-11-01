@@ -132,7 +132,7 @@ useEffect(() => {
   return (
     <>
     {
-      loading ? <div className="w-full max-w-7xl mx-auto py-6 space-y-6 px-4"> <CategoryFormSkeleton></CategoryFormSkeleton></div> :<div className="w-full max-w-7xl mx-auto py-6 space-y-6 px-4">
+      loading ? <div className="w-full max-w-7xl mx-auto py-6 space-y-6 px-4 overflow-auto"> <CategoryFormSkeleton></CategoryFormSkeleton></div> :<div className="w-full max-w-7xl mx-auto py-6 space-y-6 px-4 overflow-auto">
       {/* Breadcrumb */}
       <Breadcrumb className="hidden sm:block">
         <BreadcrumbList>

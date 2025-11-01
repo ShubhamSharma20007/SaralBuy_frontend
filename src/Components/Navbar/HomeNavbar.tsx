@@ -374,7 +374,7 @@
               {showDropdown && (
                 <div
                   ref={productsRef}
-                  className="absolute right-0  w-full top-full mt-2 z-[99] max-h-[300px] overflow-y-auto bg-white rounded-lg shadow-lg p-2 space-y-2">
+                  className="absolute right-0  w-full top-full mt-2 z-[99] max-h-[300px]  overflow-y-auto bg-white rounded-lg shadow-lg p-2 space-y-2">
                   {isPending() ? (
                     Array.from({ length: 3 }).map((_, i) => (
                       <Skeleton key={i} className="h-20 rounded-md w-full" />
@@ -596,7 +596,7 @@
 
           {/* Mobile Menu */}
           <div className="block lg:hidden">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between ">
               {/* Logo */}
               <Link to="/" className="flex items-center gap-2">
                 <img
@@ -605,6 +605,61 @@
                   alt={'company logo'}
                 />
               </Link>
+
+              {/* search */}
+            <div className="relative w-1/2">
+              <Input
+                type="text"
+                onInput={handleInputValue}
+                value={text}
+                onKeyPress={handleKeyPress}
+                placeholder="Looking For..."
+                className="pl-2 shadow-none rounded-sm w-full float-end focus-visible:ring-0 border border-gray-300  focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+              />
+              <SearchIcon className="absolute right-2.5 top-2.5 h-4 w-4 pointer-events-none opacity-50" />
+
+              {/* Search Dropdown */}
+              {showDropdown && (
+                <div
+                  ref={productsRef}
+                  className="absolute right-0 w-[300px]  sm:w-full top-full mt-2 z-[99] max-h-[300px] overflow-y-auto bg-white rounded-lg shadow-lg p-2 space-y-2">
+                  {isPending() ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 rounded-md w-full" />
+                    ))
+                  ) : products?.length > 0 ? (
+                    products.map((p: ProductsType) => (
+                      <Card
+                        key={p._id}
+                        className="p-2 rounded-xl shadow-md bg-white cursor-pointer hover:bg-gray-50"
+                        onClick={() => {
+                          setShowDropdown(false);
+                          setProducts([]);
+                          setText('');
+                          flush();
+                          navigate(`/product-listing?_id=${encodeURIComponent(p._id)}&title=${encodeURIComponent(p.title)}`);
+                        }}
+
+                      >
+                        <div className="flex gap-4">
+                          <img
+                            className="w-14 h-14 object-contain rounded-lg mix-blend-darken"
+                            src={p.image || '/no-image.webp'}
+                            alt={p.title}
+                          />
+                          <div className="flex-1">
+                            <p className="text-md font-semibold text-orange-600 ">{p.title}</p>
+                            <p className="text-sm text-gray-600 line-clamp-2">{p.description}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 p-2 text-center">No results found.</p>
+                  )}
+                </div>
+              )}
+            </div>
               {/*  for Home.tsx (main sheet) */}
               <Sheet open={openSheet} onOpenChange={setOpenSheet}>
                 <SheetTrigger asChild>
@@ -617,16 +672,25 @@
                 <SheetContent className="overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle>
-                      <Link to="/" className="flex items-center gap-2">
+                      {/* <Link to="/" className="flex items-center gap-2">
                         <img
                           src={saralBuyLogo}
                           className="max-h-12 dark:invert mix-blend-darken"
                           alt={'company logo'}
                         />
-                      </Link>
+                      </Link> */}
+                       <div className="flex items-center relative ">
+                <MapPin className="w-4 h-4  text-orange-500 rounded-full  absolute top-1/2 left-3  -translate-1/2"></MapPin>
+                <Input readOnly placeholder="Location..." className="border-b-[1.5px] max-w-[85%] bg-transparent pl-6 text-sm border-x-0 border-t-0 shadow-none rounded-none  border-b-black focus-visible:ring-0 focus:outline-0 focus:shadow-none " defaultValue={currenLocation} />
+                {/* <NavigationMenu>
+                  <NavigationMenuList>
+                    {menu.map((item) => renderMenuItem(item))}
+                  </NavigationMenuList>
+                </NavigationMenu> */}
+              </div>
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="flex flex-1 flex-col gap-6 p-4">
+                  <div className="flex flex-1 flex-col gap-3 px-4">
                     {
                       location.pathname.startsWith('/account') ?  <Accordion
                       type="single"
