@@ -51,18 +51,19 @@ const Requirement = () => {
                  </div>
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <ul className="list-disc list-inside space-y-2 pl-3">
+                  <p className="list-disc list-inside space-y-2 pl-3">
                     {item?.subCategories?.map((sub: any) => (
 
-                      <li
+                      <p
+                      
                         onClick={() => {
                           navigate(`/category/${item?._id}/${sub._id}`)
                         }}
-                        key={sub?._id} className="text-gray-700 capitalize">
+                        key={sub?._id} className=" capitalize underline text-blue-500 text-md">
                         {sub?.name}
-                      </li>
+                      </p>
                     ))}
-                  </ul>
+                  </p>
 
                 </AccordionContent>
               </AccordionItem>)
