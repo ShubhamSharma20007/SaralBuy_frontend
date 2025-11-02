@@ -47,7 +47,7 @@ const SwiperSlider = ({ title, color, target,data }: Props) => {
           <div key={item._id}  className="keen-slider__slide ">
             <Card className="flex flex-row items-center justify-around gap-4 p-4   border border-gray-200">
               {/* Image */}
-              <div className="h-24 w-24 flex-shrink-0">
+              <div className="h-24 w-24 flex-shrink-0 hidden sm:block">
                 <img
                   src={item.image}
                   alt={item.title}
@@ -68,7 +68,7 @@ const SwiperSlider = ({ title, color, target,data }: Props) => {
                     {item.category}
                   </p>
                  </div>
-                  <p className="font-medium capitalize">{item.title}</p>
+                  <p className="font-medium capitalize whitespace-normal line-clamp-1">{item.title}</p>
                   <p className="text-sm text-gray-600">
                     Deliver by:{" "}
                     <span className="font-bold">{item.deliveryDate}</span>
@@ -78,7 +78,7 @@ const SwiperSlider = ({ title, color, target,data }: Props) => {
 
               </div>
               {/* Footer */}
-              <div className="flex flex-col h-full justify-between " style={{ height: '-webkit-fill-available' }}>
+              <div className="flex flex-col h-full justify-between whitespace-nowrap" style={{ height: '-webkit-fill-available' }}>
                 {
                   target !== 'drafts' ? <p className="text-sm cursor-pointer border rounded px-2 py-1 bg-gray-50" onClick={()=>{
                        navigate('/bid-overview/' + item?._id)

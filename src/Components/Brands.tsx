@@ -1,6 +1,6 @@
 const Brands = () => {
   return (
-    <div className="relative px-8 sm:px-16  min-h-42 flex items-center z-0 overflow-hidden">
+    <div className="relative px-8 mb-8 sm:mb-0 sm:px-16  min-h-42 flex items-center z-0 overflow-hidden">
       
       <img src="brand-grid.png" className="w-full absolute top-10 left-0"/>
 

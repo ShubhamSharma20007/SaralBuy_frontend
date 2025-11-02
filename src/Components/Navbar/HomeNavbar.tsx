@@ -1,4 +1,4 @@
-  import { Bell, Box, MapPin, Menu, MessageCircle, MessageSquareText, SearchIcon, ShoppingCart, UserRound } from "lucide-react";
+  import { Bell, Box, CircleUserRound, Gavel, Handshake, MapPin, Menu, MessageCircle, MessageCircleMore, MessageSquareText, Package, SearchIcon, ShoppingCart, UserRound } from "lucide-react";
 
   import {
     Accordion,
@@ -48,24 +48,24 @@
 
   const menu: MenuItem[] = [
       {
-      title: "Profile",
+      title: "Account",
       url: "/account",
-      icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
+      icon: <CircleUserRound className="w-5 h-5"/>
     },
     {
       title: "Messages",
       url: "/chat",
-      icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
+      icon: <MessageCircleMore className="w-5 h-5"/>
     },
       {
       title: "Notifications",
       url: "/account/notification",
-      icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
+      icon: <Bell className="w-5 h-5" />,
     },
       {
       title: "Cart",
       url: "/account/cart",
-      icon: <ShoppingCart className="w-4 h-4 text-orange-500" />,
+      icon: <ShoppingCart className="w-5 h-5" />,
     },
 
   ];
@@ -74,27 +74,33 @@
   const accountMenu =[
     {
       title: "Profile",   
-      url:"/account/"
+      url:"/account/",
+      icon:<CircleUserRound className="w-5 h-5"/>
     },
     {
       title:'Cart',
-      url:"/account/cart"
+      url:"/account/cart",
+      icon:<ShoppingCart className="w-5 h-5" />,
     },
     {
       title:'Biding History',
-      url:"/account/bid"
+      url:"/account/bid",
+       icon:<Gavel className="w-5 h-5" />,
     },
     {
       title:"Requirements",
-      url:"/account/requirements"
+      url:"/account/requirements",
+       icon:<Package className="w-5 h-5" />,
     },
     {
       title :"Deals",
-      url:"/account/deal"
+      url:"/account/deal",
+       icon:<Handshake className="w-5 h-5" />,
     },
     {
       title:'Notifications',
-      url:'/account/notification'
+      url:'/account/notification',
+       icon:<Bell className="w-5 h-5" />,
     }
   ]
 
@@ -753,9 +759,10 @@ const renderMobileMenuItem = (item: MenuItem, setOpenSheet: any, navigate: any) 
         navigate(item.url);
         setOpenSheet(false);
       }}
-      className="text-md font-semibold cursor-pointer"
+      className="text-md font-semibold cursor-pointer text-gray-700 flex items-center gap-2"
     >
-      {item.title}
+    {item.icon}
+     {item.title}
     </p>
   );
 };
