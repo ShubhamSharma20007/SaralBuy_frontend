@@ -431,7 +431,7 @@ useEffect(()=>{
               <div className="lg:col-span-7  rounded-lg p-6 space-y-3 ">
                 <h3 className="font-semibold text-orange-600 text-xl">Requirement Specifications</h3>
                 <div className="text-sm space-y-2 text-gray-600 ">
-                  <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Type:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : productResponse?.mainProduct?.categoryId?.categoryName) || "N/A"}</p>
+                  <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Condition:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : productResponse?.mainProduct?.categoryId?.categoryName) || "N/A"}</p>
                   <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? bidOverviewRes?.product?.brand : productResponse?.mainProduct?.brand) || "N/A"}</p>
                   {productResponse?.mainProduct?.categoryId?.categoryName === "industrial" && (
 
@@ -451,7 +451,7 @@ useEffect(()=>{
                         : productResponse?.mainProduct?.budget || 0) || 'N/A'}</p> */}
                    
 
-                  <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold capitalize">Additional Delivery & Packaging:</span> {(bidOverviewRes ? bidOverviewRes?.product?.additionalDeliveryAndPackage : productResponse?.mainProduct?.additionalDeliveryAndPackage) || "N/A"}</p>
+                  {/* <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold capitalize">Additional Delivery & Packaging:</span> {(bidOverviewRes ? bidOverviewRes?.product?.additionalDeliveryAndPackage : productResponse?.mainProduct?.additionalDeliveryAndPackage) || "N/A"}</p> */}
 
                   <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Required Delivery Date:</span> {dateFormatter(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.ex_deliveryDate : productResponse?.mainProduct?.paymentAndDelivery?.ex_deliveryDate) || 'N/A'}</p>
 
@@ -645,7 +645,7 @@ useEffect(()=>{
                   <div className={`grid lg:${isLast ? 'col-span-7' : 'col-span-1'}  rounded-lg  space-y-3 `}>
                     <h3 className="font-semibold text-orange-600 text-xl">Requirement Specifications</h3>
                     <div className="text-sm space-y-2 text-gray-600 ">
-                      <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Type:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : item?.categoryId?.categoryName) || "N/A"}</p>
+                      <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Condition:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : item?.categoryId?.categoryName) || "N/A"}</p>
                       <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? bidOverviewRes?.product?.brand : item?.brand) || "N/A"}</p>
                       {item?.categoryId?.categoryName === "industrial" && (
 

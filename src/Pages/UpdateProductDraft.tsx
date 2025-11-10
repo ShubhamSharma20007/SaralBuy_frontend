@@ -198,7 +198,9 @@ const UpdateProductDraftForm = ({
         {/* Left Panel */}
         <div className="md:col-span-1 lg:col-span-1 bg-transparent  border-0 p-6 xs:grid xs:grid-cols-2 gap-6 space-y-4">
           <div className="col-span-1 align-center sm:block flex flex-col justify-center">
-            <h2 className="text-[15px] font-semibold mb-2 text-center">Product Form ({formIndex + 1})</h2>
+            <h2 className="text-[15px] font-semibold mb-2 text-center">
+              {`Tell us about the ${currentCategoryName ? currentCategoryName.charAt(0).toUpperCase() + currentCategoryName.slice(1) : 'Product'} You need`}
+            </h2>
             <p className="text-[13px] text-muted-foreground text-center">
               Update your product details below. Make sure all required fields are filled correctly.
             </p>
@@ -438,7 +440,7 @@ const UpdateProductDraftForm = ({
                         onValueChange={(value) => setValue("productType", value)}
                       >
                         <SelectTrigger className="w-full bg-white">
-                          <SelectValue placeholder="Product Type" />
+                          <SelectValue placeholder="Product Condition" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="new_product">New Product</SelectItem>
@@ -446,6 +448,14 @@ const UpdateProductDraftForm = ({
                         </SelectContent>
                       </Select>
                     )}
+                  {productField === 'custom' && (
+                    <Input
+                      type="text"
+                      placeholder="Enter your product type"
+                      className="bg-white mt-2"
+                      onChange={e => setValue('productType', e.target.value)}
+                    />
+                  )}
 
                     {productField === 'old_product' && (
                       <>
@@ -697,7 +707,7 @@ const UpdateProductDraftForm = ({
                   />
                   <Input
                     type="text"
-                    placeholder="Organization Name"
+                    placeholder="Form Name"
                     {...register("paymentAndDelivery.organizationName")}
                     className="bg-white"
                   />

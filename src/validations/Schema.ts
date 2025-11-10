@@ -1,11 +1,12 @@
 import { z } from "zod";
 
 export const CategoryFormSchema = z.object({
-  title: z.string().min(1, "Title is required"), 
-  subCategoryId: z.string().min(1, "Category is required"), 
+  title: z.string().min(1, "Title is required"),
+  subCategoryId: z.string().optional(),
   quantity: z.string().min(1, "Quantity is required"),
   minimumBudget: z.string().optional(),
   productType: z.string().optional(),
+  budgetRange: z.string().optional(), // Added for budget range field
   // budget:z.coerce.number().refine((value)=> value >= 0, { message: "Budget must be greater than 0" }),
   
   oldProductValue: z.object({

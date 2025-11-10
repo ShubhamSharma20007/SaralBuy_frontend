@@ -5,6 +5,7 @@ const commonFields = {
     document: '',
     description: '',
     gst_requirement: '',
+    budgetRange: '', // Added budget range to all forms
     paymentAndDelivery: {
         ex_deliveryDate: undefined as Date | undefined,
         paymentMode: '',  // if yes aalow the below field
@@ -18,93 +19,79 @@ export const categoroiesFormDataFields = {
     autoMobile: {
         ...commonFields,
         brand: '',
-        quantity: '',
-        additionalDeliveryAndPackage: '',
+        quantity: '', // Will be handled as free text in the form
         fuelType: '',
         model: '',
         color: '',
         transmission: '',
-        productType: '',
+        productCondition: '', // Renamed from productType for consistency
         oldProductValue: {
             min: '',
             max: ''
         },
-        conditionOfProduct: '',
     },
     furniture: {
         ...commonFields,
         brand: '',
         quantity: '',
-        additionalDeliveryAndPackage: '',
-        productType: '',
+        productCondition: '',
         oldProductValue: {
             min: '',
             max: ''
         },
-        conditionOfProduct: '',
     },
     fashion:{
         ...commonFields,
         brand:'',
-        quatity:'',
-        additionalDeliveryAndPackage: '',
+        quantity:'',
         gender:'',
         typeOfAccessories:''
     },
     sports:{
         ...commonFields,
         brand:'',
-        quatity:'',
-        additionalDeliveryAndPackage: '',
-          productType: '',
+        quantity:'',
+        productCondition: '',
         oldProductValue: {
             min: '',
             max: ''
         },
-        conditionOfProduct: '',
     },
     home:{
         ...commonFields,
         brand:'',
-        quatity:'',
-        additionalDeliveryAndPackage: '',
-         productType: '',
+        quantity:'',
+        productCondition: '',
         oldProductValue: {
             min: '',
             max: ''
         },
-        conditionOfProduct: '',
     },
     beauty:{
         ...commonFields,
         brand:'',
-        quatity:'',
-        additionalDeliveryAndPackage: '',
+        quantity:'',
         typeOfAccessories:''
     },
     industrial:{
         ...commonFields,
         brand:'',
-        quatity:'',
-        additionalDeliveryAndPackage: '',
+        quantity:'',
         toolType: '',
     },
     electronics:{
         ...commonFields,
         brand:'',
-        minimumBudget: '',
         quantity:'',
-         productType: '',
+        productCondition: '',
         oldProductValue: {
             min: '',
             max: ''
         },
-        conditionOfProduct: '',
     },
     service:{
-    ...commonFields,
-    rateAService:'',
-       
+        ...commonFields,
+        rateAService:'',
     }
 }
 

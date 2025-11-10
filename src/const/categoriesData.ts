@@ -16,7 +16,7 @@ export const electronicCategories= [
       { value: "kodak", label: "Kodak" },
       { value: "bpl", label: "BPL" },
       { value: "hisense", label: "Hisense" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -36,7 +36,7 @@ export const electronicCategories= [
       { value: "hcl", label: "HCL" },
       { value: "fujitsu", label: "Fujitsu" },
       { value: "iball", label: "iBall" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -56,7 +56,7 @@ export const electronicCategories= [
       { value: "electrolux", label: "Electrolux" },
       { value: "croma", label: "Croma" },
       { value: "ifb", label: "IFB" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -76,7 +76,7 @@ export const electronicCategories= [
       { value: "infinix", label: "Infinix" },
       { value: "tecno", label: "Tecno" },
       { value: "micromax", label: "Micromax" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -96,7 +96,7 @@ export const electronicCategories= [
       { value: "stuffcool", label: "Stuffcool" },
       { value: "artis", label: "Artis" },
       { value: "syska", label: "Syska" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -116,7 +116,7 @@ export const electronicCategories= [
       { value: "hyperx", label: "HyperX" },
       { value: "frontech", label: "Frontech" },
       { value: "enter", label: "Enter" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -136,7 +136,7 @@ export const electronicCategories= [
       { value: "astro", label: "Astro" },
       { value: "hori", label: "Hori" },
       { value: "8bitdo", label: "8BitDo" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -156,7 +156,7 @@ export const electronicCategories= [
       { value: "electrolux", label: "Electrolux" },
       { value: "lloyd", label: "Lloyd" },
       { value: "videocon", label: "Videocon" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -176,7 +176,7 @@ export const electronicCategories= [
       { value: "haier", label: "Haier" },
       { value: "lloyd", label: "Lloyd" },
       { value: "midea", label: "Midea" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -196,7 +196,7 @@ export const electronicCategories= [
       { value: "zeiss", label: "Zeiss" },
       { value: "polaroid", label: "Polaroid" },
       { value: "dji", label: "DJI" },
-      { value: "others", label: "Others" },
+      // { value: "others", label: "Others" },
     ],
   },
   {
@@ -224,7 +224,7 @@ export const vehicleCategories = [
       { value: "nissan", label: "Nissan" },
       { value: "jeep", label: "Jeep" },
       { value: "ford", label: "Ford" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -244,7 +244,7 @@ export const vehicleCategories = [
       { value: "ducati", label: "Ducati" },
       { value: "harley davidson", label: "Harley Davidson" },
       { value: "aprilia", label: "Aprilia" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -264,7 +264,7 @@ export const vehicleCategories = [
       { value: "piaggio", label: "Piaggio" },
       { value: "mercedes-benz", label: "Mercedes-Benz" },
       { value: "mahindra truck", label: "Mahindra Truck" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -284,7 +284,7 @@ export const vehicleCategories = [
       { value: "lectrix", label: "Lectrix" },
       { value: "bgauss", label: "BGauss" },
       { value: "tvs iqube", label: "TVS iQube" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -304,7 +304,7 @@ export const vehicleCategories = [
       { value: "giant", label: "Giant" },
       { value: "scott", label: "Scott" },
       { value: "merida", label: "Merida" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -324,7 +324,7 @@ export const vehicleCategories = [
       { value: "motul", label: "Motul" },
       { value: "liqui moly", label: "Liqui Moly" },
       { value: "gearx", label: "GearX" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -344,7 +344,7 @@ export const vehicleCategories = [
       { value: "bbs", label: "BBS" },
       { value: "minda", label: "Minda" },
       { value: "cardekho accessories", label: "CarDekho Accessories" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -364,7 +364,7 @@ export const vehicleCategories = [
       { value: "omega seiki", label: "Omega Seiki" },
       { value: "saera electric", label: "Saera Electric" },
       { value: "champion polyplast", label: "Champion Polyplast" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -393,7 +393,7 @@ export const furnitureCategories = [
       { value: "royaloak", label: "Royaloak" },
       { value: "ikea", label: "IKEA" },
       { value: "spacewood", label: "Spacewood" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -413,7 +413,7 @@ export const furnitureCategories = [
       { value: "furlenco", label: "Furlenco" },
       { value: "royaloak", label: "Royaloak" },
       { value: "wooden street", label: "Wooden Street" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -433,7 +433,7 @@ export const furnitureCategories = [
       { value: "damro", label: "Damro" },
       { value: "ikea", label: "IKEA" },
       { value: "furlenco", label: "Furlenco" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -453,7 +453,7 @@ export const furnitureCategories = [
       { value: "spacewood", label: "Spacewood" },
       { value: "damro", label: "Damro" },
       { value: "furlenco", label: "Furlenco" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -473,7 +473,7 @@ export const furnitureCategories = [
       { value: "furlenco", label: "Furlenco" },
       { value: "ikea", label: "IKEA" },
       { value: "wooden street", label: "Wooden Street" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -493,7 +493,7 @@ export const furnitureCategories = [
       { value: "hometown", label: "Hometown" },
       { value: "godrej interio", label: "Godrej Interio" },
       { value: "ikea", label: "IKEA" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -523,7 +523,7 @@ export const fashionCategories = [
       { value: "tommy hilfiger", label: "Tommy Hilfiger" },
       { value: "arrow", label: "Arrow" },
       { value: "indian terrain", label: "Indian Terrain" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -543,7 +543,7 @@ export const fashionCategories = [
       { value: "d’damas", label: "D’damas" },
       { value: "tribhovandas bhimji zaveri", label: "Tribhovandas Bhimji Zaveri" },
       { value: "reliance jewels", label: "Reliance Jewels" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -563,7 +563,7 @@ export const fashionCategories = [
       { value: "hidesign", label: "Hidesign" },
       { value: "wildcraft", label: "Wildcraft" },
       { value: "american tourister", label: "American Tourister" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -583,7 +583,7 @@ export const fashionCategories = [
       { value: "reebok", label: "Reebok" },
       { value: "crocs", label: "Crocs" },
       { value: "metro", label: "Metro" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -603,7 +603,7 @@ export const fashionCategories = [
       { value: "prada", label: "Prada" },
       { value: "gucci", label: "Gucci" },
       { value: "tommy hilfiger", label: "Tommy Hilfiger" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -623,7 +623,7 @@ export const fashionCategories = [
       { value: "pond’s", label: "Pond’s" },
       { value: "nivea", label: "Nivea" },
       { value: "olay", label: "Olay" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -652,7 +652,7 @@ export const sportCategories = [
       { value: "harpercollins", label: "HarperCollins" },
       { value: "rupa publications", label: "Rupa Publications" },
       { value: "bloomsbury", label: "Bloomsbury" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -672,7 +672,7 @@ export const sportCategories = [
       { value: "hrx", label: "HRX" },
       { value: "kipsta", label: "Kipsta" },
       { value: "new balance", label: "New Balance" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -692,7 +692,7 @@ export const sportCategories = [
       { value: "proline fitness", label: "Proline Fitness" },
       { value: "head", label: "Head" },
       { value: "stag", label: "Stag" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -712,7 +712,7 @@ export const sportCategories = [
       { value: "zildjian", label: "Zildjian" },
       { value: "shure", label: "Shure" },
       { value: "boss", label: "Boss" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -732,7 +732,7 @@ export const sportCategories = [
       { value: "zebronics", label: "Zebronics" },
       { value: "gigabyte aorus", label: "Gigabyte Aorus" },
       { value: "thermaltake", label: "Thermaltake" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -762,7 +762,7 @@ export const homeAppliancesCategories = [
       { value: "philips", label: "Philips" },
       { value: "croma", label: "Croma" },
       { value: "kelvinator", label: "Kelvinator" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -782,7 +782,7 @@ export const homeAppliancesCategories = [
       { value: "pigeon", label: "Pigeon" },
       { value: "panasonic", label: "Panasonic" },
       { value: "glen", label: "Glen" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -802,7 +802,7 @@ export const homeAppliancesCategories = [
       { value: "la opala", label: "La Opala" },
       { value: "nayasa", label: "Nayasa" },
       { value: "classic essentials", label: "Classic Essentials" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -822,7 +822,7 @@ export const homeAppliancesCategories = [
       { value: "mdh", label: "MDH" },
       { value: "everest", label: "Everest" },
       { value: "saffola", label: "Saffola" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -842,7 +842,7 @@ export const homeAppliancesCategories = [
       { value: "himalaya", label: "Himalaya" },
       { value: "pure puja", label: "Pure Puja" },
       { value: "sudarshan", label: "Sudarshan" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -862,7 +862,7 @@ export const homeAppliancesCategories = [
       { value: "nestasia", label: "Nestasia" },
       { value: "indune", label: "Indune" },
       { value: "samskruti", label: "Samskruti" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -882,7 +882,7 @@ export const homeAppliancesCategories = [
       { value: "royaloak", label: "Royaloak" },
       { value: "ikea", label: "IKEA" },
       { value: "spacewood", label: "Spacewood" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -911,7 +911,7 @@ export const beautyCategories= [
       { value: "generic aadhaar", label: "Generic Aadhaar" },
       { value: "sastasundar", label: "SastaSundar" },
       { value: "netmedstore", label: "NetmedStore" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -931,7 +931,7 @@ export const beautyCategories= [
       { value: "okamoto", label: "Okamoto" },
       { value: "beyond seven", label: "Beyond Seven" },
       { value: "kimono", label: "Kimono" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -951,7 +951,7 @@ export const beautyCategories= [
       { value: "pond’s", label: "Pond’s" },
       { value: "nivea", label: "Nivea" },
       { value: "olay", label: "Olay" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -980,7 +980,7 @@ export const constructionIndustrialCategories = [
       { value: "ramco cement", label: "Ramco Cement" },
       { value: "heidelberg cement", label: "Heidelberg Cement" },
       { value: "emami cement", label: "Emami Cement" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -1000,7 +1000,7 @@ export const constructionIndustrialCategories = [
       { value: "sun bricks", label: "Sun Bricks" },
       { value: "omega bricks", label: "Omega Bricks" },
       { value: "durga bricks", label: "Durga Bricks" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -1020,7 +1020,7 @@ export const constructionIndustrialCategories = [
       { value: "classic marble", label: "Classic Marble" },
       { value: "h&r johnson", label: "H&R Johnson" },
       { value: "simpolo marble", label: "Simpolo Marble" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -1040,7 +1040,7 @@ export const constructionIndustrialCategories = [
       { value: "shyam steel", label: "Shyam Steel" },
       { value: "vikram pipes", label: "Vikram Pipes" },
       { value: "surya roshni", label: "Surya Roshni" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -1060,7 +1060,7 @@ export const constructionIndustrialCategories = [
       { value: "bison wall putty", label: "Bison Wall Putty" },
       { value: "jk wall putty", label: "JK Wall Putty" },
       { value: "birla wall putty", label: "Birla Wall Putty" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -1085,7 +1085,7 @@ export const constructionIndustrialCategories = [
       { value: "power build", label: "Power Build" },
       { value: "crompton greaves", label: "Crompton Greaves" },
       { value: "abb india", label: "ABB India" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {
@@ -1105,7 +1105,7 @@ export const constructionIndustrialCategories = [
       { value: "philips", label: "Philips" },
       { value: "croma", label: "Croma" },
       { value: "kelvinator", label: "Kelvinator" },
-      { value: "others", label: "Others" }
+      // { value: "others", label: "Others" }
     ]
   },
   {

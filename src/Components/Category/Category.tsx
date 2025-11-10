@@ -214,7 +214,9 @@ const CategoryForm = ({
         {/* Left Panel */}
         <div className="md:col-span-1 lg:col-span-1 bg-transparent  border-0 p-6 xs:grid xs:grid-cols-2 gap-6 space-y-4">
           <div className="col-span-1 align-center sm:block flex flex-col justify-center">
-            <h2 className="text-[15px] font-semibold mb-2 text-center">Product Form ({formIndex + 1})</h2>
+            <h2 className="text-[15px] font-semibold mb-2 text-center">
+              {`Tell us about the ${currentCategoryName ? currentCategoryName.charAt(0).toUpperCase() + currentCategoryName.slice(1) : 'Product'} You need`}
+            </h2>
             <p className="text-[13px] text-muted-foreground text-center">
               Please help us tailor the experience by filling out the form below.
               If this isn't the category you meant to choose, you can go back and
@@ -237,7 +239,7 @@ const CategoryForm = ({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <Input
                 type="text"
-                placeholder="Title*"
+                placeholder="Title* (Give a short title for your post - specify your required product in 3–4 words)"
                 className="bg-white col-span-1 md:col-span-3"
                 {...register('title')}
               />
@@ -320,7 +322,7 @@ const CategoryForm = ({
                 </Select>
               )}
 
-              {(currentCategoryName === "automobile" || currentCategoryName === "furniture" ||
+              {/* {(currentCategoryName === "automobile" || currentCategoryName === "furniture" ||
                 currentCategoryName === "sports" || currentCategoryName === "fashion" ||
                 currentCategoryName === "home" || currentCategoryName === "beauty" ||
                 currentCategoryName === "industrial") && (
@@ -336,7 +338,7 @@ const CategoryForm = ({
                       <SelectItem value="no">No</SelectItem>
                     </SelectContent>
                   </Select>
-                )}
+                )} */}
 
               {currentCategoryName === "fashion" && (
                 <Select
@@ -385,9 +387,11 @@ const CategoryForm = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="petrol">Petrol</SelectItem>
+                      <SelectItem value="electric">Diesel</SelectItem>
                       <SelectItem value="cng">CNG</SelectItem>
                       <SelectItem value="hybrid">Hybrid</SelectItem>
                       <SelectItem value="electric">Electric</SelectItem>
+                      <SelectItem value="electric">LPG</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -455,7 +459,7 @@ const CategoryForm = ({
                         onValueChange={(value) => setValue("productType", value)}
                       >
                         <SelectTrigger className="w-full bg-white">
-                          <SelectValue placeholder="Product Type" />
+                          <SelectValue placeholder="Product Condition" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="new_product">New Product</SelectItem>
@@ -680,8 +684,8 @@ const CategoryForm = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="upi">UPI</SelectItem>
+                  <SelectItem value="card">Banking or Online mode</SelectItem>
+                  <SelectItem value="upi">Any</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -708,7 +712,7 @@ const CategoryForm = ({
                   />
                   <Input
                     type="text"
-                    placeholder="Organization Name"
+                    placeholder="Form Name"
                     {...register("paymentAndDelivery.organizationName")}
                     className="bg-white"
                   />

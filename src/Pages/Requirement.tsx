@@ -73,7 +73,7 @@ const Requirement = () => {
       }
       {/* looking for div */}
       <div className='bg-orange-50 p-7 rounded-[5px] my-6'>
-        <h1 className='text-lg font-bold text-start'>Didn't Find What You'r Looking For?</h1>
+        <h1 className='text-lg font-bold text-start'>Did not find what you are looking for</h1>
         <div className='flex justify-between items-center m-1'>
           <p className='text-gray-500 text-sm'>What know not every category fit into a box. if your need doesn't match one of the listed options. Click <Link to={"/"} className='text-blue-600 underline'>Other </Link> to tell us more.</p>
           <MoveRight className="h-4 w-4 text-gray-600" />

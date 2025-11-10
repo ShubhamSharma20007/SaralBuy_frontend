@@ -591,7 +591,7 @@
                 </div>
   </div>
               <Button onClick={handleRaiseAReuirement} variant="link" size="lg" className="border  shadow-orange-500 border-orange-600 text-orange-600 rounded-[5px] transition-all duration-300 ease-in-out underline hover:bg-orange-500 hover:text-white cursor-pointer">
-                Raise a Requirement
+              Post a requirement
               </Button>
               <Button onClick={handleProfileClick} size="icon" className="cursor-pointer bc">
                 <UserRound className="w-5 h-5" />
@@ -724,7 +724,7 @@
                       size="lg"
                       className="border shadow-orange-500 border-orange-500 text-orange-500 transition-all ease-in-out duration-300 hover:bg-orange-500 hover:text-white cursor-pointer"
                     >
-                      Raise a Requirement
+                      Post a requirement
                     </Button>
 
                   </SheetFooter>
