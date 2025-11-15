@@ -27,7 +27,7 @@ const Requirement = () => {
   }, [window.innerWidth])
   return (
     <div className="w-full max-w-7xl mx-auto px-4 min-h-screen relative">
-      <Banner />
+      {/* <Banner /> */}
 
       <h1 className="text-xl font-bold te xt-gray-700 mt-10 mb-4">Select a Category</h1>
       {

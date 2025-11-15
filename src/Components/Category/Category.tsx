@@ -85,7 +85,8 @@ const CategoryForm = ({
   onFormDataChange,
   onRemoveForm,
   showRemoveButton = false,
-  resetForm = false
+  resetForm = false,
+  subCategoryId
 }: any) => {
   const [date, setDate] = useState(undefined);
   const [values, setValues] = useState([0, 2]);
@@ -192,6 +193,28 @@ const CategoryForm = ({
     }
   }, [resetForm, resetFormHook]);
 
+  console.log(subCategroies,12)
+
+
+  function populateBrands (){
+    if(subCategoryId){
+        const selectProductName = catByIdData?.subCategories.find((item: any) => item._id === subCategoryId)?.name || 'N/A';
+                  const brandsArray = subCategoriesData.find((item: any) =>
+                    item.category.replace(/\s+/g, '').toLowerCase() === selectProductName.replace(/\s+/g, '').toLowerCase()
+                  )?.brands;
+
+                  console.log(brandsArray,23)
+
+                  if (brandsArray?.length > 0) {
+                    setBrandRenderItems(brandsArray);
+                  }
+          setValue('subCategoryId', subCategoryId);
+    }
+  }
+
+  useEffect(()=>{
+    populateBrands()
+  },[subCategoryId,catByIdData,subCategoriesData])
 
 
 
@@ -244,7 +267,7 @@ const CategoryForm = ({
                 {...register('title')}
               />
 
-              <Select
+              {/* <Select
                 value={selectedSubategoryId}
                 onValueChange={(value) => {
                   const selectProductName = catByIdData?.subCategories.find((item: any) => item._id === value)?.name || 'N/A';
@@ -259,18 +282,42 @@ const CategoryForm = ({
                 }}
               >
                 <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Category*" />
+                  <SelectValue placeholder="Category*"  />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent >
                   {catByIdData && subCategroies.map((c: any) =>
                     <SelectItem key={c._id} value={c._id}>{c.name}</SelectItem>
                   )}
+                 {
+          subCategroies
+            .filter((c: any) => c._id.toString() === subCategoryId)
+            .map((c: any) => (
+              <SelectItem key={c._id} value={c._id} >
+                {c.name}
+              </SelectItem>
+            ))
+              }
+
                 </SelectContent>
-              </Select>
+              </Select> */}
+              <Select defaultValue={subCategoryId} disabled>
+  <SelectTrigger className="w-full bg-white">
+    <SelectValue placeholder="Category*" />
+  </SelectTrigger>
+
+  <SelectContent>
+    {subCategroies.map((c: any) => (
+      <SelectItem key={c._id} value={c._id}>
+        {c.name}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+
 
               {currentCategoryName !== "service" && (
                 <SearchableDropdown
-                  disbaled={!selectedSubategoryId}
+                  // disbaled={!selectedSubategoryId}
                   setValue={setbrand}
                   value={brand}
                   className="w-full"
@@ -1064,6 +1111,7 @@ const Category = () => {
               onRemoveForm={handleRemoveForm}
               showRemoveButton={arrayIndex > 0}
               resetForm={resetForms}
+              subCategoryId={subCategoryId}
             />
            {
              forms.length > -1 && arrayIndex < forms.length - 1 && <div className="bg-gray-400 w-full h-[2px] my-5"></div>

@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom"
 
 const RING_CLASS =['ring-gray-600','ring-gray-500','ring-yellow-500','ring-red-700','ring-green-700']
 
 const TrendingCategory = ({categories}:{categories:any}) => {
+  const navigate = useNavigate()
 
   // const data=[
   //   {
@@ -31,7 +33,10 @@ const TrendingCategory = ({categories}:{categories:any}) => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-5 px-5 sm:px-10  mt-10  ">
        {
-categories && categories.slice(0,5).map((_:any,idx:number)=>(<div className="flex justify-center items-center flex-col">
+categories && categories.slice(0,5).map((_:any,idx:number)=>(<div 
+key={idx}
+onClick={()=>navigate('/requirement')}
+className="flex justify-center items-center flex-col">
         <div className={`ring-4 ${RING_CLASS[idx]} rounded-full  h-32 w-32 overflow-hidden mx-auto `}>
             <img src={_?.image} className="w-full h-full object-contain"/>
         </div>
