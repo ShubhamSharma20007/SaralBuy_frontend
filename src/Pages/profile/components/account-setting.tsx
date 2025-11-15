@@ -194,7 +194,7 @@ export function AccountSettings() {
             </div>
 
             {/* Aadhaar Verification */}
-            <div className="space-y-4 border border-gray-200 shadow-sm p-5 rounded-md">
+            {/* <div className="space-y-4 border border-gray-200 shadow-sm p-5 rounded-md">
               <p className="font-[700] text-gray-600">Aadhaar Verification</p>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -240,7 +240,7 @@ export function AccountSettings() {
 
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Submit button */}
             <div className="flex justify-end">

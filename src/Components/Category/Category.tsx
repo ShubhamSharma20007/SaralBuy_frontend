@@ -398,6 +398,7 @@ const CategoryForm = ({
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="kids">kids</SelectItem>
                   </SelectContent>
                 </Select>
               )}
