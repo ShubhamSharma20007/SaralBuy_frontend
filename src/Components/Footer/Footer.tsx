@@ -65,7 +65,7 @@ const Footer = () => {
             <FaFacebookF /><FaTwitter /><FaInstagram /><FaPinterestP /><FaYoutube />
           </div>
 
-        <p>Copyright@saralbuy</p>
+        <p>Copyright@saralbuy2025</p>
         <div className="footer-payments">
           <img src="https://img.icons8.com/color/48/000000/paypal.png" alt="PayPal" />
           <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" />
