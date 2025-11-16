@@ -2,6 +2,8 @@ import { io, Socket } from "socket.io-client";
 
 // Don't import the zustand hook at module top-level — update the store dynamically
 
+import instance from "@/lib/instance"; // <-- ADD THIS LINE
+
 class ChatService {
   private static instance: ChatService;
   public socket: Socket | null = null;
@@ -288,7 +290,13 @@ public getChatHistory(productId: string, sellerId: string, buyerId: string, call
       console.error("[ChatService] Socket not connected or userId missing for getRecentChats");
     }
   }
-}
 
+  // --- ADD: Rate Chat API ---
+  public rateChat(params: { chatId: string; rating: number }) {
+    // POST /chat/rate { chatId, rating }
+    return instance.post('/chat/rate', params, { withCredentials: true })
+      .then(res => res.data?.data || res.data);
+  }
+}
 
 export default ChatService;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ChatService from '../services/chat.service'
 import { Search, Send, Menu, Circle, List, Paperclip } from 'lucide-react'
+import RatingPopup from '../Components/Popup/RatingPopup';
 import { Input } from '../Components/ui/input'
 import { Button } from '../Components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar'
@@ -143,6 +144,13 @@ const ChatArea = ({
   const [chatService] = useState(() => ChatService.getInstance());
   const [isClosingDeal, setIsClosingDeal] = useState(false);
   const [budgetAmount, setBudgetAmount] = useState<number | null>(null);
+
+  // Rating popup state
+  const [showRatingPopup, setShowRatingPopup] = useState(false);
+  const [ratingLoading, setRatingLoading] = useState(false);
+
+  // Store last closed chatId for rating
+  const [lastClosedChatId, setLastClosedChatId] = useState<string | null>(null);
 
   useEffect(() => {
     // Use IDs from selectedContact when available, otherwise fall back to props
@@ -292,10 +300,32 @@ const ChatArea = ({
         finalBudget: amount!,
       });
       toast.success("Deal closed successfully!");
+      // Debug log for chat object and _id
+      console.log("handleCloseDeal: selectedContact (sc):", sc);
+      console.log("handleCloseDeal: sc._id:", sc._id);
+      // Open rating popup after successful deal close
+      setLastClosedChatId(sc._id || null);
+      setShowRatingPopup(true);
     } catch (err: any) {
       toast.error("Failed to close deal.");
     } finally {
       setIsClosingDeal(false);
+    }
+  };
+
+  // Handle rating submit
+  const handleSubmitRating = async (chatId: string, rating: number) => {
+    if (!chatId) return;
+    setRatingLoading(true);
+    try {
+      await chatService.rateChat({ chatId, rating });
+      toast.success("Thank you for your feedback!");
+      setShowRatingPopup(false);
+      setLastClosedChatId(null);
+    } catch (err: any) {
+      toast.error("Failed to submit rating.");
+    } finally {
+      setRatingLoading(false);
     }
   };
 
@@ -316,58 +346,56 @@ const ChatArea = ({
   const isSelfChat = (currentUserId === actualBuyerId && currentUserId === actualSellerId) || actualBuyerId === actualSellerId;
 
   return (
-    <div className="flex-1 flex flex-col border-1 rounded-md w-full">
-      {/* Chat Header */}
-      <div className="border-b border-chat-border bg-background">
-        {/* <div className='bg-gray-100 flex justify-between items-center'>
-          <p></p>
-        </div> */}
-        <div className="flex justify-between items-center space-x-2 bg-gray-100 p-2">
-          <p className="text-sm text-muted-foreground font-semibold">
-            {selectedContact.productName || 'Product Discussion'}
-          </p>
-          <div className="flex items-center justify-end mt-1">
-            <List className='w-4 h-4' />
-            <Badge variant="secondary" className="text-sm">Active</Badge>
+    <>
+      <div className="flex-1 flex flex-col border-1 rounded-md w-full">
+        {/* Chat Header */}
+        <div className="border-b border-chat-border bg-background">
+          {/* <div className='bg-gray-100 flex justify-between items-center'>
+            <p></p>
+          </div> */}
+          <div className="flex justify-between items-center space-x-2 bg-gray-100 p-2">
+            <p className="text-sm text-muted-foreground font-semibold">
+              {selectedContact.productName || 'Product Discussion'}
+            </p>
+            <div className="flex items-center justify-end mt-1">
+              <List className='w-4 h-4' />
+              <Badge variant="secondary" className="text-sm">Active</Badge>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center space-x-3 p-3 bg-orange-50">
-          <div className='flex justify-between items-center w-full'>
-            <div className="relative flex items-center gap-3 justify-between w-full ">
-             <div className='flex items-center gap-3'>
-               <Avatar className="h-10 w-10">
-                <AvatarImage src={selectedContact.avatar} alt={selectedContact.name} />
-                <AvatarFallback>{selectedContact.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-          
-                <div className='flex items-center space-x-4'>
-                  <h3 className="font-semibold text-gray-700">{selectedContact.name}</h3>
-                  <div className="flex items-center gap-1">
-                    <Circle className="h-2 w-2 overflow-hidden bg-green-600 rounded-full border-0 text-transparent" />
-                    <span className="text-sm text-muted-foreground">Online</span>
+          <div className="flex items-center space-x-3 p-3 bg-orange-50">
+            <div className='flex justify-between items-center w-full'>
+              <div className="relative flex items-center gap-3 justify-between w-full ">
+                <div className='flex items-center gap-3'>
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={selectedContact.avatar} alt={selectedContact.name} />
+                    <AvatarFallback>{selectedContact.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className='flex items-center space-x-4'>
+                    <h3 className="font-semibold text-gray-700">{selectedContact.name}</h3>
+                    <div className="flex items-center gap-1">
+                      <Circle className="h-2 w-2 overflow-hidden bg-green-600 rounded-full border-0 text-transparent" />
+                      <span className="text-sm text-muted-foreground">Online</span>
+                    </div>
                   </div>
                 </div>
-             </div>
-      
-             <div>
-              
-            <div className='flex items-center gap-3 '>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-orange-600 hover:text-orange-600 bg-transparent cursor-pointer hover:bg-transparent border-orange-600 w-20 sm:w-32 text-sm font-medium "
-                onClick={handleCloseDeal}
-                disabled={isClosingDeal}
-              >
-                {isClosingDeal ? "Closing..." : "Close Deal"}
-              </Button>
-              {/* <LayoutGrid className='w-5 h-5 text-gray-600' /> */}
-            </div>
-             </div>
+                <div>
+                  <div className='flex items-center gap-3 '>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-orange-600 hover:text-orange-600 bg-transparent cursor-pointer hover:bg-transparent border-orange-600 w-20 sm:w-32 text-sm font-medium "
+                      onClick={handleCloseDeal}
+                      disabled={isClosingDeal}
+                    >
+                      {isClosingDeal ? "Closing..." : "Close Deal"}
+                    </Button>
+                    {/* <LayoutGrid className='w-5 h-5 text-gray-600' /> */}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6 chat-messages-container">
@@ -428,7 +456,16 @@ const ChatArea = ({
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+      {/* Rating Popup */}
+      <RatingPopup
+        open={showRatingPopup}
+        setOpen={setShowRatingPopup}
+        chatId={lastClosedChatId || selectedContact?._id || ""}
+        onSubmit={handleSubmitRating}
+        loading={ratingLoading}
+      />
+    </>
   );
 };
 
@@ -532,6 +569,7 @@ const Chatbot = () => {
           }
           
           return {
+            _id: chat._id,
             roomId: chat.roomId,
             productId: chatProductId,
             sellerId: chatSellerId,
