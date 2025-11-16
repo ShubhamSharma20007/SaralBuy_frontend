@@ -537,7 +537,6 @@ const Chatbot = () => {
     
     setIsLoadingChats(true);
     chatService.getRecentChats(currentUserId, (data) => {
-      console.log("Recent chats received:", data);
       
       if (data && Array.isArray(data.chats)) {
         // Transform recent chats to match contact format
@@ -586,7 +585,7 @@ const Chatbot = () => {
           };
         });
         
-        console.log("Transformed chats:", transformedChats);
+
         setRecentChats(transformedChats);
         // Populate Zustand store so socket updates (recent_chat_update) reflect in UI
         try {
@@ -606,7 +605,6 @@ const Chatbot = () => {
           
           if (matchingChat) {
             // Found existing chat - select it
-            console.log("Found matching recent chat, loading it");
             setSelectedContact(matchingChat);
           } else {
             // No matching recent chat - create new contact for this conversation

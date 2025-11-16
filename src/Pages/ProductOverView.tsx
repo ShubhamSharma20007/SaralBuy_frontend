@@ -78,7 +78,7 @@ const ProductOverview = () => {
       }
     }
   },[addToCartRes])
-  console.log(bidOverLoading)
+
 
   useEffect(() => {
     if (productId) {
@@ -267,7 +267,7 @@ useEffect(() => {
       }
     }
   }, [userProfile, reset, bidOverviewRes]);
-  console.log(bidOverviewRes)
+
 
   useEffect(() => {
     if (error === 'invalid product ID') {

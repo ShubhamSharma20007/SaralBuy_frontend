@@ -227,11 +227,9 @@ export default function ProductListing() {
         limit,
         { category, subCategoryId, min_budget, max_budget, sort }
       );
-      // Console log the data as requested
-      console.log("Fetched products data:", response);
+
 
       const newProducts = response?.data?.data?.products || [];
-      // console.log(newProducts,23)
       //   const maxPrice = Math.max(...newProducts.map((p: any) => p.minimumBudget || 0), 0);
       //   setMaxBudget(maxPrice);
 
@@ -359,7 +357,6 @@ const handleRemoveFilter = () => {
                                 value={field.value}
                                 onValueChange={(value) => {
                                   field.onChange(value);
-                                  console.log(`${section.id} changed to:`, value);
                                 }}
                               >
                                 {section.options.map((option, optionIdx) => (
@@ -401,7 +398,6 @@ const handleRemoveFilter = () => {
                             max={50001}
                             onChange={(vals) => {
                               setValues(vals);
-                              console.log('Price range changed:', vals);
                             }}
                             renderTrack={({ props, children }) => {
                               const min = 100;
@@ -610,7 +606,6 @@ const handleRemoveFilter = () => {
                                 value={field.value}
                                 onValueChange={(value) => {
                                   field.onChange(value);
-                                  console.log(`${section.id} changed to:`, value);
                                 }}
                               >
                                 {section.options.map((option, optionIdx) => (
@@ -652,7 +647,6 @@ const handleRemoveFilter = () => {
                             max={50001}
                             onChange={(vals) => {
                               setValues(vals);
-                              console.log('Price range changed:', vals);
                             }}
                             renderTrack={({ props, children }) => {
                               const min = 100;

@@ -72,7 +72,7 @@ const columnsApproveBids: ColumnDef<any>[] = [
     accessorKey: "avtar",
     header: "",
     cell: ({row}) => {
-      console.log(row.original)
+
       return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
         <Avatar className="w-10 h-10 justify-center items-center rounded-full border-2">
           <AvatarImage src={row.original.avatar} alt="@shadcn" className='object-cover rounded-full w-full h-full' />
@@ -130,7 +130,7 @@ const Deal = () => {
       completedApproveFn()
     }
   }, [tab])
-  console.log({pendingApprovedData,completedApproveData})
+
 
   useEffect(() => {
     if (completedApproveData) {

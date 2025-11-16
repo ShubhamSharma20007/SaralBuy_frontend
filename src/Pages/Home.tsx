@@ -49,7 +49,6 @@ const Home = () => {
 
   useEffect(() => {
     if (getLatestBidandDrafts) {
-      console.log(getLatestBidandDrafts)
       // bids
       const formattedBids = getLatestBidandDrafts?.bids.map((bid: any) => ({
         _id: bid._id,

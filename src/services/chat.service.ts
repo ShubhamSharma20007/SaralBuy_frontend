@@ -30,7 +30,7 @@ class ChatService {
   public connect() {
     if (!this.socket) {
       const socketUrl =  import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :  import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
-      console.log("[ChatService] Connecting to socket URL:", socketUrl);
+      // console.log("[ChatService] Connecting to socket URL:", socketUrl);
 
       this.socket = io(socketUrl, {
         transports: ["websocket", "polling"],
@@ -41,15 +41,15 @@ class ChatService {
       });
 
       this.socket.on("connect", () => {
-        console.log("✅ Socket connected:", this.socket?.id, "at", socketUrl);
+        // console.log("✅ Socket connected:", this.socket?.id, "at", socketUrl);
         // Re-identify user on reconnect if userId is set
         if (this._identifiedUserId) {
           this.identify(this._identifiedUserId);
         }
       });
 
-      this.socket.on("disconnect", (reason: string) => {
-        console.log("❌ Socket disconnected:", this.socket?.id, `(${reason})`);
+      this.socket.on("disconnect", (_: string) => {
+        // console.log("❌ Socket disconnected:", this.socket?.id, `(${reason})`);
       });
 
       this.socket.on("connect_error", (err) => {
@@ -131,7 +131,7 @@ class ChatService {
     if (this.socket && (roomId || this._currentRoomId)) {
       const leaveRoomId = roomId || this._currentRoomId;
       if (leaveRoomId) {
-        console.log(`[ChatService] Leaving room:`, leaveRoomId);
+        // console.log(`[ChatService] Leaving room:`, leaveRoomId);
         this.socket.emit("leave_room", { roomId: leaveRoomId });
         this._currentRoomId = null;
       }
@@ -153,13 +153,13 @@ class ChatService {
         this.leaveRoom(this._currentRoomId);
       }
       
-      console.log(`[ChatService] Joining room:`, {
-        userId,
-        productId,
-        sellerId,
-        userType,
-        buyerId: finalBuyerId
-      });
+      // console.log(`[ChatService] Joining room:`, {
+      //   userId,
+      //   productId,
+      //   sellerId,
+      //   userType,
+      //   buyerId: finalBuyerId
+      // });
       
       this.socket.emit("join_room", {
         userId,
@@ -183,15 +183,15 @@ class ChatService {
       // Compute the roomId using sorted IDs (for logging/debug)
       const roomId = this.generateRoomId(productId, finalBuyerId!, sellerId);
       
-      console.log(`[ChatService] Sending message:`, {
-        productId,
-        sellerId,
-        message,
-        senderId,
-        senderType,
-        buyerId: finalBuyerId,
-        roomId
-      });
+      // console.log(`[ChatService] Sending message:`, {
+      //   productId,
+      //   sellerId,
+      //   message,
+      //   senderId,
+      //   senderType,
+      //   buyerId: finalBuyerId,
+      //   roomId
+      // });
       
       this.socket.emit("send_message", {
         productId,
@@ -223,12 +223,12 @@ public getChatHistory(productId: string, sellerId: string, buyerId: string, call
     if (this.socket) {
       const event = isTyping ? "typing_start" : "typing_stop";
       
-      console.log(`[ChatService] Typing ${isTyping ? 'started' : 'stopped'}:`, {
-        productId,
-        userId,
-        sellerId,
-        buyerId
-      });
+      // console.log(`[ChatService] Typing ${isTyping ? 'started' : 'stopped'}:`, {
+      //   productId,
+      //   userId,
+      //   sellerId,
+      //   buyerId
+      // });
       
       this.socket.emit(event, { 
         productId, 
@@ -241,7 +241,7 @@ public getChatHistory(productId: string, sellerId: string, buyerId: string, call
 
   public disconnect() {
     if (this.socket) {
-      console.log("[ChatService] Disconnecting socket");
+      // console.log("[ChatService] Disconnecting socket");
       this.socket.disconnect();
       this.socket = null;
     }
@@ -252,7 +252,7 @@ public getChatHistory(productId: string, sellerId: string, buyerId: string, call
     if (this.socket && userId) {
       this._identifiedUserId = userId;
       this.socket.emit("identify", { userId });
-      console.log("[ChatService] Identified as user:", userId);
+      // console.log("[ChatService] Identified as user:", userId);
     }
   }
 

@@ -161,7 +161,7 @@ const BidListing = () => {
 
     useEffect(()=>{
         if(deletBidResponse){
-        console.log(deletBidResponse,3)
+
         toast.success('Bid deleted successfully')
         //  remove the bid from the list
         const updatedData = data.filter((item: any) => item._id !== currentBidId);

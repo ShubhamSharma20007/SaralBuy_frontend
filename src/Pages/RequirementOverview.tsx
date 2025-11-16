@@ -20,14 +20,12 @@ const RequirementOverview = () => {
   const [requirementData, setRequirementData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
-  console.log(productData,"productData")
 
   useEffect(() => {
     const fetchRequirementData = async () => {
       if (requirementId) {
         try {
           const data = await requirementService.getRequirementById(requirementId)
-          console.log(data, "Fetched requirement data")
           setRequirementData(data)
           setLoading(false)
         } catch (error) {
@@ -73,7 +71,6 @@ const RequirementOverview = () => {
       }
     }
   }, [requirementData, productData])
-console.log(currentProduct,"curr")
   const handleChatNavigate = (sellerId?: string) => {
     if (currentProduct) {
       localStorage.setItem('chatIds', JSON.stringify({
@@ -165,7 +162,6 @@ console.log(currentProduct,"curr")
     )
   }
 
-  console.log(iterateData,32)
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-3 p-4">

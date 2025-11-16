@@ -73,7 +73,7 @@ const bidsColumns: ColumnDef<any>[] = [
 
 ];
 
-console.log(bidRes,123)
+
 useEffect(()=>{
   if(bidRes){
       const {totalSellers: totalCount, limit: pageLimit,page } = bidRes;

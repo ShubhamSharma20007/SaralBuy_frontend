@@ -17,7 +17,7 @@ useEffect(()=>{
 
 
 function handleCart(cartId: string, productId: string) {
-  console.log(cartId, productId);
+
 
   setCartItems((prevCart: any) => {
     if (!prevCart?.cartItems) return prevCart;

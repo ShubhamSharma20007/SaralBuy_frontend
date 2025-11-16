@@ -93,7 +93,7 @@ const UpdateProductDraftForm = ({
   const [image, setImage] = useState(null);
   const [fileDoc, setFileDoc] = useState(null);
   const [brand, setbrand] = useState(initialData?.brand || '');
-  console.log(brand, 2)
+
   const [brandRenderItems, setBrandRenderItems] = useState([]);
   const imageRef = useRef(null);
   const fileDocRef = useRef<HTMLInputElement>(null);
@@ -751,7 +751,7 @@ const UpdateDraft = () => {
 
   useEffect(() => {
     if (getDraftRes) {
-      console.log(getDraftRes)
+
       const firstDraft = getDraftRes
       setDraftState(firstDraft);
       setCurrentCategoryName(firstDraft?.categoryId?.categoryName);
@@ -775,7 +775,7 @@ const UpdateDraft = () => {
 
   const isValidForms = (formsDataObj: any) => {
     const formsArray = Object.values(formsDataObj);
-    console.log(formsArray)
+
 
     for (let i = 0; i < formsArray.length; i++) {
       const form = formsArray[i] as any;
@@ -892,7 +892,7 @@ const UpdateDraft = () => {
 
     formDataToSend.append('products', JSON.stringify(productsData));
     formDataToSend.append('draft', 'false');
-    console.log(productsData)
+
     // Determine if multiple products
     const isMultiple = forms.length > 1;
     await fn(formDataToSend, isMultiple);
@@ -908,8 +908,7 @@ const UpdateDraft = () => {
 
 
   const getInitialDataForForm = (formIndex: number) => {
-    console.log("Getting initial data for form:", formIndex);
-    console.log("Draft state:", draftState);
+
 
     if (!draftState) return null;
 

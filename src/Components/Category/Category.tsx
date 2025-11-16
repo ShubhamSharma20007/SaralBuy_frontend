@@ -193,7 +193,6 @@ const CategoryForm = ({
     }
   }, [resetForm, resetFormHook]);
 
-  console.log(subCategroies,12)
 
 
   function populateBrands (){
@@ -203,7 +202,7 @@ const CategoryForm = ({
                     item.category.replace(/\s+/g, '').toLowerCase() === selectProductName.replace(/\s+/g, '').toLowerCase()
                   )?.brands;
 
-                  console.log(brandsArray,23)
+
 
                   if (brandsArray?.length > 0) {
                     setBrandRenderItems(brandsArray);
@@ -935,7 +934,6 @@ const Category = () => {
     }
 
     const allowedFields = getCategorySpecificFields(currentCategoryName!);
-    console.log('Allowed fields:', allowedFields);
     const isMultiple = formsArray.length > 1;
 
     try {
@@ -981,7 +979,6 @@ const Category = () => {
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
     formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
 
-        console.log('Multiple products data:', productsData);
 
         // Send all products at once
         await fn(categoryId, formsArray[0].subCategoryId || subCategoryId, formDataToSend, true);
@@ -1022,10 +1019,10 @@ const Category = () => {
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
    formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
 
-        console.log('Single product FormData entries:');
-        for (let [key, value] of formDataToSend.entries()) {
-          console.log(key, value);
-        }
+        // console.log('Single product FormData entries:');
+        // for (let [key, value] of formDataToSend.entries()) {
+        //   console.log(key, value);
+        // }
 
         await fn(categoryId, formData.subCategoryId || subCategoryId, formDataToSend, false);
       }

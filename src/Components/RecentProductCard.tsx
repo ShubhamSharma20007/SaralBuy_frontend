@@ -5,7 +5,6 @@ import { dateFormatter } from "@/helper/dateFormatter";
 import { useNavigate } from "react-router-dom";
 const RecentProductCard = ({item}:{item:any}) => {
   const navigate = useNavigate()
-  console.log(item)
   return (
       <div className='p-5 bg-white rounded-[5px] shadow-lg '>
       <span className="border-2 border-gray-600 rounded-full mb-4  text-gray-700 inline-block p-1  text-center px-4 text-sm font-medium capitalize"> {item?.productId?.categoryId?.categoryName}</span>
