@@ -140,13 +140,13 @@ const CategoryForm = ({
 
   const gstField = watch("gst_requirement");
   const productField = watch("productType");
-  const selectedSubategoryId = watch("subCategoryId");
+    const selectedSubategoryId = watch("subCategoryId");
   const paymentMode = watch("paymentAndDelivery.paymentMode");
   const additionalDeliveryValue = watch("additionalDeliveryAndPackage");
   const genderValue = watch("gender");
-  const typeOfAccessoriesValue = watch("typeOfAccessories");
+    const typeOfAccessoriesValue = watch("typeOfAccessories");
   const fuelTypeValue = watch("fuelType");
-  const modelValue = watch("model");
+ const modelValue = watch("model");
   const colorValue = watch("color");
   const transmissionValue = watch("transmission");
   const conditionOfProductValue = watch("conditionOfProduct");
@@ -402,7 +402,7 @@ const CategoryForm = ({
                 </Select>
               )}
 
-              {(currentCategoryName === "fashion" || currentCategoryName === "beauty") && (
+              {/* {(currentCategoryName === "fashion" || currentCategoryName === "beauty") && (
                 <Select
                   value={typeOfAccessoriesValue}
                   onValueChange={(value) => setValue("typeOfAccessories", value)}
@@ -421,7 +421,7 @@ const CategoryForm = ({
                     <SelectItem value="watches">Watches</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              )} */}
 
               {currentCategoryName === "automobile" && (
                 <>
@@ -442,44 +442,19 @@ const CategoryForm = ({
                     </SelectContent>
                   </Select>
 
-                  <Select
-                    value={modelValue}
-                    onValueChange={(value) => setValue("model", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
-                      <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
-                      <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
-                      <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
-                      <SelectItem value="1_year_old">1 Year Old</SelectItem>
-                      <SelectItem value="2_year_old">2 Year Old</SelectItem>
-                      <SelectItem value="3_year_old">3 Year Old</SelectItem>
-                      <SelectItem value="4_year_old">4 Year Old</SelectItem>
-                      <SelectItem value="5_year_old">5 Year Old</SelectItem>
-                      <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
-                      <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
-                      <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    type="text"
+                    placeholder="Model*"
+                    {...register('model')}
+                    className="bg-white"
+                  />
 
-                  <Select
-                    value={colorValue}
-                    onValueChange={(value) => setValue("color", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="red">Red</SelectItem>
-                      <SelectItem value="blue">Blue</SelectItem>
-                      <SelectItem value="black">Black</SelectItem>
-                      <SelectItem value="white">White</SelectItem>
-                      <SelectItem value="silver">Silver</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    type="text"
+                    placeholder="Color*"
+                    {...register('color')}
+                    className="bg-white"
+                  />
 
                   <Select
                     value={transmissionValue}
@@ -589,7 +564,7 @@ const CategoryForm = ({
                   onValueChange={(value) => setValue("conditionOfProduct", value)}
                 >
                   <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Condition of Product" />
+                    <SelectValue placeholder="Product Condition" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="new">New</SelectItem>

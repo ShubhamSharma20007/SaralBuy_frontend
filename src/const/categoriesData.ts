@@ -248,7 +248,7 @@ export const vehicleCategories = [
     ]
   },
   {
-    category: "Trucks/Buses",
+    category: "Commercial and other Vehicle",
     brands: [
       { value: "ashok leyland", label: "Ashok Leyland" },
       { value: "tata motors", label: "Tata Motors" },
