@@ -10,7 +10,7 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
-import {FileUp, MoveLeft, XIcon, CloudUpload } from "lucide-react";
+import { FileUp, MoveLeft, XIcon, CloudUpload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -30,7 +30,7 @@ import productService from "@/services/product.service";
 import categoryService from "@/services/category.service";
 import { Spinner } from "@/Components/ui/shadcn-io/spinner";
 import { SearchableDropdown } from "@/utils/searchableDropdown";
-import { electronicCategories, constructionIndustrialCategories, fashionCategories, furnitureCategories, homeAppliancesCategories, beautyCategories, sportCategories, vehicleCategories, serviceCategories } from "@/const/categoriesData";
+import { electronicCategories, constructionIndustrialCategories, fashionCategories, furnitureCategories, homeAppliancesCategories, beautyCategories, sportCategories, vehicleCategories, serviceCategories, otherCategories } from "@/const/categoriesData";
 import { getCategorySpecificFields } from "@/const/categoriesFormdataFields";
 import Authentication from "@/Components/auth/Authentication";
 import { CategoryFormSkeleton } from "@/const/CustomSkeletons";
@@ -45,7 +45,8 @@ const innerFormImages = {
   health: "healthFormImage.png",
   beauty: "beautyFormImage.png",
   service: "servicesFormImage.png",
-  industrial: "constructionFormImage.png"
+  industrial: "constructionFormImage.png",
+  others: 'otherImage.webp'
 } as any
 
 function getSubCategories(categoryName: string) {
@@ -68,6 +69,8 @@ function getSubCategories(categoryName: string) {
       return constructionIndustrialCategories;
     case "service":
       return serviceCategories;
+    case "others":
+      return otherCategories;
     default:
       return []
   }
@@ -93,7 +96,7 @@ const UpdateProductDraftForm = ({
   const [image, setImage] = useState(null);
   const [fileDoc, setFileDoc] = useState(null);
   const [brand, setbrand] = useState(initialData?.brand || '');
-
+  const [subCatgoryName, setSubcategoryName] = useState('')
   const [brandRenderItems, setBrandRenderItems] = useState([]);
   const imageRef = useRef(null);
   const fileDocRef = useRef<HTMLInputElement>(null);
@@ -134,6 +137,7 @@ const UpdateProductDraftForm = ({
       conditionOfProduct: initialData?.conditionOfProduct || '',
       toolType: initialData?.toolType || '',
       rateAService: initialData?.rateAService || '',
+      brandName: initialData?.brandName || ''
       // budget:initialData?.budget || ''
     }
   });
@@ -146,7 +150,7 @@ const UpdateProductDraftForm = ({
   const genderValue = watch("gender");
   const typeOfAccessoriesValue = watch("typeOfAccessories");
   const fuelTypeValue = watch("fuelType");
-  const modelValue = watch("model");
+  // const modelValue = watch("model");
   const colorValue = watch("color");
   const transmissionValue = watch("transmission");
   const conditionOfProductValue = watch("conditionOfProduct");
@@ -178,6 +182,14 @@ const UpdateProductDraftForm = ({
     setValue('brand', brand);
   }, [brand, setValue]);
 
+  useEffect(() => {
+    if (brand !== 'others') {
+      setValue('brandName', '');
+    } else if (brand === 'others' && initialData?.brandName) {
+      setValue('brandName', initialData.brandName);
+    }
+  }, [brand, setValue, initialData?.brandName]);
+
   // Set initial brands when component mounts
   useEffect(() => {
     if (initialData?.subCategoryId && catByIdData) {
@@ -186,11 +198,17 @@ const UpdateProductDraftForm = ({
         item.category.replace(/\s+/g, '').toLowerCase() === selectProductName.replace(/\s+/g, '').toLowerCase()
       )?.brands;
 
+      setSubcategoryName(selectProductName)
+
       if (brandsArray?.length > 0) {
         setBrandRenderItems(brandsArray);
       }
     }
   }, [initialData, catByIdData, subCategoriesData]);
+
+
+
+
 
   return (
     <div className="relative">
@@ -250,7 +268,7 @@ const UpdateProductDraftForm = ({
                 </SelectContent>
               </Select>
 
-              {currentCategoryName !== "service" && (
+              {currentCategoryName !== "service" && currentCategoryName !== "others" && (
                 <SearchableDropdown
                   disbaled={!selectedSubategoryId}
                   setValue={setbrand}
@@ -260,25 +278,52 @@ const UpdateProductDraftForm = ({
                   renderItems={brandRenderItems}
                 />
               )}
-              {/* <Input
-                  type="number"
-                  placeholder="Product Budget*"
-                  {...register('budget')}
-                  className="bg-white"
-                /> */}
-
-              {currentCategoryName === "electronics" && (
-                <div className="relative">
-                  <p className="absolute top-1/2 left-2 text-sm  text-orange-600 font-semibold -translate-y-1/2">
-                    ₹</p>
+              {
+                currentCategoryName === "others" && (
                   <Input
                     type="text"
-                    placeholder="Enter a Minimum Budget"
-                    {...register('minimumBudget')}
-                    className="bg-white  pl-5"
+                    placeholder="Brand Name..."
+                    value={brand}
+                    onChange={(e) => {
+                      setbrand(e.target.value)
+                    }}
+                    className="bg-white"
                   />
-                </div>
-              )}
+                )
+              }
+              {
+                currentCategoryName !== 'others' && brand === 'others' && (
+                  <Input
+                    type="text"
+                    placeholder="Specific Brand Name..."
+                    {...register('brandName')}
+                    className="bg-white"
+                  />
+                )
+              }
+              {
+                brand === 'others' && (
+                  <Input
+                    type="text"
+                    placeholder="Specific Brand Name..."
+                    {...register('brandName')}
+                    className="bg-white"
+                  />
+                )
+              }
+
+              {/* {currentCategoryName === "electronics" && ( */}
+              <div className="relative">
+                <p className="absolute top-1/2 left-2 text-sm  text-orange-600 font-semibold -translate-y-1/2">
+                  ₹</p>
+                <Input
+                  type="text"
+                  placeholder="Enter a Minimum Budget"
+                  {...register('minimumBudget')}
+                  className="bg-white  pl-5"
+                />
+              </div>
+              {/* )} */}
 
               {currentCategoryName !== "service" && (
                 <Input
@@ -359,7 +404,7 @@ const UpdateProductDraftForm = ({
                 </Select>
               )}
 
-              {currentCategoryName === "automobile" && (
+              {currentCategoryName === "automobile" && !subCatgoryName.toLowerCase().includes('accessories') && (
                 <>
                   <Select
                     value={fuelTypeValue}
@@ -376,30 +421,46 @@ const UpdateProductDraftForm = ({
                     </SelectContent>
                   </Select>
 
-                  <Select
-                    value={modelValue}
-                    onValueChange={(value) => setValue("model", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
-                      <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
-                      <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
-                      <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
-                      <SelectItem value="1_year_old">1 Year Old</SelectItem>
-                      <SelectItem value="2_year_old">2 Year Old</SelectItem>
-                      <SelectItem value="3_year_old">3 Year Old</SelectItem>
-                      <SelectItem value="4_year_old">4 Year Old</SelectItem>
-                      <SelectItem value="5_year_old">5 Year Old</SelectItem>
-                      <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
-                      <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
-                      <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select
+{
+   !subCatgoryName.toLowerCase().includes('accessories') && (
+      // <Select
+      //               value={modelValue}
+      //               onValueChange={(value) => setValue("model", value)}
+      //             >
+      //               <SelectTrigger className="w-full bg-white">
+      //                 <SelectValue placeholder="Model" />
+      //               </SelectTrigger>
+      //               <SelectContent>
+      //                 <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
+      //                 <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
+      //                 <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
+      //                 <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
+      //                 <SelectItem value="1_year_old">1 Year Old</SelectItem>
+      //                 <SelectItem value="2_year_old">2 Year Old</SelectItem>
+      //                 <SelectItem value="3_year_old">3 Year Old</SelectItem>
+      //                 <SelectItem value="4_year_old">4 Year Old</SelectItem>
+      //                 <SelectItem value="5_year_old">5 Year Old</SelectItem>
+      //                 <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
+      //                 <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
+      //                 <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
+      //               </SelectContent>
+      //             </Select>
+        <Input
+                        type="text"
+                        placeholder="Model"
+                        // value={modelValue}
+                        // onChange={(e)=>{
+                        //   setValue('model',e.target.value)
+                        // }}
+                        {...register('model')}
+                        className="bg-white col-span-1"
+                      />
+   )
+}
+                      {
+                   !subCatgoryName.toLowerCase().includes('accessories') && (
+                    <>
+                      {/* <Select
                     value={colorValue}
                     onValueChange={(value) => setValue("color", value)}
                   >
@@ -413,8 +474,24 @@ const UpdateProductDraftForm = ({
                       <SelectItem value="white">White</SelectItem>
                       <SelectItem value="silver">Silver</SelectItem>
                     </SelectContent>
-                  </Select>
+                  </Select> */}
 
+                   <Input
+                  type="text"
+                  placeholder="Color"
+                  value={colorValue}
+                  onChange={(e)=>{
+                    setValue('color',e.target.value)
+                  }}
+                  />
+                    
+                    </>
+                   )
+
+                      }
+
+                      {
+                   !subCatgoryName.toLowerCase().includes('accessories') && (
                   <Select
                     value={transmissionValue}
                     onValueChange={(value) => setValue("transmission", value)}
@@ -427,12 +504,17 @@ const UpdateProductDraftForm = ({
                       <SelectItem value="manual">Manual</SelectItem>
                     </SelectContent>
                   </Select>
+
+                   )
+                      }
+
+                 
                 </>
               )}
 
               {(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
                 currentCategoryName === "automobile" || currentCategoryName === "home" ||
-                currentCategoryName === "electronics") && (
+                currentCategoryName === "electronics" || currentCategoryName !== "others") && (
                   <>
                     {(productField === 'new_product' || productField === '') && (
                       <Select
@@ -448,20 +530,20 @@ const UpdateProductDraftForm = ({
                         </SelectContent>
                       </Select>
                     )}
-                  {productField === 'custom' && (
-                    <Input
-                      type="text"
-                      placeholder="Enter your product type"
-                      className="bg-white mt-2"
-                      onChange={e => setValue('productType', e.target.value)}
-                    />
-                  )}
+                    {productField === 'custom' && (
+                      <Input
+                        type="text"
+                        placeholder="Enter your product type"
+                        className="bg-white mt-2"
+                        onChange={e => setValue('productType', e.target.value)}
+                      />
+                    )}
 
                     {productField === 'old_product' && (
                       <>
                         <div className="w-full max-w-md border-[1.5px] border-gray-200 rounded-lg bg-white p-3">
                           <div className="flex justify-between items-center mb-3">
-                          <Label className="font-medium text-gray-500 ">Old Product <sup className="hidden sm:block">(in Years)</sup></Label>
+                            <Label className="font-medium text-gray-500 ">Old Product <sup className="hidden sm:block">(in Years)</sup></Label>
 
                             <XIcon
                               className="w-4 h-4 text-gray-400 cursor-pointer"
@@ -500,7 +582,7 @@ const UpdateProductDraftForm = ({
                             <div className="flex items-center gap-2">
                               <Label className="text-gray-600 text-sm hidden sm:block">Min.</Label>
                               <div className="flex items-center gap-1 border rounded px-2 py-1">
-                                {values[0].toString().padStart(2, "0")} 
+                                {values[0].toString().padStart(2, "0")}
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -525,6 +607,28 @@ const UpdateProductDraftForm = ({
                     )}
                   </>
                 )}
+
+                 {
+                currentCategoryName ==='others' && (
+               <>
+               
+                   <Input
+                  type="text"
+                  placeholder="Product Type"
+                  {...register('productType')}
+                  className="bg-white"
+                />
+                
+                   <Input
+                  type="text"
+                  placeholder="Product Condition"
+                  {...register('productCondition')}
+                  className="bg-white"
+                />
+               </>
+   
+                )
+              }
 
               {productField === 'new_product' && currentCategoryName === "furniture" && (
                 <Select
@@ -924,6 +1028,7 @@ const UpdateDraft = () => {
       return mainData;
     }
   };
+
 
 
   return (

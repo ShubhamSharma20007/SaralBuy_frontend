@@ -30,6 +30,15 @@ import Authentication from "@/Components/auth/Authentication";
 // import fileDownload from "js-file-download";
 // import instance from "@/lib/instance";
 import { CategoryFormSkeleton } from "@/const/CustomSkeletons";
+
+//  for other brand value condition
+
+function otherBrandValue(obj:any){
+  if(obj?.brand === 'others' && obj.hasOwnProperty('brandName')){
+  return   obj.brandName 
+  }
+  return obj?.brand
+}
 const ProductOverview = () => {
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('productId');
@@ -432,7 +441,7 @@ useEffect(()=>{
                 <h3 className="font-semibold text-orange-600 text-xl">Requirement Specifications</h3>
                 <div className="text-sm space-y-2 text-gray-600 ">
                   <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Condition:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : productResponse?.mainProduct?.categoryId?.categoryName) || "N/A"}</p>
-                  <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? bidOverviewRes?.product?.brand : productResponse?.mainProduct?.brand) || "N/A"}</p>
+                  <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? otherBrandValue(bidOverviewRes?.product): otherBrandValue(productResponse?.mainProduct)) || "N/A"}</p>
                   {productResponse?.mainProduct?.categoryId?.categoryName === "industrial" && (
 
                     <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Construction Tool Type:</span> Industrial Tool</p>
@@ -646,7 +655,7 @@ useEffect(()=>{
                     <h3 className="font-semibold text-orange-600 text-xl">Requirement Specifications</h3>
                     <div className="text-sm space-y-2 text-gray-600 ">
                       <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Condition:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : item?.categoryId?.categoryName) || "N/A"}</p>
-                      <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? bidOverviewRes?.product?.brand : item?.brand) || "N/A"}</p>
+                      <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? otherBrandValue(bidOverviewRes?.product) : otherBrandValue(item)) || "N/A"}</p>
                       {item?.categoryId?.categoryName === "industrial" && (
 
                         <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Construction Tool Type:</span> Industrial Tool</p>
@@ -663,7 +672,7 @@ useEffect(()=>{
                             : item?.budget || 0) || 'N/A'}</p> */}
                       
 
-                      <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold capitalize">Additional Delivery & Packaging:</span> {(bidOverviewRes ? bidOverviewRes?.product?.additionalDeliveryAndPackage : item?.additionalDeliveryAndPackage) || "N/A"}</p>
+                      {/* <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold capitalize">Additional Delivery & Packaging:</span> {(bidOverviewRes ? bidOverviewRes?.product?.additionalDeliveryAndPackage : item?.additionalDeliveryAndPackage) || "N/A"}</p> */}
 
                       <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Required Delivery Date:</span> {dateFormatter(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.ex_deliveryDate : item?.paymentAndDelivery?.ex_deliveryDate) || 'N/A'}</p>
 

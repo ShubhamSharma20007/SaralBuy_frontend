@@ -98,7 +98,7 @@ export const categoroiesFormDataFields = {
   // Helper function to get category-specific fields based on what's rendered in UI
 export const getCategorySpecificFields = (categoryName: string) => {
   categoryName = categoryName.toLowerCase();
-  const baseFields = ['title', 'subCategoryId', 'description', 'paymentAndDelivery', 'gst_requirement', 'image', 'document' ];
+  const baseFields = ['title', 'subCategoryId', 'description', 'paymentAndDelivery', 'gst_requirement', 'image', 'document','brandName','minimumBudget' ];
   // budget'
   
   switch(categoryName) {
@@ -152,13 +152,19 @@ export const getCategorySpecificFields = (categoryName: string) => {
     case 'electronics':
       return [
         ...baseFields,
-        'brand', 'quantity', 'minimumBudget', 'productType', 'oldProductValue', 'productCondition'
+        'brand', 'quantity', 'productType', 'oldProductValue', 'productCondition'
       ];
     
     case 'service':
       return [
         ...baseFields,
         'rateAService'
+      ];
+    case 'others':
+      return[
+        ...baseFields.filter(item=>item !== 'brandName'),
+        'brand', 'quantity','productType','productCondition'
+       
       ];
     
     default:

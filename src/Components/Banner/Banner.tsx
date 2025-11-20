@@ -2,8 +2,8 @@
 import  { useEffect, useState } from "react";
 
 //Images and Banners
-import smartPhoneBanner from "../../image/Banners/smartPhoneBanner.png";
-import raiseAQuotationBanner from "../../image/Banners/raiseAQuoationBanner.png";
+// import smartPhoneBanner from "../../image/Banners/smartPhoneBanner.png";
+// import raiseAQuotationBanner from "../../image/Banners/raiseAQuoationBanner.png";
 import { useNavigate } from "react-router-dom";
 //Styles
 import "../../Styling/Banner/Banner.css";
@@ -54,7 +54,7 @@ const Banner = () => {
         image:banner.imageUrl,
         linkUrl:banner.linkUrl,
         text:banner.title,
-        buttonLabel: "Checkout to me ",
+        buttonLabel: "Click Here ",
         textClass: "banner-text-1",
         buttonClass: "banner-button-1",
         containerClass: "banner-content-1",

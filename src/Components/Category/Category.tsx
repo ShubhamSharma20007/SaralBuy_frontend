@@ -32,7 +32,7 @@ import categoryService from "@/services/category.service";
 import { Spinner } from "../ui/shadcn-io/spinner";
 import { getUserProfile } from "@/zustand/userProfile";
 import { SearchableDropdown } from "@/utils/searchableDropdown";
-import { electronicCategories, constructionIndustrialCategories, fashionCategories, furnitureCategories, homeAppliancesCategories, beautyCategories, sportCategories, vehicleCategories, serviceCategories } from "@/const/categoriesData";
+import { electronicCategories, constructionIndustrialCategories, fashionCategories, furnitureCategories, homeAppliancesCategories, beautyCategories, sportCategories, vehicleCategories, serviceCategories,otherCategories } from "@/const/categoriesData";
 import { getCategorySpecificFields } from "@/const/categoriesFormdataFields";
 import Authentication from "../auth/Authentication";
 import PlaceRequirementPopup from "../Popup/PlaceRequirementPopup";
@@ -47,7 +47,8 @@ const innerFormImages = {
   health: "healthFormImage.png",
   beauty: "beautyFormImage.png",
   service: "servicesFormImage.png",
-  industrial: "constructionFormImage.png"
+  industrial: "constructionFormImage.png",
+  others:'otherImage.webp'
 } as any
 
 function getSubCategories(categoryName: string) {
@@ -70,6 +71,8 @@ function getSubCategories(categoryName: string) {
       return constructionIndustrialCategories;
     case "service":
       return serviceCategories;
+    case "others":
+      return otherCategories;
     default:
       return []
   }
@@ -134,25 +137,25 @@ const CategoryForm = ({
       conditionOfProduct: '',
       toolType: '',
       rateAService: '',
-      // budget:''
+      brandName:'' // only  applicable  for other brand field in brand section
     }
   });
 
   const gstField = watch("gst_requirement");
   const productField = watch("productType");
-  const selectedSubategoryId = watch("subCategoryId");
+  // const selectedSubategryId = watch("subCategoryId");
   const paymentMode = watch("paymentAndDelivery.paymentMode");
-  const additionalDeliveryValue = watch("additionalDeliveryAndPackage");
+  // const additionalDeliveryValue = watch("additionalDeliveryAndPackage");
   const genderValue = watch("gender");
   const typeOfAccessoriesValue = watch("typeOfAccessories");
   const fuelTypeValue = watch("fuelType");
-  const modelValue = watch("model");
+  // const modelValue = watch("model");
   const colorValue = watch("color");
   const transmissionValue = watch("transmission");
   const conditionOfProductValue = watch("conditionOfProduct");
   const toolTypeValue = watch("toolType");
   const rateAServiceValue = watch("rateAService");
-
+  const [subCatgoryName,setSubcategoryName]= useState('')
   // Update parent with form data whenever form changes
   useEffect(() => {
     const subscription = watch(() => {
@@ -201,9 +204,7 @@ const CategoryForm = ({
                   const brandsArray = subCategoriesData.find((item: any) =>
                     item.category.replace(/\s+/g, '').toLowerCase() === selectProductName.replace(/\s+/g, '').toLowerCase()
                   )?.brands;
-
-
-
+                setSubcategoryName(selectProductName)
                   if (brandsArray?.length > 0) {
                     setBrandRenderItems(brandsArray);
                   }
@@ -215,7 +216,12 @@ const CategoryForm = ({
     populateBrands()
   },[subCategoryId,catByIdData,subCategoriesData])
 
-
+  useEffect(()=>{
+    if(brand !== 'other'){
+      setValue('brandName','')
+    }
+  },[brand])
+  
 
   return (
     <div className=" relative">
@@ -314,7 +320,7 @@ const CategoryForm = ({
 </Select>
 
 
-              {currentCategoryName !== "service" && (
+              {currentCategoryName !== "service" &&currentCategoryName !== "others" && (
                 <SearchableDropdown
                   // disbaled={!selectedSubategoryId}
                   setValue={setbrand}
@@ -324,13 +330,30 @@ const CategoryForm = ({
                   renderItems={brandRenderItems}
                 />
               )}
-              {/* <Input
-                  type="number"
-                  placeholder="Product Budget*"
-                  {...register('budget')}
+              {
+                currentCategoryName === "others" && (
+                  <Input
+                    type="text"
+                    placeholder="Brand Name..."
+                    value={brand}
+                    onChange={(e)=>{
+                      setbrand(e.target.value)
+                    }}
+                    className="bg-white"
+                  />
+                )
+              }
+            {
+          currentCategoryName !== 'others' &&    brand === 'others' && (
+                <Input
+                  type="text"
+                  placeholder="Specific Brand Name..."
+                  {...register('brandName')}
                   className="bg-white"
-                /> */}
-              {currentCategoryName === "electronics" && (
+                />
+              )
+            }
+              {/* {currentCategoryName === "electronics" && ( */}
                <div className="relative">
                 <p className="absolute top-1/2 left-2 text-sm  text-orange-600 font-semibold -translate-y-1/2">
                 ₹</p>
@@ -341,7 +364,7 @@ const CategoryForm = ({
                   className="bg-white  pl-5"
                 />
                </div>
-              )}
+              {/* )} */}
 
               {currentCategoryName !== "service" && (
                 <Input
@@ -423,7 +446,7 @@ const CategoryForm = ({
                 </Select>
               )}
 
-              {currentCategoryName === "automobile" && (
+              {currentCategoryName === "automobile" && !subCatgoryName.toLowerCase().includes('accessories') && (
                 <>
                   <Select
                     value={fuelTypeValue}
@@ -442,46 +465,73 @@ const CategoryForm = ({
                     </SelectContent>
                   </Select>
 
-                  <Select
-                    value={modelValue}
-                    onValueChange={(value) => setValue("model", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
-                      <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
-                      <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
-                      <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
-                      <SelectItem value="1_year_old">1 Year Old</SelectItem>
-                      <SelectItem value="2_year_old">2 Year Old</SelectItem>
-                      <SelectItem value="3_year_old">3 Year Old</SelectItem>
-                      <SelectItem value="4_year_old">4 Year Old</SelectItem>
-                      <SelectItem value="5_year_old">5 Year Old</SelectItem>
-                      <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
-                      <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
-                      <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
-                    </SelectContent>
-                  </Select>
+{
+   !subCatgoryName.toLowerCase().includes('accessories') && (
+      // <Select
+      //               value={modelValue}
+      //               onValueChange={(value) => setValue("model", value)}
+      //             >
+      //               <SelectTrigger className="w-full bg-white">
+      //                 <SelectValue placeholder="Model" />
+      //               </SelectTrigger>
+      //               <SelectContent>
+      //                 <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
+      //                 <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
+      //                 <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
+      //                 <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
+      //                 <SelectItem value="1_year_old">1 Year Old</SelectItem>
+      //                 <SelectItem value="2_year_old">2 Year Old</SelectItem>
+      //                 <SelectItem value="3_year_old">3 Year Old</SelectItem>
+      //                 <SelectItem value="4_year_old">4 Year Old</SelectItem>
+      //                 <SelectItem value="5_year_old">5 Year Old</SelectItem>
+      //                 <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
+      //                 <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
+      //                 <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
+      //               </SelectContent>
+      //             </Select>
+       <Input
+                  type="text"
+                  placeholder="Model"
+                  // value={modelValue}
+                  // onChange={(e)=>{
+                  //   setValue('model',e.target.value)
+                  // }}
+                  {...register('model')}
+                  className="bg-white col-span-1"
+                />
+   )
+}
+                {
+                   !subCatgoryName.toLowerCase().includes('accessories') && (
+                  //    <Select
+                  //   value={colorValue}
+                  //   onValueChange={(value) => setValue("color", value)}
+                  // >
+                  //   <SelectTrigger className="w-full bg-white">
+                  //     <SelectValue placeholder="Color" />
+                  //   </SelectTrigger>
+                  //   <SelectContent>
+                  //     <SelectItem value="red">Red</SelectItem>
+                  //     <SelectItem value="blue">Blue</SelectItem>
+                  //     <SelectItem value="black">Black</SelectItem>
+                  //     <SelectItem value="white">White</SelectItem>
+                  //     <SelectItem value="silver">Silver</SelectItem>
+                  //   </SelectContent>
+                  // </Select>
+                  <Input
+                  type="text"
+                  placeholder="Color"
+                  value={colorValue}
+                  onChange={(e)=>{
+                    setValue('color',e.target.value)
+                  }}
+                  />
+                   )
+                }             
 
-                  <Select
-                    value={colorValue}
-                    onValueChange={(value) => setValue("color", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="red">Red</SelectItem>
-                      <SelectItem value="blue">Blue</SelectItem>
-                      <SelectItem value="black">Black</SelectItem>
-                      <SelectItem value="white">White</SelectItem>
-                      <SelectItem value="silver">Silver</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select
+{
+   !subCatgoryName.toLowerCase().includes('accessories') && (
+       <Select
                     value={transmissionValue}
                     onValueChange={(value) => setValue("transmission", value)}
                   >
@@ -493,12 +543,14 @@ const CategoryForm = ({
                       <SelectItem value="manual">Manual</SelectItem>
                     </SelectContent>
                   </Select>
+   )
+}         
                 </>
               )}
 
               {(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
                 currentCategoryName === "automobile" || currentCategoryName === "home" ||
-                currentCategoryName === "electronics") && (
+                currentCategoryName === "electronics" || currentCategoryName !== "others") && (
                   <>
                     {(productField === 'new_product' || productField === '') && (
                       <Select
@@ -579,9 +631,32 @@ const CategoryForm = ({
                           </SelectContent>
                         </Select>
                       </>
-                    )}
+                    ) }
                   </>
                 )}
+
+
+              {
+                currentCategoryName ==='others' && (
+               <>
+               
+                   <Input
+                  type="text"
+                  placeholder="Product Type"
+                  {...register('productType')}
+                  className="bg-white"
+                />
+                
+                   <Input
+                  type="text"
+                  placeholder="Product Condition"
+                  {...register('productCondition')}
+                  className="bg-white"
+                />
+               </>
+   
+                )
+              }
 
               {productField === 'new_product' && currentCategoryName === "furniture" && (
                 <Select

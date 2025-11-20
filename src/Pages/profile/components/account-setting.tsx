@@ -3,9 +3,11 @@ import { Card } from "../../../Components/ui/card"
 import { Input } from "../../../Components/ui/input"
 import { Label } from "../../../Components/ui/label"
 import { Textarea } from "../../../Components/ui/textarea"
-import { CloudUpload, Plus } from "lucide-react"
+import { 
+  // CloudUpload, 
+  Plus } from "lucide-react"
 import { useForm } from "react-hook-form"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useFetch } from "@/helper/use-fetch"
 import userService from "@/services/user.service"
 import { getUserProfile } from "@/zustand/userProfile"
@@ -17,8 +19,8 @@ import { ProfileSchema } from "@/validations/Schema"
 import Authentication from "../../../Components/auth/Authentication"
 
 export function AccountSettings() {
-  const docRef = useRef<HTMLInputElement | null>(null)
-  const [fileDoc, setFileDoc] = useState<File | null>(null)
+  // const docRef = useRef<HTMLInputElement | null>(null)
+  const [fileDoc, _] = useState<File | null>(null)
   const { user, setUser } = getUserProfile()
   const [open,setOpen]= useState(false)
   const { fn: updateProfilefn, data: updateProfileRes, loading } = useFetch(userService.updateProfile)

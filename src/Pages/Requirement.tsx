@@ -1,4 +1,4 @@
-import Banner from '@/Components/Banner/Banner';
+// import Banner from '@/Components/Banner/Banner';
 import ItemCard from '@/Components/ItemCard'
 import { useCategoriesStore } from '@/zustand/getCategories';
 
@@ -32,7 +32,7 @@ const Requirement = () => {
       <h1 className="text-xl font-bold te xt-gray-700 mt-10 mb-4">Select a Category</h1>
       {
         currentWinSize >= 768 ?
-          <div className="grid grid-cols-9 gap-5 ">
+          <div className="grid grid-cols-10 gap-5 ">
             {
               data && (data as any[])?.map((item: any) => <ItemCard key={item._id} {...item} />)
             }
@@ -46,7 +46,7 @@ const Requirement = () => {
               data && data?.map((item: any) => <AccordionItem value={item?._id} key={item._id}>
                 <AccordionTrigger className='capitalize'>
                  <div className='flex items-center gap-x-4'>
-                   <img src={item?.image}  className='max-w-24' />
+                   <img src={item?.image}  className='max-w-20 capitalize' />
                   {item?.categoryName}
                  </div>
                 </AccordionTrigger>

@@ -33,7 +33,8 @@ function Arrow({ disabled, left, onClick }: {
     </div>
   );
 }
-const RequirementSlider = ({ product, tab, target }: { product: any, tab?: string, target: string }) => {
+const RequirementSlider = ({ product, target }: { product: any, tab?: string, target: string }) => {
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
 

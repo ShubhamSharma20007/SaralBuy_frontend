@@ -181,7 +181,7 @@ class ChatService {
         finalBuyerId = senderType === 'buyer' ? senderId : undefined;
       }
       // Compute the roomId using sorted IDs (for logging/debug)
-      const roomId = this.generateRoomId(productId, finalBuyerId!, sellerId);
+      // const roomId = this.generateRoomId(productId, finalBuyerId!, sellerId);
       
       // console.log(`[ChatService] Sending message:`, {
       //   productId,

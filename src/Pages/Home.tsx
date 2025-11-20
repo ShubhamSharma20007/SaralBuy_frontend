@@ -14,7 +14,7 @@ import { Skeleton } from "@/Components/ui/skeleton";
 import productService from "@/services/product.service";
 import DyanmicHomeCard from "@/Components/DyanmicHomeCard";
 import { useCategoriesStore } from "@/zustand/getCategories";
-import Brands from "@/Components/Brands";
+// import Brands from "@/Components/Brands";
 
 
 
@@ -124,7 +124,7 @@ const Home = () => {
         data && data.map((item:any,idx:number)=><DyanmicHomeCard key={idx+1} bg={idx === 0 ?'gray' :''} item={item}/>)
       }
       {/* brands */}
-      <Brands ></Brands>
+      {/* <Brands ></Brands> */}
      
 
     </main>);
