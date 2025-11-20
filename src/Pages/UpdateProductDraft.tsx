@@ -383,7 +383,7 @@ const UpdateProductDraftForm = ({
                 </Select>
               )}
 
-              {(currentCategoryName === "fashion" || currentCategoryName === "beauty") && (
+              {/* {(currentCategoryName === "fashion" || currentCategoryName === "beauty") && (
                 <Select
                   value={typeOfAccessoriesValue}
                   onValueChange={(value) => setValue("typeOfAccessories", value)}
@@ -402,7 +402,7 @@ const UpdateProductDraftForm = ({
                     <SelectItem value="watches">Watches</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              )} */}
 
               {currentCategoryName === "automobile" && !subCatgoryName.toLowerCase().includes('accessories') && (
                 <>
@@ -636,7 +636,7 @@ const UpdateProductDraftForm = ({
                   onValueChange={(value) => setValue("conditionOfProduct", value)}
                 >
                   <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Condition of Product" />
+                    <SelectValue placeholder="Product Condition" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="new">New</SelectItem>

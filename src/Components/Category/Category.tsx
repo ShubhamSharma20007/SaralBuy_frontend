@@ -147,7 +147,7 @@ const CategoryForm = ({
   const paymentMode = watch("paymentAndDelivery.paymentMode");
   // const additionalDeliveryValue = watch("additionalDeliveryAndPackage");
   const genderValue = watch("gender");
-  const typeOfAccessoriesValue = watch("typeOfAccessories");
+    const typeOfAccessoriesValue = watch("typeOfAccessories");
   const fuelTypeValue = watch("fuelType");
   // const modelValue = watch("model");
   const colorValue = watch("color");
@@ -425,7 +425,7 @@ const CategoryForm = ({
                 </Select>
               )}
 
-              {(currentCategoryName === "fashion" || currentCategoryName === "beauty") && (
+              {/* {(currentCategoryName === "fashion" || currentCategoryName === "beauty") && (
                 <Select
                   value={typeOfAccessoriesValue}
                   onValueChange={(value) => setValue("typeOfAccessories", value)}
@@ -444,7 +444,7 @@ const CategoryForm = ({
                     <SelectItem value="watches">Watches</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              )} */}
 
               {currentCategoryName === "automobile" && !subCatgoryName.toLowerCase().includes('accessories') && (
                 <>
@@ -664,7 +664,7 @@ const CategoryForm = ({
                   onValueChange={(value) => setValue("conditionOfProduct", value)}
                 >
                   <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Condition of Product" />
+                    <SelectValue placeholder="Product Condition" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="new">New</SelectItem>
