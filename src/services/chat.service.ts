@@ -29,7 +29,8 @@ class ChatService {
 
   public connect() {
     if (!this.socket) {
-      const socketUrl =  import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :  import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
+      // import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :
+      const socketUrl =    import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
       // console.log("[ChatService] Connecting to socket URL:", socketUrl);
 
       this.socket = io(socketUrl, {
