@@ -137,8 +137,9 @@ const UpdateProductDraftForm = ({
       conditionOfProduct: initialData?.conditionOfProduct || '',
       toolType: initialData?.toolType || '',
       rateAService: initialData?.rateAService || '',
-      brandName: initialData?.brandName || ''
-      // budget:initialData?.budget || ''
+      brandName: initialData?.brandName || '',
+      typeOfVehicle:initialData?.typeOfVehicle || '',
+      typeOfProduct:initialData?.typeOfProduct || ''
     }
   });
 
@@ -327,7 +328,7 @@ const UpdateProductDraftForm = ({
 
               {currentCategoryName !== "service" && (
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Quantity*"
                   {...register('quantity')}
                   className="bg-white col-span-1"
@@ -421,31 +422,31 @@ const UpdateProductDraftForm = ({
                     </SelectContent>
                   </Select>
 
-{
-   !subCatgoryName.toLowerCase().includes('accessories') && (
-      // <Select
-      //               value={modelValue}
-      //               onValueChange={(value) => setValue("model", value)}
-      //             >
-      //               <SelectTrigger className="w-full bg-white">
-      //                 <SelectValue placeholder="Model" />
-      //               </SelectTrigger>
-      //               <SelectContent>
-      //                 <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
-      //                 <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
-      //                 <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
-      //                 <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
-      //                 <SelectItem value="1_year_old">1 Year Old</SelectItem>
-      //                 <SelectItem value="2_year_old">2 Year Old</SelectItem>
-      //                 <SelectItem value="3_year_old">3 Year Old</SelectItem>
-      //                 <SelectItem value="4_year_old">4 Year Old</SelectItem>
-      //                 <SelectItem value="5_year_old">5 Year Old</SelectItem>
-      //                 <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
-      //                 <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
-      //                 <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
-      //               </SelectContent>
-      //             </Select>
-        <Input
+                  {
+                    !subCatgoryName.toLowerCase().includes('accessories') && (
+                      // <Select
+                      //               value={modelValue}
+                      //               onValueChange={(value) => setValue("model", value)}
+                      //             >
+                      //               <SelectTrigger className="w-full bg-white">
+                      //                 <SelectValue placeholder="Model" />
+                      //               </SelectTrigger>
+                      //               <SelectContent>
+                      //                 <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
+                      //                 <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
+                      //                 <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
+                      //                 <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
+                      //                 <SelectItem value="1_year_old">1 Year Old</SelectItem>
+                      //                 <SelectItem value="2_year_old">2 Year Old</SelectItem>
+                      //                 <SelectItem value="3_year_old">3 Year Old</SelectItem>
+                      //                 <SelectItem value="4_year_old">4 Year Old</SelectItem>
+                      //                 <SelectItem value="5_year_old">5 Year Old</SelectItem>
+                      //                 <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
+                      //                 <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
+                      //                 <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
+                      //               </SelectContent>
+                      //             </Select>
+                      <Input
                         type="text"
                         placeholder="Model"
                         // value={modelValue}
@@ -455,12 +456,12 @@ const UpdateProductDraftForm = ({
                         {...register('model')}
                         className="bg-white col-span-1"
                       />
-   )
-}
-                      {
-                   !subCatgoryName.toLowerCase().includes('accessories') && (
-                    <>
-                      {/* <Select
+                    )
+                  }
+                  {
+                    !subCatgoryName.toLowerCase().includes('accessories') && (
+                      <>
+                        {/* <Select
                     value={colorValue}
                     onValueChange={(value) => setValue("color", value)}
                   >
@@ -476,45 +477,67 @@ const UpdateProductDraftForm = ({
                     </SelectContent>
                   </Select> */}
 
-                   <Input
-                  type="text"
-                  placeholder="Color"
-                  value={colorValue}
-                  onChange={(e)=>{
-                    setValue('color',e.target.value)
-                  }}
-                  />
-                    
-                    </>
-                   )
+                        <Input
+                          type="text"
+                          placeholder="Color"
+                          value={colorValue}
+                          onChange={(e) => {
+                            setValue('color', e.target.value)
+                          }}
+                        />
 
-                      }
+                      </>
+                    )
 
-                      {
-                   !subCatgoryName.toLowerCase().includes('accessories') && (
-                  <Select
-                    value={transmissionValue}
-                    onValueChange={(value) => setValue("transmission", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Transmission" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="automatic">Automatic</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  }
 
-                   )
-                      }
+                  {
+                    !['scooters', 'accessories', 'bicycles', 'fuelType'].includes(subCatgoryName.toLowerCase()) && (
+                      <Select
+                        value={transmissionValue}
+                        onValueChange={(value) => setValue("transmission", value)}
+                      >
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="Transmission" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="automatic">Automatic</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-                 
+                    )
+                  }
+
+
                 </>
               )}
 
+              {/* // this is a subcatgory Name */}
+              {subCatgoryName === 'Commercial and other Vehicle' && currentCategoryName === 'automobile' &&
+                <Input
+                  type="text"
+                  placeholder="Type of Vehicle"
+                  {...register('typeOfVehicle')}
+                  className="bg-white"
+                />
+              }
+
+               { currentCategoryName !== 'automobile' &&
+                <Input
+                  type="text"
+                  placeholder="Type of Vehicle"
+                  {...register('typeOfProduct')}
+                  className="bg-white"
+                />
+              }
+              
+
               {(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
                 currentCategoryName === "automobile" || currentCategoryName === "home" ||
-                currentCategoryName === "electronics" || currentCategoryName !== "others") && (
+                currentCategoryName === "electronics") &&
+                currentCategoryName !== "service" &&
+                currentCategoryName !== "others" && (
                   <>
                     {(productField === 'new_product' || productField === '') && (
                       <Select
@@ -593,7 +616,7 @@ const UpdateProductDraftForm = ({
                             </div>
                           </div>
                         </div>
-                        <Select onValueChange={(val) => setValue('productCondition', val)}>
+                        {/* <Select onValueChange={(val) => setValue('productCondition', val)}>
                           <SelectTrigger className="w-full bg-white">
                             <SelectValue placeholder="Product Condition" />
                           </SelectTrigger>
@@ -602,31 +625,31 @@ const UpdateProductDraftForm = ({
                             <SelectItem value="good">Good</SelectItem>
                             <SelectItem value="fair">Fair</SelectItem>
                           </SelectContent>
-                        </Select>
+                        </Select> */}
                       </>
                     )}
                   </>
                 )}
 
-                 {
-                currentCategoryName ==='others' && (
-               <>
-               
-                   <Input
-                  type="text"
-                  placeholder="Product Type"
-                  {...register('productType')}
-                  className="bg-white"
-                />
-                
-                   <Input
-                  type="text"
-                  placeholder="Product Condition"
-                  {...register('productCondition')}
-                  className="bg-white"
-                />
-               </>
-   
+              {
+                currentCategoryName === 'others' && (
+                  <>
+
+                    <Input
+                      type="text"
+                      placeholder="Product Type"
+                      {...register('productType')}
+                      className="bg-white"
+                    />
+
+                    <Input
+                      type="text"
+                      placeholder="Product Condition"
+                      {...register('productCondition')}
+                      className="bg-white"
+                    />
+                  </>
+
                 )
               }
 
@@ -671,7 +694,10 @@ const UpdateProductDraftForm = ({
           </div>
 
           <div className="rounded-[5px] p-6  bg-gray-200/50">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Other Details</h3>
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold  text-gray-700">Other Details</h3>
+              <sup className="italic text-gray-500">Product Image and document are not mendatory.</sup>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div
                 onClick={() => (imageRef as any)?.current?.click()}
@@ -883,7 +909,7 @@ const UpdateDraft = () => {
 
     for (let i = 0; i < formsArray.length; i++) {
       const form = formsArray[i] as any;
-
+      console.log(form)
       if (!form.title || form.title.trim() === '') {
         toast.error(`Title is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
         return false;
@@ -898,10 +924,10 @@ const UpdateDraft = () => {
         toast.error(`Brand is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
         return false;
       }
-      //  if (!form.budget || form.budget.trim() === '') {
-      //   toast.error(`Budget is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
-      //   return false;
-      // }
+      if (!form.minimumBudget || form.minimumBudget < 0) {
+        toast.error(`MinimumBudget is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
+        return false;
+      }
 
       if (currentCategoryName?.toLowerCase() !== 'service' && (!form.quantity || form.quantity.toString().trim() === '')) {
         toast.error(`Quantity is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
@@ -957,12 +983,30 @@ const UpdateDraft = () => {
     const formDataToSend = new FormData();
     const productsData = [] as any
 
-    Object.entries(formsData).forEach(([_, formData]: any) => {
+    for (const [index, formData] of Object.entries(formsData) as any) {
+      if (formData.quantity) {
+        const qty = formData.quantity.toString().trim();
+        if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+          toast.error(`Invalid Quantity in Form ${parseInt(index) + 1}.`);
+          return; // Stop execution
+        }
+      }
 
+      if (formData.minimumBudget) {
+        const minBudget = formData.minimumBudget.toString().trim();
+        if (!/^\d+$/.test(minBudget) || parseInt(minBudget) < 1) {
+          toast.error(`Invalid Minimum Budget in Form ${parseInt(index) + 1}.`);
+          return; // Stop execution
+        }
+      }
+    }
+
+
+    Object.entries(formsData).forEach(([_, formData]: any) => {
+      console.log(formData)
       const productData: any = {
         _id: formData._id // Include ID for update
       };
-
       allowedFields.forEach(field => {
         if (field === 'image' || field === 'document') {
           return;

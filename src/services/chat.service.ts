@@ -1,8 +1,6 @@
 import { io, Socket } from "socket.io-client";
 
-// Don't import the zustand hook at module top-level — update the store dynamically
-
-import instance from "@/lib/instance"; // <-- ADD THIS LINE
+import instance, { url } from "@/lib/instance"; 
 
 class ChatService {
   private static instance: ChatService;
@@ -30,7 +28,7 @@ class ChatService {
   public connect() {
     if (!this.socket) {
       // import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :
-      const socketUrl =    import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
+      const socketUrl =   url
       // console.log("[ChatService] Connecting to socket URL:", socketUrl);
 
       this.socket = io(socketUrl, {

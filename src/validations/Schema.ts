@@ -44,6 +44,8 @@ export const CategoryFormSchema = z.object({
   toolType: z.string().optional(),
   rateAService: z.string().optional(),
   brandName: z.string().optional(),
+  typeOfVehicle:z.string().optional(),
+  typeOfProduct:z.string().optional()
 
 });
 

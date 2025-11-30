@@ -137,7 +137,10 @@ const CategoryForm = ({
       conditionOfProduct: '',
       toolType: '',
       rateAService: '',
-      brandName:'' // only  applicable  for other brand field in brand section
+      brandName:'', // only  applicable  for other brand field in brand section
+      typeOfVehicle:'',
+      typeOfProduct:''
+
     }
   });
 
@@ -215,6 +218,7 @@ const CategoryForm = ({
   useEffect(()=>{
     populateBrands()
   },[subCategoryId,catByIdData,subCategoriesData])
+
 
   useEffect(()=>{
     if(brand !== 'other'){
@@ -368,7 +372,7 @@ const CategoryForm = ({
 
               {currentCategoryName !== "service" && (
                 <Input
-                  type="number"
+                  type="string"
                   placeholder="Quantity*"
                   {...register('quantity')}
                   className="bg-white col-span-1"
@@ -446,7 +450,7 @@ const CategoryForm = ({
                 </Select>
               )} */}
 
-              {currentCategoryName === "automobile" && !subCatgoryName.toLowerCase().includes('accessories') && (
+              {currentCategoryName === "automobile" && !['accessories', 'bicycles',].includes(subCatgoryName.toLowerCase()) && (
                 <>
                   <Select
                     value={fuelTypeValue}
@@ -530,7 +534,7 @@ const CategoryForm = ({
                 }             
 
 {
-   !subCatgoryName.toLowerCase().includes('accessories') && (
+  !['scooters', 'accessories', 'bicycles',].includes(subCatgoryName.toLowerCase()) && (
        <Select
                     value={transmissionValue}
                     onValueChange={(value) => setValue("transmission", value)}
@@ -548,9 +552,11 @@ const CategoryForm = ({
                 </>
               )}
 
-              {(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
-                currentCategoryName === "automobile" || currentCategoryName === "home" ||
-                currentCategoryName === "electronics" || currentCategoryName !== "others") && (
+{(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
+  currentCategoryName === "automobile" || currentCategoryName === "home" ||
+  currentCategoryName === "electronics") && 
+  currentCategoryName !== "service" && 
+  currentCategoryName !== "others" && (
                   <>
                     {(productField === 'new_product' || productField === '') && (
                       <Select
@@ -620,7 +626,7 @@ const CategoryForm = ({
                             </div>
                           </div>
                         </div>
-                        <Select onValueChange={(val) => setValue('productCondition', val)}>
+                        {/* <Select onValueChange={(val) => setValue('productCondition', val)}>
                           <SelectTrigger className="w-full bg-white">
                             <SelectValue placeholder="Product Condition" />
                           </SelectTrigger>
@@ -629,7 +635,7 @@ const CategoryForm = ({
                             <SelectItem value="good">Good</SelectItem>
                             <SelectItem value="fair">Fair</SelectItem>
                           </SelectContent>
-                        </Select>
+                        </Select> */}
                       </>
                     ) }
                   </>
@@ -680,7 +686,24 @@ const CategoryForm = ({
                   </SelectContent>
                 </Select>
               )}
+      {/* // this is a subcatgory Name */}
+            { subCatgoryName === 'Commercial and other Vehicle' && currentCategoryName ==='automobile' &&
+                 <Input
+                  type="text"
+                  placeholder="Type of Vehicle"
+                  {...register('typeOfVehicle')}
+                  className="bg-white"
+                />
+            }
 
+               { currentCategoryName !== 'automobile' &&
+                <Input
+                  type="text"
+                  placeholder="Product Type"
+                  {...register('typeOfProduct')}
+                  className="bg-white"
+                />
+              }
               {currentCategoryName === "industrial" && (
                 <Select
                   value={toolTypeValue}
@@ -699,7 +722,10 @@ const CategoryForm = ({
           </div>
 
           <div className="rounded-[5px] p-6  bg-gray-200/50">
-            <h3 className="text-lg font-semibold mb-4 text-gray-700">Other Details</h3>
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold  text-gray-700">Other Details</h3>
+            <sup className="italic text-gray-500">Product Image and document are not mendatory.</sup>
+            </div>
              
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
              
@@ -1017,6 +1043,21 @@ const Category = () => {
         const formDataToSend = new FormData();
         const productsData = [];
         for (const [_, formData] of formsArray.entries() as any) {
+          if (formData.quantity) {
+          const qty = formData.quantity.toString().trim();
+            if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+              toast.error(`Invalid Quantity in Form ${_ + 1}`);
+              return;
+            }
+          }
+          if(formData.minimumBudget){
+            const minBudget = formData.minimumBudget.toString().trim();
+            if (!/^\d+$/.test(minBudget) || parseInt(minBudget) < 1) {
+              toast.error(`Invalid Minimum Budget in Form ${_ + 1}`);
+              return;
+            }
+          }
+
           const productData: any = {};
 
           allowedFields.forEach(field => {
@@ -1060,7 +1101,26 @@ const Category = () => {
       } else {
 
         const formData = formsArray[0];
+        console.log(formData)
         const formDataToSend = new FormData();
+       if (formData["quantity"]) {
+        const qty = formData["quantity"].toString().trim();
+
+        if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+          toast.error("Invalid Quantity");
+          return;
+        }
+      }
+
+       if (formData.minimumBudget) {
+        const qty = formData["minimumBudget"].toString().trim();
+
+        if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+          toast.error("Invalid Minimum Budget");
+          return;
+        }
+      }
+
 
         allowedFields.forEach(field => {
           if (field === 'image' || field === 'document') {
@@ -1093,11 +1153,6 @@ const Category = () => {
 
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
    formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
-
-        // console.log('Single product FormData entries:');
-        // for (let [key, value] of formDataToSend.entries()) {
-        //   console.log(key, value);
-        // }
 
         await fn(categoryId, formData.subCategoryId || subCategoryId, formDataToSend, false);
       }
