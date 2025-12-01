@@ -60,7 +60,27 @@ export const electronicCategories= [
     ],
   },
   {
-    category: "Mobile/Tablets",
+    category: "Mobile",
+    brands: [
+      { value: "samsung", label: "Samsung" },
+      { value: "apple", label: "Apple" },
+      { value: "realme", label: "Realme" },
+      { value: "xiaomi", label: "Xiaomi" },
+      { value: "vivo", label: "Vivo" },
+      { value: "oppo", label: "Oppo" },
+      { value: "oneplus", label: "OnePlus" },
+      { value: "motorola", label: "Motorola" },
+      { value: "iqoo", label: "iQOO" },
+      { value: "nokia", label: "Nokia" },
+      { value: "asus", label: "Asus" },
+      { value: "infinix", label: "Infinix" },
+      { value: "tecno", label: "Tecno" },
+      { value: "micromax", label: "Micromax" },
+      { value: "others", label: "Others" },
+    ],
+  },
+   {
+    category: "Tablets",
     brands: [
       { value: "samsung", label: "Samsung" },
       { value: "apple", label: "Apple" },
@@ -81,6 +101,26 @@ export const electronicCategories= [
   },
   {
     category: "Mobile Accessories",
+    brands: [
+      { value: "boat", label: "Boat" },
+      { value: "noise", label: "Noise" },
+      { value: "zebronics", label: "Zebronics" },
+      { value: "ambrane", label: "Ambrane" },
+      { value: "portronics", label: "Portronics" },
+      { value: "ptron", label: "pTron" },
+      { value: "mi", label: "Mi" },
+      { value: "realme", label: "Realme" },
+      { value: "jbl", label: "JBL" },
+      { value: "boult", label: "Boult" },
+      { value: "anker", label: "Anker" },
+      { value: "stuffcool", label: "Stuffcool" },
+      { value: "artis", label: "Artis" },
+      { value: "syska", label: "Syska" },
+      { value: "others", label: "Others" },
+    ],
+  },
+  {
+    category: "Wearables",
     brands: [
       { value: "boat", label: "Boat" },
       { value: "noise", label: "Noise" },
@@ -746,7 +786,7 @@ export const sportCategories = [
 
 export const homeAppliancesCategories = [
   {
-    category: "Electric Home Appliances",
+    category: "Home Appliances",
     brands: [
       { value: "lg", label: "LG" },
       { value: "samsung", label: "Samsung" },
@@ -766,27 +806,44 @@ export const homeAppliancesCategories = [
     ]
   },
   {
-    category: "Kitchen Home Appliances",
+    category: "Laptops & Accessories",
+    // brands: [
+    //   { value: "prestige", label: "Prestige" },
+    //   { value: "butterfly", label: "Butterfly" },
+    //   { value: "philips", label: "Philips" },
+    //   { value: "bajaj", label: "Bajaj" },
+    //   { value: "havells", label: "Havells" },
+    //   { value: "usha", label: "Usha" },
+    //   { value: "morphy richards", label: "Morphy Richards" },
+    //   { value: "crompton", label: "Crompton" },
+    //   { value: "wonderchef", label: "Wonderchef" },
+    //   { value: "kent", label: "Kent" },
+    //   { value: "inalsa", label: "Inalsa" },
+    //   { value: "pigeon", label: "Pigeon" },
+    //   { value: "panasonic", label: "Panasonic" },
+    //   { value: "glen", label: "Glen" },
+    //   { value: "others", label: "Others" }
+    // ]
     brands: [
-      { value: "prestige", label: "Prestige" },
-      { value: "butterfly", label: "Butterfly" },
-      { value: "philips", label: "Philips" },
-      { value: "bajaj", label: "Bajaj" },
-      { value: "havells", label: "Havells" },
-      { value: "usha", label: "Usha" },
-      { value: "morphy richards", label: "Morphy Richards" },
-      { value: "crompton", label: "Crompton" },
-      { value: "wonderchef", label: "Wonderchef" },
-      { value: "kent", label: "Kent" },
-      { value: "inalsa", label: "Inalsa" },
-      { value: "pigeon", label: "Pigeon" },
+      { value: "lg", label: "LG" },
+      { value: "samsung", label: "Samsung" },
+      { value: "whirlpool", label: "Whirlpool" },
+      { value: "ifb", label: "IFB" },
+      { value: "godrej", label: "Godrej" },
       { value: "panasonic", label: "Panasonic" },
-      { value: "glen", label: "Glen" },
+      { value: "haier", label: "Haier" },
+      { value: "voltas", label: "Voltas" },
+      { value: "lloyd", label: "Lloyd" },
+      { value: "blue star", label: "Blue Star" },
+      { value: "bosch", label: "Bosch" },
+      { value: "philips", label: "Philips" },
+      { value: "croma", label: "Croma" },
+      { value: "kelvinator", label: "Kelvinator" },
       { value: "others", label: "Others" }
     ]
   },
   {
-    category: "Daily Usage Items",
+    category: "Kitchen Appliances",
     brands: [
       { value: "milton", label: "Milton" },
       { value: "cello", label: "Cello" },
@@ -806,42 +863,76 @@ export const homeAppliancesCategories = [
     ]
   },
   {
-    category: "Grocery Materials",
+    category: "Audio,Video & Gaming",
+    // brands: [
+    //   { value: "aashirvaad", label: "Aashirvaad" },
+    //   { value: "fortune", label: "Fortune" },
+    //   { value: "tata salt", label: "Tata Salt" },
+    //   { value: "dawat", label: "Dawat" },
+    //   { value: "india gate", label: "India Gate" },
+    //   { value: "patanjali", label: "Patanjali" },
+    //   { value: "parle", label: "Parle" },
+    //   { value: "britannia", label: "Britannia" },
+    //   { value: "amul", label: "Amul" },
+    //   { value: "nestle", label: "Nestle" },
+    //   { value: "haldiram’s", label: "Haldiram’s" },
+    //   { value: "mdh", label: "MDH" },
+    //   { value: "everest", label: "Everest" },
+    //   { value: "saffola", label: "Saffola" },
+    //   { value: "others", label: "Others" }
+    // ]
     brands: [
-      { value: "aashirvaad", label: "Aashirvaad" },
-      { value: "fortune", label: "Fortune" },
-      { value: "tata salt", label: "Tata Salt" },
-      { value: "dawat", label: "Dawat" },
-      { value: "india gate", label: "India Gate" },
-      { value: "patanjali", label: "Patanjali" },
-      { value: "parle", label: "Parle" },
-      { value: "britannia", label: "Britannia" },
-      { value: "amul", label: "Amul" },
-      { value: "nestle", label: "Nestle" },
-      { value: "haldiram’s", label: "Haldiram’s" },
-      { value: "mdh", label: "MDH" },
-      { value: "everest", label: "Everest" },
-      { value: "saffola", label: "Saffola" },
+      { value: "lg", label: "LG" },
+      { value: "samsung", label: "Samsung" },
+      { value: "whirlpool", label: "Whirlpool" },
+      { value: "ifb", label: "IFB" },
+      { value: "godrej", label: "Godrej" },
+      { value: "panasonic", label: "Panasonic" },
+      { value: "haier", label: "Haier" },
+      { value: "voltas", label: "Voltas" },
+      { value: "lloyd", label: "Lloyd" },
+      { value: "blue star", label: "Blue Star" },
+      { value: "bosch", label: "Bosch" },
+      { value: "philips", label: "Philips" },
+      { value: "croma", label: "Croma" },
+      { value: "kelvinator", label: "Kelvinator" },
       { value: "others", label: "Others" }
     ]
   },
   {
-    category: "Event And Pooja Materials",
+    category: "Camera & Accessories",
+    // brands: [
+    //   { value: "cycle agarbathi", label: "Cycle Agarbathi" },
+    //   { value: "mangaldeep", label: "Mangaldeep" },
+    //   { value: "hari darshan", label: "Hari Darshan" },
+    //   { value: "moksh", label: "Moksh" },
+    //   { value: "zed black", label: "Zed Black" },
+    //   { value: "satya sai baba", label: "Satya Sai Baba" },
+    //   { value: "balaji", label: "Balaji" },
+    //   { value: "tirupati", label: "Tirupati" },
+    //   { value: "mysore sandal", label: "Mysore Sandal" },
+    //   { value: "kumkum", label: "Kumkum" },
+    //   { value: "patanjali", label: "Patanjali" },
+    //   { value: "himalaya", label: "Himalaya" },
+    //   { value: "pure puja", label: "Pure Puja" },
+    //   { value: "sudarshan", label: "Sudarshan" },
+    //   { value: "others", label: "Others" }
+    // ]
     brands: [
-      { value: "cycle agarbathi", label: "Cycle Agarbathi" },
-      { value: "mangaldeep", label: "Mangaldeep" },
-      { value: "hari darshan", label: "Hari Darshan" },
-      { value: "moksh", label: "Moksh" },
-      { value: "zed black", label: "Zed Black" },
-      { value: "satya sai baba", label: "Satya Sai Baba" },
-      { value: "balaji", label: "Balaji" },
-      { value: "tirupati", label: "Tirupati" },
-      { value: "mysore sandal", label: "Mysore Sandal" },
-      { value: "kumkum", label: "Kumkum" },
-      { value: "patanjali", label: "Patanjali" },
-      { value: "himalaya", label: "Himalaya" },
-      { value: "pure puja", label: "Pure Puja" },
-      { value: "sudarshan", label: "Sudarshan" },
+      { value: "lg", label: "LG" },
+      { value: "samsung", label: "Samsung" },
+      { value: "whirlpool", label: "Whirlpool" },
+      { value: "ifb", label: "IFB" },
+      { value: "godrej", label: "Godrej" },
+      { value: "panasonic", label: "Panasonic" },
+      { value: "haier", label: "Haier" },
+      { value: "voltas", label: "Voltas" },
+      { value: "lloyd", label: "Lloyd" },
+      { value: "blue star", label: "Blue Star" },
+      { value: "bosch", label: "Bosch" },
+      { value: "philips", label: "Philips" },
+      { value: "croma", label: "Croma" },
+      { value: "kelvinator", label: "Kelvinator" },
       { value: "others", label: "Others" }
     ]
   },
@@ -886,7 +977,7 @@ export const homeAppliancesCategories = [
     ]
   },
   {
-    category: "Others",
+    category: "Other Devices",
     brands: [
       { value: "others", label: "Others" }
     ]

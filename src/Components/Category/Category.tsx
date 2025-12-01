@@ -32,7 +32,7 @@ import categoryService from "@/services/category.service";
 import { Spinner } from "../ui/shadcn-io/spinner";
 import { getUserProfile } from "@/zustand/userProfile";
 import { SearchableDropdown } from "@/utils/searchableDropdown";
-import { electronicCategories, constructionIndustrialCategories, fashionCategories, furnitureCategories, homeAppliancesCategories, beautyCategories, sportCategories, vehicleCategories, serviceCategories,otherCategories } from "@/const/categoriesData";
+import { electronicCategories, constructionIndustrialCategories, fashionCategories, furnitureCategories, homeAppliancesCategories, beautyCategories, sportCategories, vehicleCategories, serviceCategories, otherCategories } from "@/const/categoriesData";
 import { getCategorySpecificFields } from "@/const/categoriesFormdataFields";
 import Authentication from "../auth/Authentication";
 import PlaceRequirementPopup from "../Popup/PlaceRequirementPopup";
@@ -48,7 +48,7 @@ const innerFormImages = {
   beauty: "beautyFormImage.png",
   service: "servicesFormImage.png",
   industrial: "constructionFormImage.png",
-  others:'otherImage.webp'
+  others: 'otherImage.webp'
 } as any
 
 function getSubCategories(categoryName: string) {
@@ -137,9 +137,9 @@ const CategoryForm = ({
       conditionOfProduct: '',
       toolType: '',
       rateAService: '',
-      brandName:'', // only  applicable  for other brand field in brand section
-      typeOfVehicle:'',
-      typeOfProduct:''
+      brandName: '', // only  applicable  for other brand field in brand section
+      typeOfVehicle: '',
+      typeOfProduct: ''
 
     }
   });
@@ -150,7 +150,7 @@ const CategoryForm = ({
   const paymentMode = watch("paymentAndDelivery.paymentMode");
   // const additionalDeliveryValue = watch("additionalDeliveryAndPackage");
   const genderValue = watch("gender");
-    // const typeOfAccessoriesValue = watch("typeOfAccessories");
+  // const typeOfAccessoriesValue = watch("typeOfAccessories");
   const fuelTypeValue = watch("fuelType");
   // const modelValue = watch("model");
   const colorValue = watch("color");
@@ -158,7 +158,7 @@ const CategoryForm = ({
   const conditionOfProductValue = watch("conditionOfProduct");
   const toolTypeValue = watch("toolType");
   const rateAServiceValue = watch("rateAService");
-  const [subCatgoryName,setSubcategoryName]= useState('')
+  const [subCatgoryName, setSubcategoryName] = useState('')
   // Update parent with form data whenever form changes
   useEffect(() => {
     const subscription = watch(() => {
@@ -201,35 +201,35 @@ const CategoryForm = ({
 
 
 
-  function populateBrands (){
-    if(subCategoryId){
-        const selectProductName = catByIdData?.subCategories.find((item: any) => item._id === subCategoryId)?.name || 'N/A';
-                  const brandsArray = subCategoriesData.find((item: any) =>
-                    item.category.replace(/\s+/g, '').toLowerCase() === selectProductName.replace(/\s+/g, '').toLowerCase()
-                  )?.brands;
-                setSubcategoryName(selectProductName)
-                  if (brandsArray?.length > 0) {
-                    setBrandRenderItems(brandsArray);
-                  }
-          setValue('subCategoryId', subCategoryId);
+  function populateBrands() {
+    if (subCategoryId) {
+      const selectProductName = catByIdData?.subCategories.find((item: any) => item._id === subCategoryId)?.name || 'N/A';
+      const brandsArray = subCategoriesData.find((item: any) =>
+        item.category.replace(/\s+/g, '').toLowerCase() === selectProductName.replace(/\s+/g, '').toLowerCase()
+      )?.brands;
+      setSubcategoryName(selectProductName)
+      if (brandsArray?.length > 0) {
+        setBrandRenderItems(brandsArray);
+      }
+      setValue('subCategoryId', subCategoryId);
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     populateBrands()
-  },[subCategoryId,catByIdData,subCategoriesData])
+  }, [subCategoryId, catByIdData, subCategoriesData])
 
 
-  useEffect(()=>{
-    if(brand !== 'other'){
-      setValue('brandName','')
+  useEffect(() => {
+    if (brand !== 'other') {
+      setValue('brandName', '')
     }
-  },[brand])
-  
+  }, [brand])
+
 
   return (
     <div className=" relative">
-     
+
       {showRemoveButton && (
         <Button
           type="button"
@@ -310,21 +310,21 @@ const CategoryForm = ({
                 </SelectContent>
               </Select> */}
               <Select defaultValue={subCategoryId} disabled>
-  <SelectTrigger className="w-full bg-white">
-    <SelectValue placeholder="Category*" />
-  </SelectTrigger>
+                <SelectTrigger className="w-full bg-white">
+                  <SelectValue placeholder="Category*" />
+                </SelectTrigger>
 
-  <SelectContent>
-    {subCategroies.map((c: any) => (
-      <SelectItem key={c._id} value={c._id}>
-        {c.name}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+                <SelectContent>
+                  {subCategroies.map((c: any) => (
+                    <SelectItem key={c._id} value={c._id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
 
-              {currentCategoryName !== "service" &&currentCategoryName !== "others" && (
+              {currentCategoryName !== "service" && currentCategoryName !== "others" && (
                 <SearchableDropdown
                   // disbaled={!selectedSubategoryId}
                   setValue={setbrand}
@@ -340,34 +340,34 @@ const CategoryForm = ({
                     type="text"
                     placeholder="Brand Name..."
                     value={brand}
-                    onChange={(e)=>{
+                    onChange={(e) => {
                       setbrand(e.target.value)
                     }}
                     className="bg-white"
                   />
                 )
               }
-            {
-          currentCategoryName !== 'others' &&    brand === 'others' && (
-                <Input
-                  type="text"
-                  placeholder="Specific Brand Name..."
-                  {...register('brandName')}
-                  className="bg-white"
-                />
-              )
-            }
+              {
+                currentCategoryName !== 'others' && brand === 'others' && (
+                  <Input
+                    type="text"
+                    placeholder="Specific Brand Name..."
+                    {...register('brandName')}
+                    className="bg-white"
+                  />
+                )
+              }
               {/* {currentCategoryName === "electronics" && ( */}
-               <div className="relative">
+              <div className="relative">
                 <p className="absolute top-1/2 left-2 text-sm  text-orange-600 font-semibold -translate-y-1/2">
-                ₹</p>
-                 <Input
+                  ₹</p>
+                <Input
                   type="text"
                   placeholder="Enter a Minimum Budget"
                   {...register('minimumBudget')}
                   className="bg-white  pl-5"
                 />
-               </div>
+              </div>
               {/* )} */}
 
               {currentCategoryName !== "service" && (
@@ -468,95 +468,107 @@ const CategoryForm = ({
                       <SelectItem value="electric">LPG</SelectItem>
                     </SelectContent>
                   </Select>
+                  {
+                    !subCatgoryName.toLowerCase().includes('accessories') && (
+                      // <Select
+                      //               value={modelValue}
+                      //               onValueChange={(value) => setValue("model", value)}
+                      //             >
+                      //               <SelectTrigger className="w-full bg-white">
+                      //                 <SelectValue placeholder="Model" />
+                      //               </SelectTrigger>
+                      //               <SelectContent>
+                      //                 <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
+                      //                 <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
+                      //                 <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
+                      //                 <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
+                      //                 <SelectItem value="1_year_old">1 Year Old</SelectItem>
+                      //                 <SelectItem value="2_year_old">2 Year Old</SelectItem>
+                      //                 <SelectItem value="3_year_old">3 Year Old</SelectItem>
+                      //                 <SelectItem value="4_year_old">4 Year Old</SelectItem>
+                      //                 <SelectItem value="5_year_old">5 Year Old</SelectItem>
+                      //                 <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
+                      //                 <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
+                      //                 <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
+                      //               </SelectContent>
+                      //             </Select>
+                      <Input
+                        type="text"
+                        placeholder="Model"
+                        // value={modelValue}
+                        // onChange={(e)=>{
+                        //   setValue('model',e.target.value)
+                        // }}
+                        {...register('model')}
+                        className="bg-white col-span-1"
+                      />
+                    )
+                  }
+               
+                  {
+                    !subCatgoryName.toLowerCase().includes('accessories') && (
+                      //    <Select
+                      //   value={colorValue}
+                      //   onValueChange={(value) => setValue("color", value)}
+                      // >
+                      //   <SelectTrigger className="w-full bg-white">
+                      //     <SelectValue placeholder="Color" />
+                      //   </SelectTrigger>
+                      //   <SelectContent>
+                      //     <SelectItem value="red">Red</SelectItem>
+                      //     <SelectItem value="blue">Blue</SelectItem>
+                      //     <SelectItem value="black">Black</SelectItem>
+                      //     <SelectItem value="white">White</SelectItem>
+                      //     <SelectItem value="silver">Silver</SelectItem>
+                      //   </SelectContent>
+                      // </Select>
+                      <Input
+                        type="text"
+                        placeholder="Color"
+                        value={colorValue}
+                        onChange={(e) => {
+                          setValue('color', e.target.value)
+                        }}
+                      />
+                    )
+                  }
 
-{
-   !subCatgoryName.toLowerCase().includes('accessories') && (
-      // <Select
-      //               value={modelValue}
-      //               onValueChange={(value) => setValue("model", value)}
-      //             >
-      //               <SelectTrigger className="w-full bg-white">
-      //                 <SelectValue placeholder="Model" />
-      //               </SelectTrigger>
-      //               <SelectContent>
-      //                 <SelectItem value="brand_new">Brand New (Unused)</SelectItem>
-      //                 <SelectItem value="like_new_used_3_months">Like New (Used &lt; 3 Months)</SelectItem>
-      //                 <SelectItem value="gently_used_3_6_months">Gently Used (3 - 6 Months)</SelectItem>
-      //                 <SelectItem value="used_6_12_months">Used (6 - 12 Months)</SelectItem>
-      //                 <SelectItem value="1_year_old">1 Year Old</SelectItem>
-      //                 <SelectItem value="2_year_old">2 Year Old</SelectItem>
-      //                 <SelectItem value="3_year_old">3 Year Old</SelectItem>
-      //                 <SelectItem value="4_year_old">4 Year Old</SelectItem>
-      //                 <SelectItem value="5_year_old">5 Year Old</SelectItem>
-      //                 <SelectItem value="more_than_5_year_old">More Than 5 Years Old</SelectItem>
-      //                 <SelectItem value="vintage_10_plus_years_old">Vintage (10+ Years Old)</SelectItem>
-      //                 <SelectItem value="unknown">Unknown / Not Sure</SelectItem>
-      //               </SelectContent>
-      //             </Select>
-       <Input
-                  type="text"
-                  placeholder="Model"
-                  // value={modelValue}
-                  // onChange={(e)=>{
-                  //   setValue('model',e.target.value)
-                  // }}
-                  {...register('model')}
-                  className="bg-white col-span-1"
-                />
-   )
-}
-                {
-                   !subCatgoryName.toLowerCase().includes('accessories') && (
-                  //    <Select
-                  //   value={colorValue}
-                  //   onValueChange={(value) => setValue("color", value)}
-                  // >
-                  //   <SelectTrigger className="w-full bg-white">
-                  //     <SelectValue placeholder="Color" />
-                  //   </SelectTrigger>
-                  //   <SelectContent>
-                  //     <SelectItem value="red">Red</SelectItem>
-                  //     <SelectItem value="blue">Blue</SelectItem>
-                  //     <SelectItem value="black">Black</SelectItem>
-                  //     <SelectItem value="white">White</SelectItem>
-                  //     <SelectItem value="silver">Silver</SelectItem>
-                  //   </SelectContent>
-                  // </Select>
-                  <Input
-                  type="text"
-                  placeholder="Color"
-                  value={colorValue}
-                  onChange={(e)=>{
-                    setValue('color',e.target.value)
-                  }}
-                  />
-                   )
-                }             
-
-{
-  !['scooters', 'accessories', 'bicycles',].includes(subCatgoryName.toLowerCase()) && (
-       <Select
-                    value={transmissionValue}
-                    onValueChange={(value) => setValue("transmission", value)}
-                  >
-                    <SelectTrigger className="w-full bg-white">
-                      <SelectValue placeholder="Transmission" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="automatic">Automatic</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
-   )
-}         
+                  {
+                    !['scooters', 'accessories', 'bicycles',].includes(subCatgoryName.toLowerCase()) && (
+                      <Select
+                        value={transmissionValue}
+                        onValueChange={(value) => setValue("transmission", value)}
+                      >
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="Transmission" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="automatic">Automatic</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )
+                  }
                 </>
               )}
+              
+{/*  this model for only  mobile */}
+                 {
+                    subCatgoryName.toLowerCase() === 'mobile' && (
+                       <Input
+                        type="text"
+                        placeholder="Model"
+                        {...register('model')}
+                        className="bg-white col-span-1"
+                      />
+                    )
+                  }
 
-{(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
-  currentCategoryName === "automobile" || currentCategoryName === "home" ||
-  currentCategoryName === "electronics") && 
-  currentCategoryName !== "service" && 
-  currentCategoryName !== "others" && (
+              {(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
+                currentCategoryName === "automobile" || currentCategoryName === "home" ||
+                currentCategoryName === "electronics") &&
+                currentCategoryName !== "service" &&
+                currentCategoryName !== "others" && (
                   <>
                     {(productField === 'new_product' || productField === '') && (
                       <Select
@@ -637,30 +649,30 @@ const CategoryForm = ({
                           </SelectContent>
                         </Select> */}
                       </>
-                    ) }
+                    )}
                   </>
                 )}
 
 
               {
-                currentCategoryName ==='others' && (
-               <>
-               
-                   <Input
-                  type="text"
-                  placeholder="Product Type"
-                  {...register('productType')}
-                  className="bg-white"
-                />
-                
-                   <Input
-                  type="text"
-                  placeholder="Product Condition"
-                  {...register('productCondition')}
-                  className="bg-white"
-                />
-               </>
-   
+                currentCategoryName === 'others' && (
+                  <>
+
+                    {/* <Input
+                      type="text"
+                      placeholder="Product Type"
+                      {...register('productType')}
+                      className="bg-white"
+                    /> */}
+
+                    <Input
+                      type="text"
+                      placeholder="Product Condition"
+                      {...register('productCondition')}
+                      className="bg-white"
+                    />
+                  </>
+
                 )
               }
 
@@ -686,17 +698,17 @@ const CategoryForm = ({
                   </SelectContent>
                 </Select>
               )}
-      {/* // this is a subcatgory Name */}
-            { subCatgoryName === 'Commercial and other Vehicle' && currentCategoryName ==='automobile' &&
-                 <Input
+              {/* // this is a subcatgory Name */}
+              {subCatgoryName === 'Commercial and other Vehicle' && currentCategoryName === 'automobile' &&
+                <Input
                   type="text"
                   placeholder="Type of Vehicle"
                   {...register('typeOfVehicle')}
                   className="bg-white"
                 />
-            }
+              }
 
-               { currentCategoryName !== 'automobile' &&
+              {currentCategoryName !== 'automobile'  &&
                 <Input
                   type="text"
                   placeholder="Product Type"
@@ -724,11 +736,11 @@ const CategoryForm = ({
           <div className="rounded-[5px] p-6  bg-gray-200/50">
             <div className="mb-4">
               <h3 className="text-lg font-semibold  text-gray-700">Other Details</h3>
-            <sup className="italic text-gray-500">Product Image and document are not mendatory.</sup>
+              <sup className="italic text-gray-500">Product Image and document are not mendatory.</sup>
             </div>
-             
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-             
+
               <div
                 onClick={() => (imageRef as any)?.current?.click()}
                 className="border-2 border-dashed relative border-gray-300 rounded-lg flex bg-transparent flex-col items-center justify-center p-6 cursor-pointer h-32"
@@ -763,14 +775,14 @@ const CategoryForm = ({
                   </div>
                 }
               </div>
-             
+
               <div
                 onClick={() => fileDocRef.current?.click()}
                 className="border-2 border-dashed border-gray-300 rounded-lg flex bg-transparent flex-col items-center justify-center p-6 cursor-pointer"
               >
                 <FileUp className="h-6 w-6 mb-2 text-gray-500" />
                 <span className="text-sm text-muted-foreground text-center ">
-                  <span className="font-semibold">Browse From Device</span> <br/><span className="text-xs">(doc/pdf)</span>
+                  <span className="font-semibold">Browse From Device</span> <br /><span className="text-xs">(doc/pdf)</span>
                 </span>
                 <input
                   type="file"
@@ -781,7 +793,7 @@ const CategoryForm = ({
                   onChange={(e: any) => {
                     if (e.target.files?.[0]) {
                       const newDocument = e.target.files[0];
-                      if(newDocument.size === 0){
+                      if (newDocument.size === 0) {
                         toast.error("Invalid Doc");
                         return;
                       }
@@ -902,8 +914,8 @@ const Category = () => {
   const [subCategoriesData, setSubCategoriesData] = useState([]);
   const [resetForms, setResetForms] = useState(false);
   const [buttonType, setButtonType] = useState<boolean | null>(null)
-  const [bidDuration,setBidDuration]= useState<number|undefined>(undefined)
-  const [bidPopUpOpen,setBidPopUpOpen] = useState(false)
+  const [bidDuration, setBidDuration] = useState<number | undefined>(undefined)
+  const [bidPopUpOpen, setBidPopUpOpen] = useState(false)
   useEffect(() => {
     (async () => {
       await getCatByIdFn(categoryId);
@@ -990,7 +1002,7 @@ const Category = () => {
     }));
   };
 
-  const handleSubmitAllForms = async (isDraft: boolean,isPlaceRequirementPopup?:boolean) => {
+  const handleSubmitAllForms = async (isDraft: boolean, isPlaceRequirementPopup?: boolean) => {
     setButtonType(isDraft ? true : false)
     if (!user) {
       setOpen(true);
@@ -1001,13 +1013,13 @@ const Category = () => {
     const formsArray = Object.values(formsData) as any;
     const hasValidForms = isValidForms(formsArray, isDraft);
 
-    
+
     if (!hasValidForms) return
 
-    if(hasValidForms  && isPlaceRequirementPopup){
+    if (hasValidForms && isPlaceRequirementPopup) {
       setBidPopUpOpen(true);
       return;
-    } 
+    }
 
 
     const invalidForms: any[] = [];
@@ -1044,13 +1056,13 @@ const Category = () => {
         const productsData = [];
         for (const [_, formData] of formsArray.entries() as any) {
           if (formData.quantity) {
-          const qty = formData.quantity.toString().trim();
+            const qty = formData.quantity.toString().trim();
             if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
               toast.error(`Invalid Quantity in Form ${_ + 1}`);
               return;
             }
           }
-          if(formData.minimumBudget){
+          if (formData.minimumBudget) {
             const minBudget = formData.minimumBudget.toString().trim();
             if (!/^\d+$/.test(minBudget) || parseInt(minBudget) < 1) {
               toast.error(`Invalid Minimum Budget in Form ${_ + 1}`);
@@ -1093,7 +1105,7 @@ const Category = () => {
 
         formDataToSend.append('products', JSON.stringify(productsData));
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
-    formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
+        formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
 
 
         // Send all products at once
@@ -1103,23 +1115,23 @@ const Category = () => {
         const formData = formsArray[0];
         console.log(formData)
         const formDataToSend = new FormData();
-       if (formData["quantity"]) {
-        const qty = formData["quantity"].toString().trim();
+        if (formData["quantity"]) {
+          const qty = formData["quantity"].toString().trim();
 
-        if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
-          toast.error("Invalid Quantity");
-          return;
+          if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+            toast.error("Invalid Quantity");
+            return;
+          }
         }
-      }
 
-       if (formData.minimumBudget) {
-        const qty = formData["minimumBudget"].toString().trim();
+        if (formData.minimumBudget) {
+          const qty = formData["minimumBudget"].toString().trim();
 
-        if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
-          toast.error("Invalid Minimum Budget");
-          return;
+          if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+            toast.error("Invalid Minimum Budget");
+            return;
+          }
         }
-      }
 
 
         allowedFields.forEach(field => {
@@ -1152,7 +1164,7 @@ const Category = () => {
         }
 
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
-   formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
+        formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
 
         await fn(categoryId, formData.subCategoryId || subCategoryId, formDataToSend, false);
       }
@@ -1189,7 +1201,7 @@ const Category = () => {
   return (
     <>
       <Authentication setOpen={setOpen} open={open} />
-       <PlaceRequirementPopup buttonType={buttonType} loading={loading} open={bidPopUpOpen} setOpen={setBidPopUpOpen} setBidDuration={setBidDuration} bidDuration={bidDuration}  createProductFn={handleSubmitAllForms as any}/>
+      <PlaceRequirementPopup buttonType={buttonType} loading={loading} open={bidPopUpOpen} setOpen={setBidPopUpOpen} setBidDuration={setBidDuration} bidDuration={bidDuration} createProductFn={handleSubmitAllForms as any} />
       <div className="w-full max-w-7xl mx-auto p-4">
         {/* Breadcrumb + Action */}
         <div className="flex flex-row sm:justify-between justify-end items-center gap-3 mb-6">
@@ -1202,7 +1214,7 @@ const Category = () => {
                 </BreadcrumbPage>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="capitalize font-semibold text-orange-600">
-                  {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Electronics Appliances' : currentCategoryName  === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName  === 'industrial' ?"Industrial & Construction Material" : currentCategoryName }
+                  {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Mobile, Tablet and Wearables' : currentCategoryName === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" :  currentCategoryName === 'furniture' ? 'furniture and decor' :currentCategoryName }
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -1213,7 +1225,7 @@ const Category = () => {
             className="bg-orange-700 cursor-pointer w-32 text-[12px] hover:bg-orange-600 text-white  flex items-center gap-1 underline"
             onClick={handleAddForm}
           >
-            <PlusIcon className="h-3 w-3"/>Add Product
+            <PlusIcon className="h-3 w-3" />Add Product
           </Button>
         </div>
 
@@ -1228,25 +1240,25 @@ const Category = () => {
         <div className="space-y-6">
           {forms.map((formIndex, arrayIndex) => (
             <>
-            <CategoryForm
-              key={formIndex}
-              formIndex={formIndex}
-              currentCategoryName={currentCategoryName}
-              catByIdData={catByIdData}
-              subCategroies={subCategroies}
-              subCategoriesData={subCategoriesData}
-              onFormDataChange={handleFormDataChange}
-              onRemoveForm={handleRemoveForm}
-              showRemoveButton={arrayIndex > 0}
-              resetForm={resetForms}
-              subCategoryId={subCategoryId}
-            />
-           {
-             forms.length > -1 && arrayIndex < forms.length - 1 && <div className="bg-gray-400 w-full h-[2px] my-5"></div>
-           }
+              <CategoryForm
+                key={formIndex}
+                formIndex={formIndex}
+                currentCategoryName={currentCategoryName}
+                catByIdData={catByIdData}
+                subCategroies={subCategroies}
+                subCategoriesData={subCategoriesData}
+                onFormDataChange={handleFormDataChange}
+                onRemoveForm={handleRemoveForm}
+                showRemoveButton={arrayIndex > 0}
+                resetForm={resetForms}
+                subCategoryId={subCategoryId}
+              />
+              {
+                forms.length > -1 && arrayIndex < forms.length - 1 && <div className="bg-gray-400 w-full h-[2px] my-5"></div>
+              }
             </>
           ))}
-          
+
         </div>
 
         {/* Global Actions - Single Submit and Draft buttons for all forms */}
@@ -1265,8 +1277,8 @@ const Category = () => {
             type="button"
             disabled={loading}
             className="text-white w-32 cursor-pointer bc   border-primary-btn border-2"
-            onClick={() => handleSubmitAllForms(false,true)}
-            // loading && !buttonType ? <Spinner className="w-5 h-5 animate-spin" /> : 
+            onClick={() => handleSubmitAllForms(false, true)}
+          // loading && !buttonType ? <Spinner className="w-5 h-5 animate-spin" /> : 
           >
             {`Submit ${Object.keys(formsData).length > 1 ? 'All' : ''}`}
           </Button>

@@ -59,7 +59,7 @@ export const getCategorySpecificFields = (categoryName: string) => {
     case 'electronics':
       return [
         ...baseFields,
-        'brand', 'quantity', 'productType', 'oldProductValue', 'typeOfProduct'
+        'brand', 'quantity', 'productType', 'oldProductValue', 'typeOfProduct', "model"
         // 'productCondition'
       ];
     
@@ -71,8 +71,7 @@ export const getCategorySpecificFields = (categoryName: string) => {
     case 'others':
       return[
         ...baseFields.filter(item=>item !== 'brandName'),
-        'brand', 'quantity','productType','typeOfProduct'
-        // 'productCondition'
+        'brand', 'quantity','productType','typeOfProduct','productCondition'
        
       ];
     

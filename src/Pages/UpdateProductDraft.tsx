@@ -526,7 +526,7 @@ const UpdateProductDraftForm = ({
                { currentCategoryName !== 'automobile' &&
                 <Input
                   type="text"
-                  placeholder="Type of Vehicle"
+                 placeholder="Product Type"
                   {...register('typeOfProduct')}
                   className="bg-white"
                 />
@@ -561,6 +561,18 @@ const UpdateProductDraftForm = ({
                         onChange={e => setValue('productType', e.target.value)}
                       />
                     )}
+
+                    {/*  this model for only  mobile */}
+                 {
+                    subCatgoryName.toLowerCase() === 'mobile' && (
+                       <Input
+                        type="text"
+                        placeholder="Model"
+                        {...register('model')}
+                        className="bg-white col-span-1"
+                      />
+                    )
+                  }
 
                     {productField === 'old_product' && (
                       <>
@@ -635,12 +647,12 @@ const UpdateProductDraftForm = ({
                 currentCategoryName === 'others' && (
                   <>
 
-                    <Input
+                    {/* <Input
                       type="text"
                       placeholder="Product Type"
                       {...register('productType')}
                       className="bg-white"
-                    />
+                    /> */}
 
                     <Input
                       type="text"
@@ -1095,7 +1107,7 @@ const UpdateDraft = () => {
                       </BreadcrumbPage>
                       <BreadcrumbSeparator />
                       <BreadcrumbPage className="capitalize font-semibold text-orange-600">
-                        {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Electronics Appliances' : currentCategoryName === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" : currentCategoryName}
+                        {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Mobile, Tablet and Wearables' : currentCategoryName === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" :  currentCategoryName === 'furniture' ? 'furniture and decor' :currentCategoryName}
                       </BreadcrumbPage>
                     </BreadcrumbItem>
                   </BreadcrumbList>
