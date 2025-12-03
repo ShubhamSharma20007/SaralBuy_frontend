@@ -24,5 +24,9 @@ class RequirementService {
             .then(res => res.data?.data || res.data);
     }
 
+    getBidNotifications() {
+        return instance.get('/requirement/bid-notifications', { withCredentials: true })
+            .then(res => res.data?.data || res.data);
+    }
 }
 export default new RequirementService();
