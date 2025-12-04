@@ -26,105 +26,56 @@ class ChatService {
   }
 
   public connect() {
-    if (!this.socket) {
-      // import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :
-      // const socketUrl =   url;
-      const socketUrl =import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL;
-      // console.log("[ChatService] Connecting to socket URL:", socketUrl);
+  if (!this.socket) {
+    const socketUrl = 'https://db.saralbuy.com';
+    
+    this.socket = io(socketUrl, {
+      // Try polling first, then upgrade to websocket
+       transports: ["polling"],
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+      autoConnect: true,
+    });
 
-      this.socket = io(socketUrl, {
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-        forceNew: true,
-        reconnection: true,
-        timeout: 5000,
-      });
+      // transports: ["polling", "websocket"],
+      // withCredentials: true,
+      // reconnection: true,
+      // reconnectionAttempts: 5,
+      // reconnectionDelay: 1000,
+      // reconnectionDelayMax: 5000,
+      // timeout: 10000, // Increased timeout
+      // autoConnect: true,
 
-      this.socket.on("connect", () => {
-        // console.log("✅ Socket connected:", this.socket?.id, "at", socketUrl);
-        // Re-identify user on reconnect if userId is set
-        if (this._identifiedUserId) {
-          this.identify(this._identifiedUserId);
-        }
-      });
-
-      this.socket.on("disconnect", (_: string) => {
-        // console.log("❌ Socket disconnected:", this.socket?.id, `(${reason})`);
-      });
-
-      this.socket.on("connect_error", (err) => {
-        console.error("🚫 Socket connection error:", err);
-      });
-
-      // ✅ Match backend events
-      this.socket.on("receive_message", (data) => {
-        console.log("📨 Message received:", data);
-      });
-
-      this.socket.on("user_typing", (data) => {
-        console.log("⌨️ Typing status:", data);
-      });
-
-      this.socket.on("user_joined", (data) => {
-        console.log("🙋 User joined:", data);
-      });
-
-      this.socket.on("user_left", (data) => {
-        console.log("👋 User left:", data);
-      });
-
-      this.socket.on("room_joined", (data) => {
-        console.log("✅ Room joined:", data);
-      });
-
-      this.socket.on("error", (data) => {
-        console.error("⚠️ Socket error:", data);
-      });
-
-      // Notification event handler registry
-      this._notificationListeners = [];
-      this.socket.on("new_message_notification", (data) => {
-        // Only emit/listen if user is NOT active in Chatbot (i.e., not on Chatbot page)
-        const isActiveUser = typeof window !== "undefined" && localStorage.getItem('chatbot_active_user') === 'true';
-        if (!isActiveUser) {
-        console.log("🔔 New message notification (user NOT active):", data);
-        if (this._notificationListeners) {
-          this._notificationListeners.forEach((cb) => cb(data));
-          }
-        } else {
-          // Optionally, you can log or ignore notifications when user is active
-          // console.log("🔕 Skipping notification: user is active in Chatbot");
-        }
-      });
-
-      // Product notification event handler registry
-      this._productNotificationListeners = [];
-      this.socket.on("product_notification", (data) => {
-        console.log("🛎️ Product notification received:", data);
-        if (this._productNotificationListeners) {
-          this._productNotificationListeners.forEach((cb) => cb(data));
-        }
-      });
-    // Listen for recent_chat_update, notify in-memory listeners and try to update Zustand dynamically
-    this.socket.on("recent_chat_update", async (chatSummary) => {
-      console.log("🟢 recent_chat_update received:", chatSummary);
-      if (this._recentChatListeners) {
-        this._recentChatListeners.forEach((cb) => {
-          try { cb(chatSummary); } catch (e) { console.error("recentChat listener error:", e); }
-        });
-      }
-      try {
-        const chatStoreModule = await import("@/zustand/chatStore");
-        if (chatStoreModule && chatStoreModule.useChatStore) {
-          chatStoreModule.useChatStore.getState().updateRecentChat(chatSummary);
-        }
-      } catch (err) {
-        console.debug("Could not update Zustand chat store dynamically:", err);
+    this.socket.on("connect", () => {
+      console.log("✅ Socket connected:", this.socket?.id);
+      if (this._identifiedUserId) {
+        this.identify(this._identifiedUserId);
       }
     });
-    }
-    return this.socket;
+
+    this.socket.on("connect_error", (err) => {
+      console.error("🚫 Socket connection error:", err.message);
+      // Try to provide helpful error message
+      if (err.message.includes("websocket error")) {
+        console.log("ℹ️ WebSocket failed, falling back to polling...");
+      }
+    });
+
+    this.socket.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+      if (reason === "io server disconnect") {
+        // Server disconnected, manually reconnect
+        this.socket?.connect();
+      }
+    });
+
+    // Rest of your event handlers...
   }
+  return this.socket;
+}
 
   // Leave the current room if joining a new one
   public leaveRoom(roomId?: string) {
