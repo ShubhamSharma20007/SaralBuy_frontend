@@ -11,6 +11,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server:{
+    hmr:{
+      protocol:"wss",
+       host: 'saralbuy.com',
+       port:5173
+    }
+  }
   // build:{
   //   chunkSizeWarningLimit:1600
   // }
