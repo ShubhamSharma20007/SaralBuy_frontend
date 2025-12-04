@@ -38,12 +38,12 @@ const PlaceRequirementPopup:React.FC<Props> = ({open,setOpen,createProductFn,bid
   return (
     <Dialog open={open} onOpenChange={setOpen} >
       <DialogContent style={{
-        maxWidth:'400px'
+        maxWidth:'470px'
       }}>
               <DialogHeader>
             <DialogTitle className="text-black text-3xl font-extrabold">Place Requirement</DialogTitle>
             <DialogDescription className="text-sm text-gray-600">
-              How Long Should You Bid Remain Active ? <small className="italic">(in Days)</small>
+              How Long Should Your Requirement Remain Active?  <small className="italic">(in Days)</small>
             </DialogDescription>
           </DialogHeader>
  <form className="py-2 max-w-md inline-block mb-0" onSubmit={(e)=>(handleSubmit(e))}>
@@ -52,7 +52,7 @@ const PlaceRequirementPopup:React.FC<Props> = ({open,setOpen,createProductFn,bid
           <Input
             type="number"
             name="bidDuration"
-            placeholder="Enter your bid"
+            placeholder="Ex. 15"
             value={bidDuration|| undefined}
             className="w-full py-5 rounded-md border border-gray-300"
             onChange={(e) => setBidDuration(Number(e.target.value))}

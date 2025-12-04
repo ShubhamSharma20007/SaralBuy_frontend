@@ -99,7 +99,7 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit,tab='' }) 
         {
             target === 'drafts' && (
                  <div 
-                     className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm p-1 cursor-pointer'
+                     className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 border-[2px] shadow shadow-orange-200 border-dotted rounded-sm p-1 cursor-pointer'
                     onClick={() => navigate('/update-draft/' + item._id)}
                   >
                      <TooltipComp

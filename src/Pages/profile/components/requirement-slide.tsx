@@ -129,11 +129,12 @@ function handleSubmitDraft(targetProduct: any) {
               <MoveRight className='w-5 h-5' />
             </Button>
           ) : target === "drafts" ? (
-            <Button size={'default'} className='cursor-pointer text-xs bc' onClick={()=>{
-              handleSubmitDraft(product)
-            }}>
-              Submit Draft
-            </Button>
+            <button></button>
+            // <Button size={'default'} className='cursor-pointer text-xs bc' onClick={()=>{
+            //   handleSubmitDraft(product)
+            // }}>
+            //   Submit Draft
+            // </Button>
           ) :
             target === "carts" ? (
             <Button size={'default'} className='cursor-pointer text-xs bc '

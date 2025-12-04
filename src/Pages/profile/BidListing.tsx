@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { dateFormatter } from '@/helper/dateFormatter';
-import { fallBackName } from '@/helper/fallBackName';
+// import { fallBackName } from '@/helper/fallBackName';
 import { useFetch } from '@/helper/use-fetch';
 import bidService from '@/services/bid.service';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -41,8 +41,11 @@ const BidListing = () => {
                 console.log()
                 return <div className=" ">
                     <Avatar className="w-10 h-10">
-                        <AvatarImage src={row.original.avatar} alt="@shadcn" className='object-contain w-full h-full' />
-                        <AvatarFallback>{fallBackName(row.original?.product)}</AvatarFallback>
+                        <AvatarImage src={row.original.avatar} alt="product image" className='object-contain w-full h-full' />
+                        <AvatarFallback>
+                            {/* {fallBackName(row.original?.product)} */}
+                            <img src='/no-image.webp'></img>
+                        </AvatarFallback>
                     </Avatar>
 
                 </div>

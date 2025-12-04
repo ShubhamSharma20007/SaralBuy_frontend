@@ -49,7 +49,7 @@ const tags = [
     title: "Your Biding",
     value: 'your_biding'
   }, {
-    title: "Requirements",
+    title: "Your Posted/Draft requirement",
     value: 'requirements'
   }, {
     title: "Your Deal",

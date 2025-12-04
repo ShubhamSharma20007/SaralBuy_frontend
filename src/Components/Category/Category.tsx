@@ -363,7 +363,7 @@ const CategoryForm = ({
                   ₹</p>
                 <Input
                   type="text"
-                  placeholder="Enter a Minimum Budget"
+                  placeholder="Enter a Budget range"
                   {...register('minimumBudget')}
                   className="bg-white  pl-5"
                 />
@@ -754,7 +754,12 @@ const CategoryForm = ({
                   ref={imageRef}
                   onChange={(e: any) => {
                     if (e.target.files?.[0]) {
-                      const newImage = e.target.files[0];
+                    const newImage = e.target.files[0];
+                  
+                    if(newImage.size > 2 * 1024 * 1024){
+                        toast.error("Image size should be less than 2MB");
+                        return;
+                      }
                       setImage(newImage);
                       const currentFormData = {
                         ...getValues(),
@@ -1065,7 +1070,7 @@ const Category = () => {
           if (formData.minimumBudget) {
             const minBudget = formData.minimumBudget.toString().trim();
             if (!/^\d+$/.test(minBudget) || parseInt(minBudget) < 1) {
-              toast.error(`Invalid Minimum Budget in Form ${_ + 1}`);
+              toast.error(`Invalid Budget range in Form ${_ + 1}`);
               return;
             }
           }
@@ -1128,7 +1133,7 @@ const Category = () => {
           const qty = formData["minimumBudget"].toString().trim();
 
           if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
-            toast.error("Invalid Minimum Budget");
+            toast.error("Invalid Budget range");
             return;
           }
         }
@@ -1189,11 +1194,13 @@ const Category = () => {
     if (productCreateData) {
       // toast.success("Product Created Successfully");
       // Reset forms
-
       // setButtonType(null)
       // setForms([0]);
       // setFormsData({});
-      navigate('/')
+      if(!buttonType){
+        navigate('/')
+      }
+      window.location.reload()
     }
   }, [productCreateData]);
 

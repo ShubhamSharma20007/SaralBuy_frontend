@@ -165,8 +165,11 @@ const totalPages = Math.ceil(total / limit);
     ))
   ) : (
     <TableRow>
-      <TableCell colSpan={columns.length} className="h-24 text-center">
-        No results.
+      <TableCell colSpan={columns.length} className={`${filters ? 'h-[285px]' :'h-[310px]'}  text-center`}>
+        <div className='flex justify-center items-center h-full flex-col space-y-2'>
+                        <img src="/empty-cart.webp" alt="" className='h-28 w-28' />
+                        <p className='text-md  text-center'>No Item Found</p>
+                      </div>
       </TableCell>
     </TableRow>
   )

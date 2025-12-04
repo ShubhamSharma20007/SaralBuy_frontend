@@ -319,7 +319,7 @@ const UpdateProductDraftForm = ({
                   ₹</p>
                 <Input
                   type="text"
-                  placeholder="Enter a Minimum Budget"
+                  placeholder="Enter a Budget range " 
                   {...register('minimumBudget')}
                   className="bg-white  pl-5"
                 />
@@ -725,6 +725,10 @@ const UpdateProductDraftForm = ({
                   onChange={(e: any) => {
                     if (e.target.files?.[0]) {
                       const newImage = e.target.files[0];
+                      if(newImage.size > 2 * 1024 * 1024){
+                        toast.error("Image size should be less than 2MB");
+                        return;
+                      }
                       setImage(newImage);
                       const currentFormData = {
                         ...getValues(),
@@ -769,6 +773,14 @@ const UpdateProductDraftForm = ({
                   onChange={(e: any) => {
                     if (e.target.files?.[0]) {
                       const newDocument = e.target.files[0];
+                       if (newDocument.size === 0) {
+                        toast.error("Invalid Doc");
+                        return;
+                      }
+                      if(newDocument.size > 5 * 1024 * 1024){
+                        toast.error('File size should be less than 5MB')
+                        return;
+                      }
                       setFileDoc(newDocument);
 
                       const currentFormData = {
@@ -937,7 +949,7 @@ const UpdateDraft = () => {
         return false;
       }
       if (!form.minimumBudget || form.minimumBudget < 0) {
-        toast.error(`MinimumBudget is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
+        toast.error(`Budget range is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
         return false;
       }
 
@@ -1007,7 +1019,7 @@ const UpdateDraft = () => {
       if (formData.minimumBudget) {
         const minBudget = formData.minimumBudget.toString().trim();
         if (!/^\d+$/.test(minBudget) || parseInt(minBudget) < 1) {
-          toast.error(`Invalid Minimum Budget in Form ${parseInt(index) + 1}.`);
+          toast.error(`Invalid Budget Range in Form ${parseInt(index) + 1}.`);
           return; // Stop execution
         }
       }
