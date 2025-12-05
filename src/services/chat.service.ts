@@ -30,15 +30,18 @@ class ChatService {
       // import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :
       // const socketUrl =   url;
       const socketUrl =import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL;
+      // const socketUrl = import.meta.env.DEV  ? import.meta.env.VITE_BACKEND_URL : import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
       // console.log("[ChatService] Connecting to socket URL:", socketUrl);
 
-      this.socket = io(socketUrl, {
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-        forceNew: true,
-        reconnection: true,
-        timeout: 5000,
-      });
+      // this.socket = io(socketUrl, {
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      //   forceNew: true,
+      //   reconnection: true,
+      //   timeout: 5000,
+        
+      // });
+      this.socket = io(socketUrl)
 
       this.socket.on("connect", () => {
         // console.log("✅ Socket connected:", this.socket?.id, "at", socketUrl);
