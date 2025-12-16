@@ -4,8 +4,7 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => {
-
+export default defineConfig(({ mode }) => {
   const isDev = mode === 'development'
   
   return {
@@ -16,27 +15,31 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     server: {
+      host: '0.0.0.0', // Listen on all network interfaces
       port: 5173,
-      host: true, // Listen on all addresses including LAN
+      strictPort: false,
       hmr: {
-        // Only enable HMR in development
-        overlay: isDev, // Show error overlay in dev
-        // For production, HMR should be disabled automatically
-        // but you can explicitly set protocol if needed:
-        // protocol: 'ws', // or 'wss' for https
-        // host: 'localhost',
-        // port: 5173,
+        // Let Vite auto-detect the correct host
+        // This fixes the [::1] vs localhost issue
+        clientPort: 5173,
       },
+      watch: {
+        usePolling: false, // Set to true if on WSL2 or Docker
+      }
     },
     build: {
       sourcemap: isDev,
-      // Minify in production
       minify: !isDev,
+      rollupOptions: {
+        output: {
+          manualChunks: undefined, // Disable code splitting if causing issues
+        }
+      }
     },
-    // Preview server configuration (for testing production builds locally)
     preview: {
+      host: '0.0.0.0',
       port: 4173,
-      host: true,
+      strictPort: false,
     }
   }
 })
