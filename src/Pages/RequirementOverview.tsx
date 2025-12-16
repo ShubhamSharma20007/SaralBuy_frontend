@@ -106,7 +106,7 @@ const RequirementOverview = () => {
         return (
           <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2">
             <Avatar className="w-10 h-10">
-              <AvatarImage src={image} alt={name} className='rounded-full' />
+              <AvatarImage src={image} alt={name} className='rounded-full w-full h-full object-cover' />
               <AvatarFallback className="bg-gray-200 rounded-full flex items-center justify-center text-sm font-semibold">
                 {initials}
               </AvatarFallback>

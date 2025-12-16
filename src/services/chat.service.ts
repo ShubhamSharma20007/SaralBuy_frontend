@@ -29,19 +29,30 @@ class ChatService {
     if (!this.socket) {
       // import.meta.env.MODE === 'development' ? import.meta.env.VITE_BACKEND_URL :
       // const socketUrl =   url;
-      const socketUrl =import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL;
-      // const socketUrl = import.meta.env.DEV  ? import.meta.env.VITE_BACKEND_URL : import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
-      // console.log("[ChatService] Connecting to socket URL:", socketUrl);
+      // const socketUrl =import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL;
+      const socketUrl = import.meta.env.NODE_ENV  ? import.meta.env.VITE_BACKEND_URL : import.meta.env.VITE_LIVE_BACKEND_SOCKET_URL
+      console.log("[ChatService] Connecting to socket URL:", socketUrl);
 
       // this.socket = io(socketUrl, {
       //   transports: ["websocket", "polling"],
       //   withCredentials: true,
       //   forceNew: true,
       //   reconnection: true,
-      //   timeout: 5000,
+      //   // timeout: 5000,
+      //   reconnectionAttempts: 5,
+      //   reconnectionDelay: 1000,
         
       // });
-      this.socket = io(socketUrl)
+      this.socket = io(socketUrl, {
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+      forceNew: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000, // Add timeout back
+    });
 
       this.socket.on("connect", () => {
         // console.log("✅ Socket connected:", this.socket?.id, "at", socketUrl);
