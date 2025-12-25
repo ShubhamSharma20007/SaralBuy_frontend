@@ -18,6 +18,7 @@ interface ChatState {
   setRecentChats: (chats: ChatSummary[]) => void;
   activeRoomId?: string | null;
   setActiveRoomId: (roomId: string | null) => void;
+  markAsRead: (roomId: string, userId: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -36,4 +37,19 @@ export const useChatStore = create<ChatState>((set) => ({
   setRecentChats: (chats) => set({ recentChats: chats }),
   activeRoomId: null,
   setActiveRoomId: (roomId) => set({ activeRoomId: roomId }),
+  markAsRead: (roomId, userId) =>
+    set((state) => ({
+      recentChats: state.recentChats.map((c) => {
+        if (c.roomId === roomId) {
+          const isBuyer = c.buyerId === userId;
+          const isSeller = c.sellerId === userId;
+          return {
+            ...c,
+            buyerUnreadCount: isBuyer ? 0 : c.buyerUnreadCount,
+            sellerUnreadCount: isSeller ? 0 : c.sellerUnreadCount,
+          };
+        }
+        return c;
+      }),
+    })),
 }));

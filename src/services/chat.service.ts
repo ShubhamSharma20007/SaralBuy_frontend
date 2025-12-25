@@ -8,15 +8,17 @@ class ChatService {
   private _currentRoomId: string | null = null;
   private _notificationListeners?: Array<(data: any) => void>;
   private _productNotificationListeners?: Array<(data: any) => void>;
+  private _bidNotificationListeners?: Array<(data: any) => void>;
   private _recentChatListeners?: Array<(chat: any) => void>;
+  private _newBidListeners?: Array<(data: any) => void>;
 
   // Helper to generate consistent roomId (matches backend logic)
-  private generateRoomId(productId: string, buyerId: string, sellerId: string) {
+  public generateRoomId(productId: string, buyerId: string, sellerId: string) {
     const sortedIds = [buyerId, sellerId].sort();
     return `product_${productId}_buyer_${sortedIds[0]}_seller_${sortedIds[1]}`;
   }
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): ChatService {
     if (!ChatService.instance) {
@@ -101,9 +103,9 @@ class ChatService {
         // Only emit/listen if user is NOT active in Chatbot (i.e., not on Chatbot page)
         const isActiveUser = typeof window !== "undefined" && localStorage.getItem('chatbot_active_user') === 'true';
         if (!isActiveUser) {
-        console.log("🔔 New message notification (user NOT active):", data);
-        if (this._notificationListeners) {
-          this._notificationListeners.forEach((cb) => cb(data));
+          console.log("🔔 New message notification (user NOT active):", data);
+          if (this._notificationListeners) {
+            this._notificationListeners.forEach((cb) => cb(data));
           }
         } else {
           // Optionally, you can log or ignore notifications when user is active
@@ -119,24 +121,42 @@ class ChatService {
           this._productNotificationListeners.forEach((cb) => cb(data));
         }
       });
-    // Listen for recent_chat_update, notify in-memory listeners and try to update Zustand dynamically
-    this.socket.on("recent_chat_update", async (chatSummary) => {
-      console.log("🟢 recent_chat_update received:", chatSummary);
-      if (this._recentChatListeners) {
-        this._recentChatListeners.forEach((cb) => {
-          try { cb(chatSummary); } catch (e) { console.error("recentChat listener error:", e); }
-        });
-      }
-      try {
-        const chatStoreModule = await import("@/zustand/chatStore");
-        if (chatStoreModule && chatStoreModule.useChatStore) {
-          chatStoreModule.useChatStore.getState().updateRecentChat(chatSummary);
+
+      // Bid notification event handler registry
+      this._bidNotificationListeners = [];
+      this.socket.on("bid_notifications_list", (data) => {
+        console.log("🔨 Bid notifications received:", data);
+        if (this._bidNotificationListeners) {
+          this._bidNotificationListeners.forEach((cb) => cb(data));
         }
-      } catch (err) {
-        console.debug("Could not update Zustand chat store dynamically:", err);
+      });
+      // Listen for recent_chat_update, notify in-memory listeners and try to update Zustand dynamically
+      this.socket.on("recent_chat_update", async (chatSummary) => {
+        console.log("🟢 recent_chat_update received:", chatSummary);
+        if (this._recentChatListeners) {
+          this._recentChatListeners.forEach((cb) => {
+            try { cb(chatSummary); } catch (e) { console.error("recentChat listener error:", e); }
+          });
+        }
+        try {
+          const chatStoreModule = await import("@/zustand/chatStore");
+          if (chatStoreModule && chatStoreModule.useChatStore) {
+            chatStoreModule.useChatStore.getState().updateRecentChat(chatSummary);
+          }
+        } catch (err) {
+          console.debug("Could not update Zustand chat store dynamically:", err);
+        }
+      });
+    }
+
+    // Listen for new_bid events
+    this._newBidListeners = [];
+    this.socket.on("new_bid", (data) => {
+      if (this._newBidListeners) {
+        this._newBidListeners.forEach((cb) => cb(data));
       }
     });
-    }
+
     return this.socket;
   }
 
@@ -166,7 +186,7 @@ class ChatService {
       if (this._currentRoomId && this._currentRoomId !== newRoomId) {
         this.leaveRoom(this._currentRoomId);
       }
-      
+
       // console.log(`[ChatService] Joining room:`, {
       //   userId,
       //   productId,
@@ -174,7 +194,7 @@ class ChatService {
       //   userType,
       //   buyerId: finalBuyerId
       // });
-      
+
       this.socket.emit("join_room", {
         userId,
         productId,
@@ -196,7 +216,7 @@ class ChatService {
       }
       // Compute the roomId using sorted IDs (for logging/debug)
       // const roomId = this.generateRoomId(productId, finalBuyerId!, sellerId);
-      
+
       // console.log(`[ChatService] Sending message:`, {
       //   productId,
       //   sellerId,
@@ -206,7 +226,7 @@ class ChatService {
       //   buyerId: finalBuyerId,
       //   roomId
       // });
-      
+
       this.socket.emit("send_message", {
         productId,
         sellerId,
@@ -219,34 +239,34 @@ class ChatService {
   }
 
   // Add this method to ChatService class
-public getChatHistory(productId: string, sellerId: string, buyerId: string, callback: (data: any) => void) {
-  if (this.socket) {
-    this.socket.emit("get_chat_history", { productId, sellerId, buyerId });
+  public getChatHistory(productId: string, sellerId: string, buyerId: string, callback: (data: any) => void) {
+    if (this.socket) {
+      this.socket.emit("get_chat_history", { productId, sellerId, buyerId });
 
-    const handler = (data: any) => {
-      callback(data);
-      this.socket?.off("chat_history", handler);
-    };
+      const handler = (data: any) => {
+        callback(data);
+        this.socket?.off("chat_history", handler);
+      };
 
-    this.socket.on("chat_history", handler);
+      this.socket.on("chat_history", handler);
+    }
   }
-}
 
   // FIXED: Typing indicator with buyerId
   public sendTyping(productId: string, userId: string, sellerId: string, isTyping: boolean, buyerId?: string) {
     if (this.socket) {
       const event = isTyping ? "typing_start" : "typing_stop";
-      
+
       // console.log(`[ChatService] Typing ${isTyping ? 'started' : 'stopped'}:`, {
       //   productId,
       //   userId,
       //   sellerId,
       //   buyerId
       // });
-      
-      this.socket.emit(event, { 
-        productId, 
-        userId, 
+
+      this.socket.emit(event, {
+        productId,
+        userId,
         sellerId,
         buyerId
       });
@@ -281,6 +301,27 @@ public getChatHistory(productId: string, sellerId: string, buyerId: string, call
     if (!this._productNotificationListeners) this._productNotificationListeners = [];
     this._productNotificationListeners.push(cb);
   }
+
+  // Register a callback for bid notifications
+  public onBidNotification(cb: (data: any) => void) {
+    if (!this._bidNotificationListeners) this._bidNotificationListeners = [];
+    this._bidNotificationListeners.push(cb);
+  }
+
+  // Request bid notifications
+  public getBidNotifications(userId: string) {
+    if (this.socket && userId) {
+      this.socket.emit("get_bid_notifications", { userId });
+    }
+  }
+
+  // Mark bid notifications as read
+  public markBidNotificationsRead(userId: string) {
+    if (this.socket && userId) {
+      this.socket.emit("mark_bid_notifications_read", { userId });
+    }
+  }
+
   /**
    * Get all recent chats for a user.
    * @param userId The current user's ID.
@@ -303,6 +344,12 @@ public getChatHistory(productId: string, sellerId: string, buyerId: string, call
     } else {
       console.error("[ChatService] Socket not connected or userId missing for getRecentChats");
     }
+  }
+  
+  // Register a callback for new bid events
+  public onNewBid(cb: (data: any) => void) {
+    if (!this._newBidListeners) this._newBidListeners = [];
+    this._newBidListeners.push(cb);
   }
 
   // --- ADD: Rate Chat API ---

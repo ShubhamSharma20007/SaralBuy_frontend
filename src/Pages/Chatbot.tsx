@@ -347,7 +347,7 @@ const ChatArea = ({
 
   return (
     <>
-      <div className="flex-1 flex flex-col border-1 rounded-md w-full">
+      <div className="flex-1 flex flex-col border-1 rounded-md w-full min-h-0">
         {/* Chat Header */}
         <div className="border-b border-chat-border bg-background">
           {/* <div className='bg-gray-100 flex justify-between items-center'>
@@ -439,7 +439,7 @@ const ChatArea = ({
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              className="p-5 bg-gray-100 rounded-full text-sm placeholder:text-sm placeholder:font-medium tracking-wide focus-visible:ring-0 border-0"
+              className="h-12 px-5 bg-white rounded-full text-sm placeholder:text-muted-foreground tracking-wide focus-visible:ring-1 focus-visible:ring-orange-500 border border-gray-300"
               disabled={isSelfChat}
             />
           </div>
@@ -623,7 +623,7 @@ const Chatbot = () => {
               return;
             }
             const newContact = {
-              roomId: `product_${productId}_buyer_${buyerId}_seller_${sellerId}`,
+              roomId: chatService.generateRoomId(productId, buyerId, sellerId),
               productId,
               sellerId: sellerId,
               buyerId: buyerId,
@@ -670,7 +670,7 @@ const Chatbot = () => {
             return;
           }
           const newContact = {
-            roomId: `product_${productId}_buyer_${buyerId}_seller_${sellerId}`,
+            roomId: chatService.generateRoomId(productId, buyerId, sellerId),
             productId,
             sellerId: sellerId,
             buyerId: buyerId,
@@ -703,10 +703,15 @@ const Chatbot = () => {
     chatService.connect();
 
     const handleReceiveMessage = (data: any) => {
-      console.log('Received message:', data);
+      console.log('Received message in Chatbot:', data);
     
-      const roomIdFromData = data.roomId || `product_${data.productId}_buyer_${data.buyerId}_seller_${data.sellerId}`;
+      let roomIdFromData = data.roomId;
+      if (!roomIdFromData && data.productId && data.buyerId && data.sellerId) {
+         roomIdFromData = chatService.generateRoomId(data.productId, data.buyerId, data.sellerId);
+      }
       
+      console.log('Processed roomId:', roomIdFromData);
+
       // Update recent chats with proper unread counts
       setRecentChats((prev) =>
         prev.map((chat) => {
@@ -757,6 +762,7 @@ const Chatbot = () => {
     
       // Only add to messages if the message belongs to the currently selected chat
       if (selectedContact && roomIdFromData === selectedContact.roomId) {
+        console.log('Updating messages state for current room');
         setMessages((prev) => {
           const exists = prev.some(
             (msg) =>
@@ -779,6 +785,8 @@ const Chatbot = () => {
             },
           ];
         });
+      } else {
+         console.log('Message not for current room:', { roomIdFromData, selectedRoomId: selectedContact?.roomId });
       }
     
       // Show notification if message is not from current chat
@@ -792,7 +800,10 @@ const Chatbot = () => {
 
     const handleLastMessageUpdate = (data: any) => {
       if (data && data.lastMessage) {
-        const roomIdFromData = data.roomId || `product_${data.productId}_buyer_${data.buyerId}_seller_${data.sellerId}`;
+        let roomIdFromData = data.roomId;
+        if (!roomIdFromData && data.productId && data.buyerId && data.sellerId) {
+            roomIdFromData = chatService.generateRoomId(data.productId, data.buyerId, data.sellerId);
+        }
         setRecentChats((prev) =>
           prev.map((chat) =>
             chat.roomId === roomIdFromData
@@ -803,15 +814,58 @@ const Chatbot = () => {
       }
     };
 
+    // Unified handler for recent_chat_update
+    const handleRecentChatUpdate = (data: any) => {
+        console.log("Chatbot received recent_chat_update:", data);
+        
+        let roomIdFromData = data.roomId;
+        if (!roomIdFromData && data.productId && data.buyerId && data.sellerId) {
+            roomIdFromData = chatService.generateRoomId(data.productId, data.buyerId, data.sellerId);
+        }
+
+        // If this update matches the current room, try to append the lastMessage
+        if (selectedContact && roomIdFromData === selectedContact.roomId && data.lastMessage) {
+            console.log("Updating messages from recent_chat_update");
+            setMessages((prev) => {
+                const msg = data.lastMessage;
+                // Check if message already exists
+                const exists = prev.some((m) => 
+                   (m.id && msg._id && m.id === msg._id) ||
+                   (m.text === msg.message && m.senderId === msg.senderId && m.time === (msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ""))
+                );
+                
+                if (exists) return prev;
+                
+                return [...prev, {
+                    id: msg._id || Date.now().toString() + Math.random(),
+                    text: msg.message,
+                    senderId: msg.senderId,
+                    senderType: msg.senderType,
+                    time: msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString()
+                }];
+            });
+        }
+        
+        // Also update the sidebar list (reusing logic implicitly by just calling setRecentChats if needed, 
+        // but recent_chat_update usually updates the store which updates recentChats via subscription.
+        // However, we might want to ensure it updates locally immediately too check handleLastMessageUpdate redundancy).
+        // Actually, handleLastMessageUpdate logic is similar. let's keep it separate or merge?
+        // The store subscription in line 508 handles the list update usually.
+        // But let's be safe and allow this to update recentChats too if the store didn't yet.
+        // (Optional: depending on if store update is fast enough).
+    };
+
     if (chatService.socket) {
       chatService.socket.on("receive_message", handleReceiveMessage);
       chatService.socket.on("chat_last_message_update", handleLastMessageUpdate);
+      chatService.socket.on("recent_chat_update", handleRecentChatUpdate);
     }
 
     return () => {
       if (chatService.socket) {
         chatService.socket.off("receive_message", handleReceiveMessage);
         chatService.socket.off("chat_last_message_update", handleLastMessageUpdate);
+        chatService.socket.off("recent_chat_update", handleRecentChatUpdate);
       }
     };
   }, [currentUserId, selectedContact]);
@@ -957,7 +1011,7 @@ const Chatbot = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="h-screen border-chat-border rounded-lg overflow-hidden my-5">
+      <div className="h-[calc(100vh-100px)] border-chat-border rounded-lg overflow-hidden mt-5">
         <div className="flex h-full gap-2">
           {/* Desktop Sidebar */}
           <div className="hidden md:block w-80 bg-gray-100 border-1 rounded-md">
@@ -976,7 +1030,7 @@ const Chatbot = () => {
           </div>
 
           {/* Mobile Menu Button and Chat Area */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             {/* Mobile Header */}
             <div className="md:hidden sm:p-4 py-2 border-chat-border bg-chat-sidebar">
               <div className="flex items-center justify-between">

@@ -29,6 +29,7 @@
   import { getUserProfile } from "@/zustand/userProfile";
   // import userService from "@/services/user.service";
   import ChatService from "@/services/chat.service";
+  import { useChatStore } from "@/zustand/chatStore";
   import {
     Popover,
     PopoverContent,
@@ -115,14 +116,24 @@
     const navigate = useNavigate()
 
     const { user } = getUserProfile();
-    // Chat notifications
-    const [notifications, setNotifications] = useState<any[]>([]);
+    // Chat store
+    const { recentChats, setRecentChats, markAsRead } = useChatStore();
     const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+    const location = useLocation();
+    const isChatActive = location.pathname === '/chat' || (typeof window !== 'undefined' && localStorage.getItem('chatbot_active_user') === 'true');
+    const unreadChatsCount = isChatActive ? 0 : recentChats.reduce((acc, chat) => {
+       const isBuyer = chat.buyerId === user?._id;
+       const isSeller = chat.sellerId === user?._id;
+       const unreadCount = isBuyer ? chat.buyerUnreadCount : (isSeller ? chat.sellerUnreadCount : 0);
+       return acc + (unreadCount > 0 ? 1 : 0);
+    }, 0);
+
+    // Bid notifications
+    const [bidNotifications, setBidNotifications] = useState<any[]>([]);
 
     // Product notifications
     const [productNotifications, setProductNotifications] = useState<any[]>([]);
     const [showProductNotifDropdown, setShowProductNotifDropdown] = useState(false);
-    const location = useLocation()
     const { fn, data } = useFetch(ProductService.getSeachProduct)
     const [text, setText] = useState('');
     const [products, setProducts] = useState<ProductsType[]>([]);
@@ -150,32 +161,18 @@
       chatService.connect();
       if (user?._id) {
         chatService.identify(user._id);
-      }
-      // Listen for new message notifications
-      chatService.onNewMessageNotification((data) => {
-        setNotifications((prev) => {
-          // Uniqueness by roomId + lastMessage.timestamp (or message)
-          const isDuplicate = prev.some(
-            (n) =>
-              n.roomId === data.roomId &&
-              n.lastMessage?.timestamp === data.lastMessage?.timestamp &&
-              n.lastMessage?.message === data.lastMessage?.message
-          );
-          if (isDuplicate) return prev;
-          return [
-            {
-              roomId: data.roomId,
-              lastMessage: data.lastMessage,
-              productId: data.productId,
-              sellerId: data.sellerId,
-              buyerId: data.buyerId,
-              senderType: data.lastMessage?.senderType,
-              // Add any other relevant fields from data if needed
-            },
-            ...prev,
-          ];
+        chatService.getBidNotifications(user._id);
+        
+        // Initial fetch of recent chats to populate store
+        chatService.getRecentChats(user._id, (data) => {
+            if (Array.isArray(data)) {
+                setRecentChats(data);
+            }
         });
-      });
+      }
+      
+      // We rely on chatService.ts handling 'recent_chat_update' to update the store
+      // But we call identify above to ensure socket is ready
 
       // Listen for product notifications
       chatService.onProductNotification((data) => {
@@ -199,8 +196,37 @@
           ];
         });
       });
-    }, [user?._id]);
 
+      // Listen for bid notifications
+      chatService.onBidNotification((data) => {
+        // data is the array of notifications
+        setBidNotifications(data);
+      });
+      // Listen for new bid events (real-time)
+      chatService.onNewBid((data) => {
+        setBidNotifications((prev) => {
+          // Prevent duplicate notifications by bidId or productId
+          const exists = prev.some(
+            (n) => n.bidId === data.bidId || n.productId === data.productId
+          );
+          if (exists) return prev;
+          return [
+            {
+              requirementId: data.requirementId,
+              product: { title: data.productTitle, _id: data.productId },
+              totalBids: data.totalBids || 1,
+              latestBid: { date: Date.now() },
+              allBids: [],
+              ...data
+            },
+            ...prev,
+          ];
+        });
+      });
+    }, [user?._id]);
+/* Removed effect that clears bid notifications on dropdown open */
+
+console.log(bidNotifications,"bidNotifications")
     // Show/hide chat notification dropdown (do NOT clear notifications here)
     const handleBellClick = () => {
       setShowNotifDropdown((prev) => !prev);
@@ -216,7 +242,10 @@
     // Remove notification on click and optionally navigate to chat
     // Notification click: navigate to chat with all IDs, then clear notification
     const handleNotificationClick = (notif: any) => {
-      setNotifications((prev) => prev.filter((n) => n.roomId !== notif.roomId));
+      // Optimistically mark as read locally
+      if (notif.roomId && user?._id) {
+          markAsRead(notif.roomId, user._id);
+      }
       setShowNotifDropdown(false);
 
       // Defensive: Try to get all required IDs
@@ -423,79 +452,81 @@
             
   {/*  messaging */}
               <Popover
-                open={notifications.length > 0 ? showNotifDropdown : false}
-                onOpenChange={(open) => {
-                  // Only allow opening if there are notifications
-                  if (open && notifications.length > 0) {
-                    setShowNotifDropdown(true);
-                  } else {
-                    setShowNotifDropdown(false);
-                  }
-                }}
+                open={showNotifDropdown}
+                onOpenChange={setShowNotifDropdown}
               >
                 <PopoverTrigger>
-                  <div
-                    className="cursor-pointer relative  bg-transparent border-0 shadow-none"
-                    onClick={() => {
-                      if (notifications.length === 0) {
-                        navigate('/chat');
-                      } else {
-                        handleBellClick();
-                      }
-                    }}
-                  >
-                    <MessageSquareText className="w-5 h-5 text-gray-600" />
-                    {notifications.length > 0 && (
-                      <Badge
-                        className="h-5 min-w-5 text-xs rounded-full px-1.5 py-0.5 flex items-center justify-center absolute -top-2 -right-2 shadow-md"
-                        variant="destructive"
-                      >
-                        {notifications.length}
-                      </Badge>
-                    )}
-                  </div>
+                    <div
+                      className="cursor-pointer relative  bg-transparent border-0 shadow-none"
+                      onClick={() => {
+                         // If no chats, navigate to chat page anyway
+                         if (recentChats.length === 0) {
+                            navigate('/chat');
+                         } else {
+                            handleBellClick();
+                         }
+                      }}
+                    >
+                      <MessageSquareText className="w-5 h-5 text-gray-600" />
+                      {unreadChatsCount > 0 && (
+                        <Badge
+                          className="h-5 min-w-5 text-xs rounded-full px-1.5 py-0.5 flex items-center justify-center absolute -top-2 -right-2 shadow-md"
+                          variant="destructive"
+                        >
+                          {unreadChatsCount}
+                        </Badge>
+                      )}
+                    </div>
                 </PopoverTrigger>
 
               <PopoverContent className="mt-2 w-80  empty:p-0 p-2 rounded-xl shadow-lg border border-gray-200 bg-white">
-    {showNotifDropdown && (
+      {showNotifDropdown && (
       <>
-        {notifications.length === 0 ? (
+        {recentChats.length === 0 ? (
           <p className="text-sm text-center text-gray-500 py-4">
-            No new chat messages
+            No active conversations
           </p>
         ) : (
           <div className="max-h-80 overflow-y-auto overflow-x-hidden custom-scrollbar w-full grid space-y-1">
-            {notifications.map((notif, idx) => (
+            {recentChats.map((chat, idx) => {
+               // Determine visual urgency if unread
+               const isBuyer = chat.buyerId === user?._id;
+               const isSeller = chat.sellerId === user?._id;
+               const unreadCount = isBuyer ? chat.buyerUnreadCount : (isSeller ? chat.sellerUnreadCount : 0);
+               const isUnread = unreadCount > 0;
+
+               return (
               <div
                 key={idx}
-                onClick={() => handleNotificationClick(notif)}
-                className="flex w-full items-center gap-3 p-2 rounded-lg hover:bg-orange-50 transition cursor-pointer  "
+                onClick={() => handleNotificationClick(chat)}
+                className={`flex w-full items-center gap-3 p-2 rounded-lg transition cursor-pointer ${isUnread ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50'}`}
               >
-                <div className="bg-orange-500 p-2 rounded-full text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                <div className="bg-orange-500 p-2 rounded-full text-white flex items-center justify-center shadow-sm flex-shrink-0 relative">
                   <MessageCircle className="w-4 h-4 " />
+                  {isUnread && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-md mb-1">
-                    {notif.lastMessage?.senderType === "buyer"
-                      ? "Buyer"
-                      : notif.lastMessage?.senderType === "seller"
-                        ? "Seller"
-                        : "User"}
+                  <p className="font-semibold text-gray-800 text-md mb-1 flex justify-between">
+                    <span>{
+                        // Helper to show who we are talking to could be better, but sticking to previous logic roughly
+                         chat.lastMessage?.senderType === "buyer" ? "Buyer" : (chat.lastMessage?.senderType === "seller" ? "Seller" : "User")
+                    }</span>
+                    {isUnread && <span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full">{unreadCount}</span>}
                   </p>
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-gray-600 text-sm flex-1 min-w-0 truncate">
-                      {notif.lastMessage?.message}
+                    <p className={`text-sm flex-1 min-w-0 truncate ${isUnread ? 'font-medium text-gray-800' : 'text-gray-600'}`}>
+                      {chat.lastMessage?.message || "Attachment"}
                     </p>
                     <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                      {notif.lastMessage?.timestamp
-                        ? format(new Date(notif.lastMessage.timestamp), "hh:mm a").toLowerCase()
+                      {chat.lastMessage?.timestamp
+                        ? format(new Date(chat.lastMessage.timestamp), "hh:mm a").toLowerCase()
                         : ""}
                     </span>
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </>
@@ -505,7 +536,7 @@
 
 
 
-  {/*  product create notificaiton */}
+  {/*  product + bid notification */}
 
   <Popover open={showProductNotifDropdown} onOpenChange={setShowProductNotifDropdown}>
     <PopoverTrigger>
@@ -514,27 +545,65 @@
         className="cursor-pointer relative  bg-transparent border-0 shadow-none"
       >
         <Bell className="w-5 h-5 text-gray-600 " />
-        {productNotifications.length > 0 && (
+        {(productNotifications.length > 0 || bidNotifications.length > 0) && (
           <Badge
             className="h-5 min-w-5 text-xs rounded-full px-1.5 py-0.5 flex items-center justify-center absolute -top-2 -right-2 shadow-md"
             variant="destructive"
           >
-            {productNotifications.length}
+            {productNotifications.length + bidNotifications.length}
           </Badge>
         )}
       </div>
     </PopoverTrigger>
 
     <PopoverContent className="mt-2 w-80 p-2 rounded-xl shadow-lg border border-gray-200 bg-white empty:p-0">
-      {productNotifications.length === 0 ? (
+      {productNotifications.length === 0 && bidNotifications.length === 0 ? (
         <p className="text-sm text-center text-gray-500 py-4">
-          No new product notifications
+          No new notifications
         </p>
       ) : (
         <div className="max-h-80 overflow-y-auto">
+          {/* Bid Notifications */}
+          {bidNotifications.length > 0 &&
+  bidNotifications.map((notif, idx) => (
+    <div
+      key={`bid-${idx}`}
+      onClick={() => {
+        setBidNotifications((prev) => prev.filter((_, i) => i !== idx));
+        if (notif.requirementId) {
+            navigate(`/account/requirements`);
+        }
+        setShowProductNotifDropdown(false);
+      }}
+      className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+    >
+      <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
+        <Gavel className="w-4 h-4" />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold">
+          {notif.product?.title || "New Bid"}
+        </p>
+
+        <p className="text-sm text-gray-600 truncate">
+         You have new bids on your requirement.
+        </p>
+
+        {notif.latestBid?.date && (
+          <span className="text-xs text-gray-400">
+            {format(new Date(notif.latestBid.date), "hh:mm a").toLowerCase()}
+          </span>
+        )}
+      </div>
+    </div>
+  ))}
+
+
+          {/* Product Notifications */}
           {productNotifications.map((notif, idx) => (
             <div
-              key={idx}
+              key={`prod-${idx}`}
               onClick={() => {
                 // Remove from list
                 setProductNotifications((prev) =>
