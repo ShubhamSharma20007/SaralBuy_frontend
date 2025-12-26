@@ -302,10 +302,22 @@ class ChatService {
     this._productNotificationListeners.push(cb);
   }
 
+  public offProductNotification(cb: (data: any) => void) {
+    if (this._productNotificationListeners) {
+      this._productNotificationListeners = this._productNotificationListeners.filter((l) => l !== cb);
+    }
+  }
+
   // Register a callback for bid notifications
   public onBidNotification(cb: (data: any) => void) {
     if (!this._bidNotificationListeners) this._bidNotificationListeners = [];
     this._bidNotificationListeners.push(cb);
+  }
+
+  public offBidNotification(cb: (data: any) => void) {
+    if (this._bidNotificationListeners) {
+      this._bidNotificationListeners = this._bidNotificationListeners.filter((l) => l !== cb);
+    }
   }
 
   // Request bid notifications
@@ -350,6 +362,12 @@ class ChatService {
   public onNewBid(cb: (data: any) => void) {
     if (!this._newBidListeners) this._newBidListeners = [];
     this._newBidListeners.push(cb);
+  }
+
+  public offNewBid(cb: (data: any) => void) {
+    if (this._newBidListeners) {
+      this._newBidListeners = this._newBidListeners.filter((l) => l !== cb);
+    }
   }
 
   // --- ADD: Rate Chat API ---

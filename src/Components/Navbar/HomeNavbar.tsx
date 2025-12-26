@@ -174,17 +174,15 @@
       // We rely on chatService.ts handling 'recent_chat_update' to update the store
       // But we call identify above to ensure socket is ready
 
-      // Listen for product notifications
-      chatService.onProductNotification((data) => {
+      const handleProductNotification = (data: any) => {
         setProductNotifications((prev) => {
-          // Uniqueness by productId + title + description
-          const isDuplicate = prev.some(
+          // Remove existing if present to move to top
+          const filtered = prev.filter(
             (n) =>
-              n.productId === data.productId &&
-              n.title === data.title &&
-              n.description === data.description
+              !(n.productId === data.productId &&
+                n.title === data.title &&
+                n.description === data.description)
           );
-          if (isDuplicate) return prev;
           return [
             {
               productId: data.productId,
@@ -192,37 +190,56 @@
               description: data.description,
               receivedAt: Date.now(),
             },
-            ...prev,
+            ...filtered,
           ];
         });
-      });
+      };
 
-      // Listen for bid notifications
-      chatService.onBidNotification((data) => {
-        // data is the array of notifications
+      const handleBidNotificationList = (data: any) => {
         setBidNotifications(data);
-      });
-      // Listen for new bid events (real-time)
-      chatService.onNewBid((data) => {
+      };
+
+      const handleNewBid = (data: any) => {
+        console.log("socket NEW BID received in Navbar:", data);
         setBidNotifications((prev) => {
-          // Prevent duplicate notifications by bidId or productId
-          const exists = prev.some(
-            (n) => n.bidId === data.bidId || n.productId === data.productId
-          );
-          if (exists) return prev;
+          // Only prevent exact duplicate BID IDs (same event received twice)
+          // Do NOT block if it's a different bid for the same product
+          const isExactDuplicate = prev.some((n) => n.bidId === data.bidId);
+          
+          if (isExactDuplicate) {
+             console.log("Duplicate bidId ignored:", data.bidId);
+             return prev;
+          }
+
+          // Just add the new notification to the top
           return [
             {
               requirementId: data.requirementId,
               product: { title: data.productTitle, _id: data.productId },
-              totalBids: data.totalBids || 1,
+              totalBids: data.totalBids || 1, 
               latestBid: { date: Date.now() },
-              allBids: [],
+              allBids: [], 
               ...data
             },
             ...prev,
           ];
         });
-      });
+      };
+
+      // Listen for product notifications
+      chatService.onProductNotification(handleProductNotification);
+
+      // Listen for bid notifications
+      chatService.onBidNotification(handleBidNotificationList);
+
+      // Listen for new bid events (real-time)
+      chatService.onNewBid(handleNewBid);
+
+      return () => {
+          chatService.offProductNotification(handleProductNotification);
+          chatService.offBidNotification(handleBidNotificationList);
+          chatService.offNewBid(handleNewBid);
+      };
     }, [user?._id]);
 /* Removed effect that clears bid notifications on dropdown open */
 
