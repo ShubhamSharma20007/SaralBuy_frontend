@@ -623,13 +623,17 @@ const Chatbot = () => {
               console.error("Cannot create chat: buyerId and sellerId are the same!", { finalBuyerId, finalSellerId });
               return;
             }
+            // Use passed name/avatar if available, otherwise fallback
+            const passedName = location.state?.partnerName;
+            const passedAvatar = location.state?.partnerAvatar;
+
             const newContact = {
               roomId: chatService.generateRoomId(productId, buyerId, sellerId),
               productId,
               sellerId: sellerId,
               buyerId: buyerId,
-              name: userType === 'buyer' ? 'Seller' : 'Buyer',
-              avatar: '',
+              name: passedName || (userType === 'buyer' ? 'Seller' : 'Buyer'),
+              avatar: passedAvatar || '',
               isOnline: true,
               lastMessage: null,
               buyerUnreadCount: 0,
@@ -638,14 +642,8 @@ const Chatbot = () => {
               userType: userType,
             };
             
-            // Add to recent chats only if it's not already there (update store too)
-            setRecentChats((prev) => {
-              const exists = prev.some(chat => chat.roomId === newContact.roomId);
-              if (exists) return prev;
-              const updated = [newContact, ...prev];
-              try { useChatStore.getState().setRecentChats(updated); } catch (e) { console.error(e); }
-              return updated;
-            });
+            // Do NOT add to recent chats yet (prevent empty chat creation)
+            // Just select it so user can see header and type message
             setSelectedContact(newContact);
           }
         } else if (transformedChats.length > 0) {
@@ -665,18 +663,22 @@ const Chatbot = () => {
           } else if (userType === 'seller') {
             finalSellerId = currentUserId;
           }
-          // Prevent both IDs from being the same
-          if (finalBuyerId === finalSellerId) {
+           // Prevent both IDs from being the same
+           if (finalBuyerId === finalSellerId) {
             console.error("Cannot create chat: buyerId and sellerId are the same!", { finalBuyerId, finalSellerId });
             return;
           }
+          // Use passed name/avatar if available
+          const passedName = location.state?.partnerName;
+          const passedAvatar = location.state?.partnerAvatar;
+
           const newContact = {
             roomId: chatService.generateRoomId(productId, buyerId, sellerId),
             productId,
             sellerId: sellerId,
             buyerId: buyerId,
-            name: userType === 'buyer' ? 'Seller' : 'Buyer',
-            avatar: '',
+            name: passedName || (userType === 'buyer' ? 'Seller' : 'Buyer'),
+            avatar: passedAvatar || '',
             isOnline: true,
             lastMessage: null,
             messageCount: 0,
@@ -686,8 +688,7 @@ const Chatbot = () => {
             userType: userType,
           };
           
-          setRecentChats([newContact]);
-          try { useChatStore.getState().setRecentChats([newContact]); } catch (e) { console.error(e); }
+          // Do NOT add to recentChats store yet
           setSelectedContact(newContact);
         }
       }
@@ -1031,9 +1032,31 @@ const Chatbot = () => {
   };
 
   const handleSidebarContactUpdate = (roomId: string, updater: (prev: any) => any) => {
-    setRecentChats((prev) =>
-      prev.map((chat) => (chat.roomId === roomId ? updater(chat) : chat))
-    );
+    setRecentChats((prev) => {
+      const index = prev.findIndex((chat) => chat.roomId === roomId);
+      if (index !== -1) {
+         // Chat exists, update it
+         const updatedChats = [...prev];
+         updatedChats[index] = updater(updatedChats[index]);
+         // Sync with store (wrapped in setTimeout to avoid render-phase update)
+         setTimeout(() => {
+           try { useChatStore.getState().setRecentChats(updatedChats); } catch (e) { }
+         }, 0);
+         return updatedChats;
+      } else {
+         // Chat does not exist in list (newly created)
+         if (selectedContact && selectedContact.roomId === roomId) {
+             console.log("Adding new chat to sidebar list:", roomId);
+             const newChat = updater(selectedContact);
+             const updatedChats = [newChat, ...prev];
+             setTimeout(() => {
+               try { useChatStore.getState().setRecentChats(updatedChats); } catch (e) { }
+             }, 0);
+             return updatedChats;
+         }
+         return prev;
+      }
+    });
   };
 
   // Error handling

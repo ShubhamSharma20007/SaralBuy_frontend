@@ -10,6 +10,11 @@ interface ChatSummary {
   buyerUnreadCount: number;
   sellerUnreadCount: number;
   // Add other fields as needed
+  name?: string;
+  avatar?: string;
+  buyer?: any;
+  seller?: any;
+  userType?: string;
 }
 
 interface ChatState {

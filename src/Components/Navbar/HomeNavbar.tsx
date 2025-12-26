@@ -121,7 +121,9 @@
     const [showNotifDropdown, setShowNotifDropdown] = useState(false);
     const location = useLocation();
     const isChatActive = location.pathname === '/chat' || (typeof window !== 'undefined' && localStorage.getItem('chatbot_active_user') === 'true');
-    const unreadChatsCount = isChatActive ? 0 : recentChats.reduce((acc, chat) => {
+    const unreadChatsCount = isChatActive ? 0 : recentChats
+      .filter(chat => chat.lastMessage)
+      .reduce((acc, chat) => {
        const isBuyer = chat.buyerId === user?._id;
        const isSeller = chat.sellerId === user?._id;
        const unreadCount = isBuyer ? chat.buyerUnreadCount : (isSeller ? chat.sellerUnreadCount : 0);
@@ -226,6 +228,17 @@
         });
       };
 
+      const handleNewMessage = (data: any) => {
+        console.log("New Message Notification in Navbar:", data);
+        toast.message(`New message from ${data.senderName || 'User'}`, {
+           description: data.message,
+           action: {
+             label: 'View',
+             onClick: () => navigate('/chat')
+           },
+        });
+      };
+
       // Listen for product notifications
       chatService.onProductNotification(handleProductNotification);
 
@@ -235,10 +248,14 @@
       // Listen for new bid events (real-time)
       chatService.onNewBid(handleNewBid);
 
+      // Listen for new message notifications
+      chatService.onNewMessageNotification(handleNewMessage);
+
       return () => {
           chatService.offProductNotification(handleProductNotification);
           chatService.offBidNotification(handleBidNotificationList);
           chatService.offNewBid(handleNewBid);
+          chatService.offNewMessageNotification(handleNewMessage);
       };
     }, [user?._id]);
 /* Removed effect that clears bid notifications on dropdown open */
@@ -499,13 +516,15 @@ console.log(bidNotifications,"bidNotifications")
               <PopoverContent className="mt-2 w-80  empty:p-0 p-2 rounded-xl shadow-lg border border-gray-200 bg-white">
       {showNotifDropdown && (
       <>
-        {recentChats.length === 0 ? (
+        {recentChats.filter(chat => chat.lastMessage).length === 0 ? (
           <p className="text-sm text-center text-gray-500 py-4">
             No active conversations
           </p>
         ) : (
           <div className="max-h-80 overflow-y-auto overflow-x-hidden custom-scrollbar w-full grid space-y-1">
-            {recentChats.map((chat, idx) => {
+            {recentChats
+              .filter(chat => chat.lastMessage) // Only show chats with messages
+              .map((chat, idx) => {
                // Determine visual urgency if unread
                const isBuyer = chat.buyerId === user?._id;
                const isSeller = chat.sellerId === user?._id;
@@ -525,10 +544,16 @@ console.log(bidNotifications,"bidNotifications")
 
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-800 text-md mb-1 flex justify-between">
-                    <span>{
-                        // Helper to show who we are talking to could be better, but sticking to previous logic roughly
-                         chat.lastMessage?.senderType === "buyer" ? "Buyer" : (chat.lastMessage?.senderType === "seller" ? "Seller" : "User")
-                    }</span>
+                    <span>{(() => {
+                        if (chat.name) return chat.name;
+                        // Fallback derivation
+                        const isBuyer = chat.buyerId === user?._id;
+                        const partner = isBuyer ? chat.seller : chat.buyer;
+                        if (partner?.firstName || partner?.lastName) {
+                            return `${partner.firstName || ''} ${partner.lastName || ''}`.trim();
+                        }
+                        return isBuyer ? "Seller" : "Buyer";
+                    })()}</span>
                     {isUnread && <span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full">{unreadCount}</span>}
                   </p>
                   <div className="flex items-center justify-between gap-2">

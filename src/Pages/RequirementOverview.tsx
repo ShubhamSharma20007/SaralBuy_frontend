@@ -71,7 +71,7 @@ const RequirementOverview = () => {
       }
     }
   }, [requirementData, productData])
-  const handleChatNavigate = (sellerId?: string) => {
+  const handleChatNavigate = (sellerId?: string, sellerName?: string, sellerAvatar?: string) => {
     if (currentProduct) {
       localStorage.setItem('chatIds', JSON.stringify({
         productId: currentProduct.product?._id,
@@ -83,7 +83,9 @@ const RequirementOverview = () => {
         state: {
           productId: currentProduct.product?._id,
           buyerId: currentProduct.buyer?._id,
-          sellerId: sellerId
+          sellerId: sellerId,
+          partnerName: sellerName,
+          partnerAvatar: sellerAvatar
         }
       })
     }
@@ -138,7 +140,7 @@ const RequirementOverview = () => {
         <Button
           className="text-sm cursor-pointer text-orange-600 underline"
           variant="link"
-          onClick={() => handleChatNavigate(row.original.sellerId)}
+          onClick={() => handleChatNavigate(row.original.sellerId, row.original.bid_buy, row.original.avtar)}
         >
           Chat Now
         </Button>

@@ -296,6 +296,12 @@ class ChatService {
     this._notificationListeners.push(cb);
   }
 
+  public offNewMessageNotification(cb: (data: any) => void) {
+    if (this._notificationListeners) {
+      this._notificationListeners = this._notificationListeners.filter((l) => l !== cb);
+    }
+  }
+
   // Register a callback for product notifications (for bell icon, etc)
   public onProductNotification(cb: (data: any) => void) {
     if (!this._productNotificationListeners) this._productNotificationListeners = [];
