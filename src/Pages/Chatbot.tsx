@@ -243,6 +243,7 @@ const ChatArea = ({
         senderId: senderId,
         senderType: userType,
         time: new Date().toLocaleTimeString(),
+        isOptimistic: true,
       };
       
       setMessages((prev) => [...prev, newMessage]);
@@ -764,6 +765,25 @@ const Chatbot = () => {
       if (selectedContact && roomIdFromData === selectedContact.roomId) {
         console.log('Updating messages state for current room');
         setMessages((prev) => {
+          // Check for optimistic message to replace
+          const optimisticIndex = prev.findIndex(msg => 
+            msg.isOptimistic && 
+            msg.text === data.message && 
+            msg.senderId === data.senderId &&
+            msg.senderType === data.senderType
+          );
+
+          if (optimisticIndex !== -1) {
+             const newMessages = [...prev];
+             newMessages[optimisticIndex] = {
+               ...newMessages[optimisticIndex],
+               id: data.id || newMessages[optimisticIndex].id,
+               time: data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : newMessages[optimisticIndex].time,
+               isOptimistic: false, // Clear flag
+             };
+             return newMessages;
+          }
+
           const exists = prev.some(
             (msg) =>
               (msg.id && data.id && msg.id === data.id) ||
@@ -828,6 +848,26 @@ const Chatbot = () => {
             console.log("Updating messages from recent_chat_update");
             setMessages((prev) => {
                 const msg = data.lastMessage;
+                
+                // Check for optimistic message to replace
+                const optimisticIndex = prev.findIndex(m => 
+                    m.isOptimistic && 
+                    m.text === msg.message && 
+                    m.senderId === msg.senderId &&
+                    m.senderType === msg.senderType
+                );
+
+                if (optimisticIndex !== -1) {
+                    const newMessages = [...prev];
+                    newMessages[optimisticIndex] = {
+                        ...newMessages[optimisticIndex],
+                        id: msg._id || newMessages[optimisticIndex].id,
+                        time: msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : newMessages[optimisticIndex].time,
+                        isOptimistic: false,
+                    };
+                    return newMessages;
+                }
+
                 // Check if message already exists
                 const exists = prev.some((m) => 
                    (m.id && msg._id && m.id === msg._id) ||
