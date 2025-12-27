@@ -485,7 +485,8 @@ console.log(bidNotifications,"bidNotifications")
             <div className="flex gap-5 items-center space-x-1">
             
   {/*  messaging */}
-              <Popover
+             {
+              user &&  <Popover
                 open={showNotifDropdown}
                 onOpenChange={setShowNotifDropdown}
               >
@@ -575,6 +576,7 @@ console.log(bidNotifications,"bidNotifications")
     )}
   </PopoverContent>
               </Popover>
+             }
 
 
 

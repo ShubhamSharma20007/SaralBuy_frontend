@@ -410,7 +410,6 @@ const ChatArea = ({
   const actualBuyerId = selectedContact?.buyerId || buyerId;
   const actualSellerId = selectedContact?.sellerId || sellerId;
   const isSelfChat = (currentUserId === actualBuyerId && currentUserId === actualSellerId) || actualBuyerId === actualSellerId;
-
   return (
     <>
       <div className="flex-1 flex flex-col border-1 rounded-md w-full min-h-0">
@@ -421,12 +420,12 @@ const ChatArea = ({
           </div> */}
           <div className="flex justify-between items-center space-x-2 bg-gray-100 p-2">
             <p className="text-sm text-muted-foreground font-semibold">
-              {selectedContact.productName || 'Product Discussion'}
+             Product Name :  {selectedContact.productName || 'Product Discussion'} 
             </p>
-            <div className="flex items-center justify-end mt-1">
+            {/* <div className="flex items-center justify-end mt-1">
               <List className='w-4 h-4' />
               <Badge variant="secondary" className="text-sm">Active</Badge>
-            </div>
+            </div> */}
           </div>
           <div className="flex items-center space-x-3 p-3 bg-orange-50">
             <div className='flex justify-between items-center w-full'>
@@ -438,10 +437,10 @@ const ChatArea = ({
                   </Avatar>
                   <div className='flex items-center space-x-4'>
                     <h3 className="font-semibold text-gray-700">{selectedContact.name}</h3>
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                       <Circle className="h-2 w-2 overflow-hidden bg-green-600 rounded-full border-0 text-transparent" />
                       <span className="text-sm text-muted-foreground">Online</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div>
@@ -487,7 +486,11 @@ const ChatArea = ({
                   <p className="text-sm">{message.text}</p>
                 </div>
                 <span className="text-xs text-muted-foreground mt-1">
-                  {message.time || (message.timestamp ? new Date(message.timestamp).toLocaleTimeString() : "")}
+                  {message.time || (message.timestamp ? new Date(message.timestamp).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    }) : "")}
                   {" "}• {isMine ? 'You' : message.senderType}
                 </span>
               </div>
@@ -509,9 +512,9 @@ const ChatArea = ({
               disabled={isSelfChat}
             />
           </div>
-          <div className={`p-1 rounded-full border-2 border-gray-500 ${isSelfChat ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-100'}`}>
+          {/* <div className={`p-1 rounded-full border-2 border-gray-500 ${isSelfChat ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-100'}`}>
             <Paperclip className='w-4 h-4 text-gray-700'/>
-          </div>
+          </div> */}
           <Button
             onClick={handleSendMessage}
             size="icon"
@@ -1141,7 +1144,7 @@ const Chatbot = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
+    <div className="w-full max-w-7xl mx-auto px-4 mb-5">
       <div className="h-[calc(100vh-100px)] border-chat-border rounded-lg overflow-hidden mt-5">
         <div className="flex h-full gap-2">
           {/* Desktop Sidebar */}

@@ -2,7 +2,7 @@
 import React from 'react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Button } from '../ui/button'
-import ReactStars from 'react-stars'
+import { Rating } from 'react-simple-star-rating'
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -12,7 +12,7 @@ type Props = {
 };
 
 const RatingPopup: React.FC<Props> = ({ open, setOpen, chatId, onSubmit, loading }) => {
-  const [selectedRating, setSelectedRating] = React.useState<number | null>(null);
+  const [selectedRating, setSelectedRating] = React.useState<number | 0>(0);
 
   // Debug log for chatId prop
   React.useEffect(() => {
@@ -42,7 +42,7 @@ const RatingPopup: React.FC<Props> = ({ open, setOpen, chatId, onSubmit, loading
           </div>
           <div className="space-y-5 w-full">
             <div className='flex justify-center items-center'>
-              <ReactStars
+              {/* <ReactStars
                 className='flex gap-3'
                 count={5}
                 onChange={ratingChanged}
@@ -52,7 +52,15 @@ const RatingPopup: React.FC<Props> = ({ open, setOpen, chatId, onSubmit, loading
                 color2={'#ffd700'}
                 value={selectedRating || 0}
                 edit={!loading}
-              />
+              /> */}
+       <Rating
+  onClick={ratingChanged}
+  initialValue={0}
+  size={40}
+  allowFraction={false}
+  className="flex flex-nowrap"
+  SVGclassName="inline-block"
+/>
             </div>
             <div className="flex justify-center">
               <Button

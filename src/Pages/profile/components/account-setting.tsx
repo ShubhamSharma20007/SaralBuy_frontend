@@ -246,17 +246,18 @@ export function AccountSettings() {
 
             {/* Submit button */}
             <div className="flex justify-end">
-              <Button type="submit" className="cursor-pointer w-32  bc text-xs" disabled={loading}>
+               {user &&
+              <Button
+              disabled={logoutLoading}
+              className=" w-32 cursor-pointer text-xs" variant="destructive"
+              onClick={()=>logoutFn()}
+              >Logout</Button>
+              }
+              <Button type="submit" className="cursor-pointer w-32 ml-4 bc text-xs" disabled={loading}>
                 {
                   loading ? <Spinner className="w-5 h-5 animate-spin " /> : 'Save Changes'
                 }
               </Button>
-             {user &&
-              <Button
-              disabled={logoutLoading}
-              className="ml-4 w-32 cursor-pointer text-xs" variant="destructive"
-              onClick={()=>logoutFn()}
-              >Logout</Button>}
             </div>
           </form>
      
