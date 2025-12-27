@@ -126,6 +126,7 @@ interface ChatAreaProps {
   messages: any[];
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   onSidebarContactUpdate: (roomId: string, updater: (prev: any) => any) => void;
+  setSelectedContact: React.Dispatch<any>;
 }
 
 const ChatArea = ({
@@ -139,10 +140,12 @@ const ChatArea = ({
   messages,
   setMessages,
   onSidebarContactUpdate,
+  setSelectedContact,
 }: ChatAreaProps) => {
   const [messageText, setMessageText] = useState('');
   const [chatService] = useState(() => ChatService.getInstance());
   const [isClosingDeal, setIsClosingDeal] = useState(false);
+  const [isDealClosed, setIsDealClosed] = useState(false);
   const [budgetAmount, setBudgetAmount] = useState<number | null>(null);
 
   // Rating popup state
@@ -217,6 +220,37 @@ const ChatArea = ({
       }
     };
   }, [userId, selectedContact, userType, currentUserId]);
+
+  // Check if deal is already closed
+  const checkDealStatus = async () => {
+    const actualProductId = selectedContact?.productId || productId;
+    
+    // Reset state if no product is selected
+    if (!actualProductId) {
+      setIsDealClosed(false);
+      return;
+    }
+
+    try {
+      const response = await requirementService.checkClosedDeal({
+        productId: actualProductId,
+        sellerId: selectedContact?.sellerId || sellerId,
+        buyerId: selectedContact?.buyerId || buyerId
+      });
+      
+      if (response && response.exists) {
+        setIsDealClosed(true);
+      } else {
+        setIsDealClosed(false);
+      }
+    } catch (error) {
+      console.error("Error fetching requirement status:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkDealStatus();
+  }, [selectedContact, productId]);
 
   const handleSendMessage = () => {
     if (messageText.trim()) {
@@ -301,12 +335,43 @@ const ChatArea = ({
         finalBudget: amount!,
       });
       toast.success("Deal closed successfully!");
+      
+      // Re-check deal status immediately
+      checkDealStatus();
+      
       // Debug log for chat object and _id
       console.log("handleCloseDeal: selectedContact (sc):", sc);
       console.log("handleCloseDeal: sc._id:", sc._id);
-      // Open rating popup after successful deal close
-      setLastClosedChatId(sc._id || null);
-      setShowRatingPopup(true);
+      
+      // If sc._id is missing (optimistic chat), try to find it from recent chats
+      let chatIdForRating = sc._id;
+      if (!chatIdForRating) {
+        console.log("Chat ID missing, attempting to fetch from recent chats...");
+        // Retrieve recent chats to find the newly created/updated chat
+        chatService.getRecentChats(currentUserId, (data) => {
+          if (data && Array.isArray(data.chats)) {
+             const foundChat = data.chats.find((c: any) => 
+               (c.roomId === sc.roomId) || 
+               (c.product?._id === sc.productId && c.seller?._id === sc.sellerId && c.buyer?._id === sc.buyerId)
+             );
+             if (foundChat) {
+               console.log("Found chat for rating:", foundChat);
+               setLastClosedChatId(foundChat._id);
+               // Also update selectedContact with the real ID so future actions work
+               setSelectedContact((prev: any) => ({ ...prev, _id: foundChat._id }));
+
+               // Only open rating popup if we found a valid chat ID
+               setShowRatingPopup(true);
+             } else {
+               console.warn("Could not find chat in recent chats after deal close.");
+               toast.error("Could not find chat data for rating.");
+             }
+          }
+        });
+      } else {
+        setLastClosedChatId(chatIdForRating);
+        setShowRatingPopup(true);
+      }
     } catch (err: any) {
       toast.error("Failed to close deal.");
     } finally {
@@ -386,9 +451,9 @@ const ChatArea = ({
                       size="sm"
                       className="text-orange-600 hover:text-orange-600 bg-transparent cursor-pointer hover:bg-transparent border-orange-600 w-20 sm:w-32 text-sm font-medium "
                       onClick={handleCloseDeal}
-                      disabled={isClosingDeal}
+                      disabled={isClosingDeal || isDealClosed || messages.length === 0}
                     >
-                      {isClosingDeal ? "Closing..." : "Close Deal"}
+                      {isClosingDeal ? "Closing..." : isDealClosed ? "Deal Closed" : "Close Deal"}
                     </Button>
                     {/* <LayoutGrid className='w-5 h-5 text-gray-600' /> */}
                   </div>
@@ -536,6 +601,9 @@ const Chatbot = () => {
     const chatService = ChatService.getInstance();
     chatService.connect();
     
+    // Calculate userType locally for initialization logic to avoid dependency loop
+    const initUserType = (currentUserId === buyerId) ? 'buyer' : 'seller';
+
     setIsLoadingChats(true);
     chatService.getRecentChats(currentUserId, (data) => {
       
@@ -613,9 +681,9 @@ const Chatbot = () => {
             // Ensure correct assignment of buyerId and sellerId based on userType
             let finalBuyerId = buyerId;
             let finalSellerId = sellerId;
-            if (userType === 'buyer') {
+            if (initUserType === 'buyer') {
               finalBuyerId = currentUserId;
-            } else if (userType === 'seller') {
+            } else if (initUserType === 'seller') {
               finalSellerId = currentUserId;
             }
             // Prevent both IDs from being the same
@@ -632,14 +700,14 @@ const Chatbot = () => {
               productId,
               sellerId: sellerId,
               buyerId: buyerId,
-              name: passedName || (userType === 'buyer' ? 'Seller' : 'Buyer'),
+              name: passedName || (initUserType === 'buyer' ? 'Seller' : 'Buyer'),
               avatar: passedAvatar || '',
               isOnline: true,
               lastMessage: null,
               buyerUnreadCount: 0,
               sellerUnreadCount: 0,
               productName: 'Product Discussion',
-              userType: userType,
+              userType: initUserType,
             };
             
             // Do NOT add to recent chats yet (prevent empty chat creation)
@@ -658,9 +726,9 @@ const Chatbot = () => {
           // Ensure correct assignment of buyerId and sellerId based on userType
           let finalBuyerId = buyerId;
           let finalSellerId = sellerId;
-          if (userType === 'buyer') {
+          if (initUserType === 'buyer') {
             finalBuyerId = currentUserId;
-          } else if (userType === 'seller') {
+          } else if (initUserType === 'seller') {
             finalSellerId = currentUserId;
           }
            // Prevent both IDs from being the same
@@ -685,7 +753,7 @@ const Chatbot = () => {
             buyerUnreadCount: 0,
             sellerUnreadCount: 0,
             productName: 'Product Discussion',
-            userType: userType,
+            userType: initUserType,
           };
           
           // Do NOT add to recentChats store yet
@@ -695,7 +763,7 @@ const Chatbot = () => {
       
       setIsLoadingChats(false);
     });
-  }, [currentUserId, productId, sellerId, buyerId, userType]);
+  }, [currentUserId, productId, sellerId, buyerId]);
 
   // Step 3: Set up message listeners
   useEffect(() => {
@@ -1132,6 +1200,7 @@ const Chatbot = () => {
                 messages={messages}
                 setMessages={setMessages}
                 onSidebarContactUpdate={handleSidebarContactUpdate}
+                setSelectedContact={setSelectedContact}
               />
             ) : (
               <div className="flex-1 flex items-center justify-center bg-background">

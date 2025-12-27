@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { Dialog, DialogContent, DialogTitle } from '../ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Button } from '../ui/button'
 import ReactStars from 'react-stars'
 type Props = {
@@ -38,7 +38,7 @@ const RatingPopup: React.FC<Props> = ({ open, setOpen, chatId, onSubmit, loading
           <div className="space-y-2 grid">
             <DialogTitle className="text-gray-800 text-3xl font-extrabold text-center">Rating</DialogTitle>
             <DialogTitle className="text-2xl text-gray-700 text-center">{`How many stars would you give the user?`}</DialogTitle>
-            <p className='text-md text-gray-600 text-center'>Please rate your experience with this user. Your feedback helps us maintain a safe and trustworthy community for everyone.</p>
+            <DialogDescription className='text-md text-gray-600 text-center'>Please rate your experience with this user. Your feedback helps us maintain a safe and trustworthy community for everyone.</DialogDescription>
           </div>
           <div className="space-y-5 w-full">
             <div className='flex justify-center items-center'>

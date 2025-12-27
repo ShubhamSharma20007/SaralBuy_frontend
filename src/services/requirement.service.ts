@@ -28,5 +28,10 @@ class RequirementService {
         return instance.get('/requirement/bid-notifications', { withCredentials: true })
             .then(res => res.data?.data || res.data);
     }
+
+    checkClosedDeal(params: { productId: string; sellerId: string; buyerId: string }) {
+        return instance.post('/requirement/closed-deal-check', params, { withCredentials: true })
+            .then(res => res.data?.data || res.data);
+    }
 }
 export default new RequirementService();
