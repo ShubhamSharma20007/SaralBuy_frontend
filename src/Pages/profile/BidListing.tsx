@@ -16,6 +16,7 @@ import { useDebounce } from 'use-debounce';
 import AlertPopup from '@/Components/Popup/AlertPopup';
 import TooltipComp from '@/utils/TooltipComp';
 import { toast } from 'sonner';
+import { fallBackName } from '@/helper/fallBackName';
 
 const BidListing = () => {
     const [data, setData] = useState([])
@@ -41,10 +42,10 @@ const BidListing = () => {
                 console.log()
                 return <div className=" ">
                     <Avatar className="w-10 h-10">
-                        <AvatarImage src={row.original.avatar} alt="product image" className='object-contain w-full h-full' />
-                        <AvatarFallback>
-                            {/* {fallBackName(row.original?.product)} */}
-                            <img src='/no-image.webp'></img>
+                        <AvatarImage src={row.original.avatar} alt="product image" className='rounded-full w-full h-full object-cover' />
+                        <AvatarFallback className="bg-gray-200 rounded-full flex w-full h-full  items-center justify-center text-sm font-semibold">
+                            {fallBackName(row.original?.product)}
+                            {/* <img src='/no-image.webp'></img> */}
                         </AvatarFallback>
                     </Avatar>
 

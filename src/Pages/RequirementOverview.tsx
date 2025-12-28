@@ -58,7 +58,7 @@ const RequirementOverview = () => {
         // Transform sellers data into bid table format
         if (dataToUse.sellers && dataToUse.sellers.length > 0) {
           const transformedBids = dataToUse.sellers.map((seller: any) => ({
-            avtar: seller.seller?.profileImage || "https://github.com/shubhamsharma20007.png",
+            avtar: seller.seller?.profileImage,
             date: seller.date ? dateFormatter(seller.date) : (seller.createdAt ? dateFormatter(seller.createdAt) : (dataToUse.createdAt ? dateFormatter(dataToUse.createdAt) : 'N/A')),
             bid_buy: `${seller.seller?.firstName || ''} ${seller.seller?.lastName || ''}`.trim() || "Anonymous Seller",
             bid_amount: seller.budgetAmount ? `₹${seller.budgetAmount}` : "N/A",
@@ -98,6 +98,7 @@ const RequirementOverview = () => {
       size: 60,
       cell: ({ row }) => {
         const image = row.original.avtar
+        console.log(image)
         const name = row.original.bid_buy || "NA"
         const initials = name
           .split(" ")
@@ -109,7 +110,7 @@ const RequirementOverview = () => {
           <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2">
             <Avatar className="w-10 h-10">
               <AvatarImage src={image} alt={name} className='rounded-full w-full h-full object-cover' />
-              <AvatarFallback className="bg-gray-200 rounded-full flex items-center justify-center text-sm font-semibold">
+              <AvatarFallback className="bg-gray-200 rounded-full flex w-full h-full  items-center justify-center text-sm font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>

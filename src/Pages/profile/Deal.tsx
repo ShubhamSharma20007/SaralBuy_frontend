@@ -28,9 +28,9 @@ const Deal = () => {
       header: "",
       cell: ({ row }) => {
         return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
-          <Avatar className="w-10 h-10 flex justify-center items-center rounded-full border-2">
-            <AvatarImage src={row.original.avatar} className='object-cover rounded-full w-full h-full' />
-            <AvatarFallback>{fallBackName(row.original.finalized_with)}</AvatarFallback>
+          <Avatar className="w-10 h-10 ">
+            <AvatarImage src={row.original.avatar}  className='rounded-full w-full h-full object-cover' />
+            <AvatarFallback  className="bg-gray-200 rounded-full flex w-full h-full  items-center justify-center text-sm font-semibold">{fallBackName(row.original.finalized_with)}</AvatarFallback>
           </Avatar>
 
         </div>
@@ -77,9 +77,9 @@ const Deal = () => {
       cell: ({ row }) => {
 
         return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
-          <Avatar className="w-10 h-10 justify-center items-center rounded-full border-2">
-            <AvatarImage src={row.original.avatar} alt="@shadcn" className='object-cover rounded-full w-full h-full' />
-            <AvatarFallback>{fallBackName(row.original.bid_to)}</AvatarFallback>
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={row.original.avatar} alt="@shadcn" className='rounded-full w-full h-full object-cover' />
+            <AvatarFallback className="bg-gray-200 rounded-full flex w-full h-full  items-center justify-center text-sm font-semibold">{fallBackName(row.original.bid_to)}</AvatarFallback>
           </Avatar>
 
         </div>
@@ -187,13 +187,13 @@ const Deal = () => {
           <TabsContent value="approved_bids" className='w-full overflow-hidden '>
 
             {
-              approvedLoading ? <SkeletonTable /> : <TableListing data={approvedRequirements} columns={columnsApproveBids} filters={true} colorPalette={'gray'} />
+              approvedLoading ? <SkeletonTable /> : <TableListing data={approvedRequirements} columns={columnsApproveBids} filters={false} colorPalette={'gray'} />
             }
           </TabsContent>
 
           <TabsContent value="completed_requirements" className='w-full overflow-hidden'>
             {
-              completedLoading ? <SkeletonTable /> : <TableListing data={completeRequirements} columns={columnsCompletedReq} filters={true} colorPalette={'gray'} />
+              completedLoading ? <SkeletonTable /> : <TableListing data={completeRequirements} columns={columnsCompletedReq} filters={false} colorPalette={'gray'} />
             }
           </TabsContent>
 
