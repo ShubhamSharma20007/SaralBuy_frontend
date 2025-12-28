@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ChatService from '../services/chat.service'
-import { Search, Send, Menu, Circle, List, Paperclip } from 'lucide-react'
+import { Search, Send, Menu, Circle, List, Paperclip, Star } from 'lucide-react'
 import RatingPopup from '../Components/Popup/RatingPopup';
 import { Input } from '../Components/ui/input'
 import { Button } from '../Components/ui/button'
@@ -86,11 +86,19 @@ const ContactsList = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">
                       <h3 className="font-semibold text-gray-600 truncate">{contact.name}</h3>
+                      <div className='flex flex-col items-end gap-1'>
                       <span className="text-xs text-muted-foreground ml-2">
                         {contact.lastMessage && contact.lastMessage.timestamp
                           ? new Date(contact.lastMessage.timestamp).toLocaleTimeString()
                           : ""}
                       </span>
+                      {contact.chatrating > 0 && (
+                          <div className="flex items-center text-yellow-500">
+                            <Star className="w-3 h-3 mr-1 fill-yellow-500" />
+                            <span className="text-xs font-medium">{contact.chatrating}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-[13px] text-muted-foreground font-medium truncate mt-1">
@@ -98,6 +106,7 @@ const ContactsList = ({
                           ? contact.lastMessage.message
                           : "No messages yet"}
                       </p>
+                      
                       {!isSelected && unreadCount > 0 && (
                         <span className="ml-2 bg-orange-500 text-white rounded-full px-2 py-0.5 text-xs font-semibold">
                           {unreadCount}
@@ -388,6 +397,12 @@ const ChatArea = ({
       toast.success("Thank you for your feedback!");
       setShowRatingPopup(false);
       setLastClosedChatId(null);
+
+      // Update sidebar contact info with new rating
+      onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
+        ...prev,
+        chatrating: rating
+      }));
     } catch (err: any) {
       toast.error("Failed to submit rating.");
     } finally {
@@ -654,6 +669,7 @@ const Chatbot = () => {
             sellerUnreadCount: chat.sellerUnreadCount || 0,
             productName: chat.product?.title || 'Product Discussion',
             userType: chat.userType, // Keep track of userType for this chat
+            chatrating: chat.chatrating, // Add chatrating
           };
         });
         

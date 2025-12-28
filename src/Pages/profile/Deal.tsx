@@ -1,5 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
+import { useNavigate } from "react-router-dom";
 
 
 import "keen-slider/keen-slider.min.css"
@@ -19,110 +20,111 @@ import { fallBackName } from "@/helper/fallBackName";
 
 
 
-const columnsCompletedReq: ColumnDef<any>[] = [
-  {
-    accessorKey: "avtar",
-    header: "",
-    cell: ({row}) => {
-      return  <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
-        <Avatar className="w-10 h-10 flex justify-center items-center rounded-full border-2">
-          <AvatarImage src={row.original.avatar} className='object-cover rounded-full w-full h-full' />
-          <AvatarFallback>{fallBackName(row.original.finalized_with)}</AvatarFallback>
-        </Avatar>
-
-      </div>
-    }
-  },
-  {
-    accessorKey: "date",
-    header: "Date",
-  },
-  {
-    accessorKey: "finalized_with",
-    header: "Finalized With",
-  },
-  {
-    accessorKey: "product_categories",
-    header: "Product Category",
-  },
-  {
-    accessorKey: "your_budget",
-    header: "Budget",
-  },
-  {
-    accessorKey: "final_budget",
-    header: "Final Budget",
-  },
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: () => {
-      return <div className="flex items-center gap-2">
-        <Button className="text-sm cursor-pointer text-gray-600 underline" variant={"link"} onClick={() => {
-          // navigate('/product-overview?bidId=' + row.original?._id);
-        }}>View</Button>
-
-      </div>
-    }
-  },
-];
-
-const columnsApproveBids: ColumnDef<any>[] = [
-  {
-    accessorKey: "avtar",
-    header: "",
-    cell: ({row}) => {
-
-      return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
-        <Avatar className="w-10 h-10 justify-center items-center rounded-full border-2">
-          <AvatarImage src={row.original.avatar} alt="@shadcn" className='object-cover rounded-full w-full h-full' />
-          <AvatarFallback>{fallBackName(row.original.bid_to)}</AvatarFallback>
-        </Avatar>
-
-      </div>
-    }
-  },
-  {
-    accessorKey: "date",
-    header: "Date",
-  },
-  {
-    accessorKey: "bid_to",
-    header: "Bid To",
-  },
-  {
-    accessorKey: "product_categories",
-    header: "Product Category",
-  },
-  {
-    accessorKey: "min_budget",
-    header: "Min Budget",
-  },
-  {
-    accessorKey: "your_budget",
-    header: "Budget",
-  },
-
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: () => {
-      return <div className="flex items-center gap-2">
-        <Button className="text-sm cursor-pointer text-gray-600 underline" variant={"link"} onClick={() => {
-          // navigate('/product-overview?bidId=' + row.original?._id);
-        }}>View</Button>
-
-      </div>
-    }
-  },
-];
-
 const Deal = () => {
+  const navigate = useNavigate()
+  const columnsCompletedReq: ColumnDef<any>[] = [
+    {
+      accessorKey: "avtar",
+      header: "",
+      cell: ({ row }) => {
+        return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
+          <Avatar className="w-10 h-10 flex justify-center items-center rounded-full border-2">
+            <AvatarImage src={row.original.avatar} className='object-cover rounded-full w-full h-full' />
+            <AvatarFallback>{fallBackName(row.original.finalized_with)}</AvatarFallback>
+          </Avatar>
+
+        </div>
+      }
+    },
+    {
+      accessorKey: "date",
+      header: "Date",
+    },
+    {
+      accessorKey: "finalized_with",
+      header: "Finalized With",
+    },
+    {
+      accessorKey: "product_categories",
+      header: "Product Category",
+    },
+    {
+      accessorKey: "your_budget",
+      header: "Budget",
+    },
+    {
+      accessorKey: "final_budget",
+      header: "Final Budget",
+    },
+    {
+      accessorKey: "action",
+      header: "Action",
+      cell: ({ row }) => {
+        return <div className="flex items-center gap-2">
+          <Button className="text-sm cursor-pointer text-gray-600 underline" variant={"link"} onClick={() => {
+            navigate('/product-overview?productId=' + row.original?.productId);
+          }}>View</Button>
+
+        </div>
+      }
+    },
+  ];
+
+  const columnsApproveBids: ColumnDef<any>[] = [
+    {
+      accessorKey: "avtar",
+      header: "",
+      cell: ({ row }) => {
+
+        return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
+          <Avatar className="w-10 h-10 justify-center items-center rounded-full border-2">
+            <AvatarImage src={row.original.avatar} alt="@shadcn" className='object-cover rounded-full w-full h-full' />
+            <AvatarFallback>{fallBackName(row.original.bid_to)}</AvatarFallback>
+          </Avatar>
+
+        </div>
+      }
+    },
+    {
+      accessorKey: "date",
+      header: "Date",
+    },
+    {
+      accessorKey: "bid_to",
+      header: "Bid To",
+    },
+    {
+      accessorKey: "product_categories",
+      header: "Product Category",
+    },
+    {
+      accessorKey: "min_budget",
+      header: "Min Budget",
+    },
+    {
+      accessorKey: "your_budget",
+      header: "Budget",
+    },
+
+    {
+      accessorKey: "action",
+      header: "Action",
+      cell: ({ row }) => {
+        return <div className="flex items-center gap-2">
+          <Button className="text-sm cursor-pointer text-gray-600 underline" variant={"link"} onClick={() => {
+            navigate('/product-overview?productId=' + row.original?.productId);
+          }}>View</Button>
+
+        </div>
+      }
+    },
+  ];
+
   const [tab, setTab] = useState('approved_bids')
-  const { fn: pendingApprovedFn, data: pendingApprovedData ,loading:approvedLoading} = useFetch(requirementService.getApprovedPendingRequirements)
-  const { fn: completedApproveFn, data: completedApproveData ,loading:completedLoading} = useFetch(requirementService.getCompletedApprovedRequirements)
+  const { fn: pendingApprovedFn, data: pendingApprovedData, loading: approvedLoading } = useFetch(requirementService.getApprovedPendingRequirements)
+  const { fn: completedApproveFn, data: completedApproveData, loading: completedLoading } = useFetch(requirementService.getCompletedApprovedRequirements)
   const [completeRequirements, setCompleteRequirements] = useState<any>([])
-  const [approvedRequirements,setApprovedRequirements]= useState<any>([])
+  const [approvedRequirements, setApprovedRequirements] = useState<any>([])
   useEffect(() => {
     if (tab === 'approved_bids') {
       pendingApprovedFn()
@@ -133,40 +135,36 @@ const Deal = () => {
 
 
   useEffect(() => {
-    if (completedApproveData) {
-      if (completedApproveData.length > 0) {
-        completedApproveData.map((item: any) => (
-          setCompleteRequirements([{
-            _id: item._id,
-            avatar: item?.product?.image,
-            date: dateFormatter(item?.createdAt),
-            finalized_with: mergeName(item?.seller),       
-            product_categories: item?.product?.title,      
-            your_budget: item?.product?.minimumBudget,
-            final_budget: item?.finalBudget,
-          },])
-        ))
-
+    if (completedApproveData?.data) {
+      if (completedApproveData.data.length > 0) {
+        const formattedData = completedApproveData.data.map((item: any) => ({
+          _id: item._id,
+          productId: item?.product?._id,
+          avatar: item?.product?.image,
+          date: dateFormatter(item?.createdAt),
+          finalized_with: mergeName(item?.seller),
+          product_categories: item?.product?.title,
+          your_budget: item?.product?.minimumBudget,
+          final_budget: item?.finalBudget,
+        }))
+        setCompleteRequirements(formattedData)
       }
     }
-    if(pendingApprovedData){
-      if (pendingApprovedData.length > 0) {
-      pendingApprovedData.map((item:any)=>(
-        setApprovedRequirements([
-          {
-            _id: item._id,
-            avatar: item?.product?.image,
-            bid_to:mergeName(item?.sellerDetails?.sellerId),
-            date: dateFormatter(item?.date),
-            product_categories: item?.product?.categoryId?.categoryName,
-            min_budget:item?.minBudget,
-            your_budget:item?.sellerDetails?.budgetAmount
-
-          }
-        ])
-      ))
+    if (pendingApprovedData?.data) {
+      if (pendingApprovedData.data.length > 0) {
+        const formattedData = pendingApprovedData.data.map((item: any) => ({
+          _id: item._id,
+          productId: item?.product?._id,
+          avatar: item?.product?.image,
+          bid_to: mergeName(item?.sellerDetails?.sellerId),
+          date: dateFormatter(item?.date),
+          product_categories: item?.product?.categoryId?.categoryName,
+          min_budget: item?.minBudget,
+          your_budget: item?.sellerDetails?.budgetAmount
+        }))
+        setApprovedRequirements(formattedData)
+      }
     }
-  }
   }, [pendingApprovedData, completedApproveData])
 
 
