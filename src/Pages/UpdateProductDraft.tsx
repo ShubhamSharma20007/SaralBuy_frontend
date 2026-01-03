@@ -218,7 +218,8 @@ const UpdateProductDraftForm = ({
         <div className="md:col-span-1 lg:col-span-1 bg-transparent  border-0 p-6 xs:grid xs:grid-cols-2 gap-6 space-y-4">
           <div className="col-span-1 align-center sm:block flex flex-col justify-center">
             <h2 className="text-[15px] font-semibold mb-2 text-center">
-              {`Tell us about the ${currentCategoryName ? currentCategoryName.charAt(0).toUpperCase() + currentCategoryName.slice(1) : 'Product'} You need`}
+              {/* {`Tell us about the ${currentCategoryName ? currentCategoryName.charAt(0).toUpperCase() + currentCategoryName.slice(1) : 'Product'} You need`} */}
+              Tell us about your need
             </h2>
             <p className="text-[13px] text-muted-foreground text-center">
               Update your product details below. Make sure all required fields are filled correctly.
@@ -236,7 +237,8 @@ const UpdateProductDraftForm = ({
 
         <div className="col-span-2 md:col-span-2 flex flex-col gap-3">
           <div className=" rounded-[5px] p-6  bg-gray-200/50">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Product Details</h3>
+            {/* Product Details */}
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Service Details</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <Input
                 type="text"
@@ -524,9 +526,10 @@ const UpdateProductDraftForm = ({
               }
 
                { currentCategoryName !== 'automobile' &&
+              //  Product Type
                 <Input
                   type="text"
-                 placeholder="Product Type"
+                 placeholder="Service Type"
                   {...register('typeOfProduct')}
                   className="bg-white"
                 />
@@ -726,7 +729,7 @@ const UpdateProductDraftForm = ({
                     if (e.target.files?.[0]) {
                       const newImage = e.target.files[0];
                       if(newImage.size > 2 * 1024 * 1024){
-                        toast.error("Image size should be less than 2MB");
+                        toast.info("Image size should not exceed 2MB");
                         return;
                       }
                       setImage(newImage);
@@ -778,7 +781,7 @@ const UpdateProductDraftForm = ({
                         return;
                       }
                       if(newDocument.size > 5 * 1024 * 1024){
-                        toast.error('File size should be less than 5MB')
+                        toast.info("Document size should not exceed 5MB");
                         return;
                       }
                       setFileDoc(newDocument);
@@ -815,7 +818,7 @@ const UpdateProductDraftForm = ({
               <DatePicker
                 date={date}
                 title="Delivery Date"
-                disabledBeforeDate={new Date(new Date().getTime() - 24 * 60 * 60 * 1000)}
+                disabledBeforeDate={new Date(new Date().getTime())}
                 setDate={(val: any) => {
                   if (val) {
                     setDate(val);
@@ -831,11 +834,11 @@ const UpdateProductDraftForm = ({
                 <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Payment Mode" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="upi">UPI</SelectItem>
-                </SelectContent>
+               <SelectContent>
+                <SelectItem value="cash">Cash</SelectItem>
+                <SelectItem value="card">Banking or Online mode</SelectItem>
+                <SelectItem value="upi">Any</SelectItem>
+              </SelectContent>
               </Select>
 
               <Select
@@ -861,13 +864,13 @@ const UpdateProductDraftForm = ({
                   />
                   <Input
                     type="text"
-                    placeholder="Form Name"
+                    placeholder="Entity Name"
                     {...register("paymentAndDelivery.organizationName")}
                     className="bg-white"
                   />
                   <Input
                     type="text"
-                    placeholder="Organization Address"
+                    placeholder="Entity Address"
                     {...register("paymentAndDelivery.organizationAddress")}
                     className="bg-white"
                   />
@@ -928,9 +931,8 @@ const UpdateDraft = () => {
 
 
   const isValidForms = (formsDataObj: any) => {
+    const gstRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/;
     const formsArray = Object.values(formsDataObj);
-
-
     for (let i = 0; i < formsArray.length; i++) {
       const form = formsArray[i] as any;
       console.log(form)
@@ -967,6 +969,13 @@ const UpdateDraft = () => {
         toast.error(`Description is required${formsArray.length > 1 ? ` in product form (${i + 1})` : ''}`);
         return false;
       }
+      if (forms[i].gst_requirement === 'yes' && forms[i].paymentAndDelivery?.gstNumber) {
+      const gstNumber = forms[i].paymentAndDelivery.gstNumber.trim();
+      if (!gstRegex.test(gstNumber)) {
+        toast.error(`Invalid GST Number format in form ${forms.length > 1 ? `${i + 1}` : ''}. Must be 15 characters (Format: 22AAAAA0000A1Z5)`);
+        return false;
+      }
+    }
     }
 
     return true;
@@ -1064,6 +1073,8 @@ const UpdateDraft = () => {
 
     formDataToSend.append('products', JSON.stringify(productsData));
     formDataToSend.append('draft', 'false');
+    //  for Requirement allow to create requirement
+    formDataToSend.append('createRequirement',"true")
 
     // Determine if multiple products
     const isMultiple = forms.length > 1;

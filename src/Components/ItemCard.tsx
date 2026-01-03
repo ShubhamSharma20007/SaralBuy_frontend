@@ -1,6 +1,14 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+  import { useMemo } from "react";
+const ELECTRONICS_ORDER = [
+  "mobile",
+  "tablets",
+  "wearables",
+  "accessories",
+  "other",
+];
 
 const ItemCard = ({
   categoryName,
@@ -28,6 +36,22 @@ const ItemCard = ({
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open, _id]);
+
+
+
+const sortedSubCategories = useMemo(() => {
+  if (categoryName !== "electronics") return subCategories;
+
+  return [...subCategories].sort((a: any, b: any) => {
+    const aIndex = ELECTRONICS_ORDER.indexOf(a.name.toLowerCase());
+    const bIndex = ELECTRONICS_ORDER.indexOf(b.name.toLowerCase());
+    if (aIndex === -1 && bIndex === -1) return 0;
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+
+    return aIndex - bIndex;
+  });
+}, [subCategories, categoryName]);
 
   return (
     <div className="group flex flex-col w-full relative" id={`itemcard-${_id}`}>
@@ -66,7 +90,7 @@ const ItemCard = ({
         <div
           className="overflow-y-auto max-h-56 scroll-visible"
         >
-          {subCategories.map((item: any, index) => (
+          {sortedSubCategories.map((item: any, index) => (
             <div key={index}>
               <div
                 onClick={() => {

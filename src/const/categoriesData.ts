@@ -607,7 +607,7 @@ export const fashionCategories = [
     ]
   },
   {
-    category: "Footwears",
+    category: "Footwear",
     brands: [
       { value: "bata", label: "Bata" },
       { value: "liberty", label: "Liberty" },
@@ -627,7 +627,7 @@ export const fashionCategories = [
     ]
   },
   {
-    category: "Eyewears",
+    category: "Eyewear",
     brands: [
       { value: "lenskart", label: "Lenskart" },
       { value: "titan eye+", label: "Titan Eye+" },
@@ -1095,7 +1095,7 @@ export const constructionIndustrialCategories = [
     ]
   },
   {
-    category: "Tiles & Marbels",
+    category: "Tiles & Marbles",
     brands: [
       { value: "kajaria", label: "Kajaria" },
       { value: "somany", label: "Somany" },

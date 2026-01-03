@@ -68,7 +68,7 @@ const Banner = () => {
     if(banners.length > 0){
       interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
-    }, 10000); 
+    }, 12 * 1000); 
     }
     return () => clearInterval(interval!);
   }, [data,banners]);

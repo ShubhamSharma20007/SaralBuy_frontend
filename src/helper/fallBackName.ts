@@ -5,6 +5,7 @@ export const fallBackName = (name: string | undefined | null) => {
     let fallback = "";
     name.split(" ").forEach((part: string) => {
         if (part && typeof part[0] === "string") {
+            if(fallback.length ===2) return fallback
             fallback += part[0].toUpperCase();
         }
     });

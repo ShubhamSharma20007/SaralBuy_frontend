@@ -5,16 +5,34 @@ type Props = {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 }
-const Authentication = ({open,setOpen}:Props) => {
-    const [otpPopup, setOtpPopup] = useState(false);
-    const [number, setNumber] = useState('');
-    const [sessionId,setSessionId]= useState('')
-  return (
-    <React.Fragment> 
-      <LoginPopup open={open} setOpen={setOpen} setNumber={setNumber} setOtpPopup={setOtpPopup} setSessionId={setSessionId} />
-      <OtpPopup open={otpPopup} setOpen={setOtpPopup} number={number} sessionId={sessionId}/>
-    </React.Fragment>
-  )
-}
+const Authentication = ({ open, setOpen }: Props) => {
+  const [otpPopup, setOtpPopup] = useState(false);
+  const [number, setNumber] = useState("");
+  const [sessionId, setSessionId] = useState("");
 
-export default Authentication
+  return (
+    <>
+      {open && (
+        <LoginPopup
+          open={open}
+          setOpen={setOpen}
+          setNumber={setNumber}
+          setOtpPopup={setOtpPopup}
+          setSessionId={setSessionId}
+        />
+      )}
+
+      {otpPopup && (
+        <OtpPopup
+          open={otpPopup}
+          setOpen={setOtpPopup}
+          number={number}
+          sessionId={sessionId}
+          setSessionId={setSessionId}
+        />
+      )}
+    </>
+  );
+};
+
+export default Authentication;

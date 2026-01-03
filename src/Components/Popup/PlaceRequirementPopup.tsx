@@ -35,6 +35,17 @@ const PlaceRequirementPopup:React.FC<Props> = ({open,setOpen,createProductFn,bid
     setOpen(false);
     }
   }
+
+  function handleChange(e:React.FormEvent<HTMLInputElement>){
+    const value = e.currentTarget.value.replace(/\D/g, "");
+    setBidDuration(Number(value))
+  }
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    console.log(e.key)
+  if (e.key.toLowerCase() === ".") {
+    e.preventDefault();
+  }
+}
   return (
     <Dialog open={open} onOpenChange={setOpen} >
       <DialogContent style={{
@@ -53,9 +64,10 @@ const PlaceRequirementPopup:React.FC<Props> = ({open,setOpen,createProductFn,bid
             type="number"
             name="bidDuration"
             placeholder="Ex. 15"
+            onKeyDown={handleKeyDown}
             value={bidDuration|| undefined}
             className="w-full py-5 rounded-md border border-gray-300"
-            onChange={(e) => setBidDuration(Number(e.target.value))}
+            onChange={handleChange}
           />
           <Button 
           disabled={(bidDuration&& bidDuration <= 0) || loading }

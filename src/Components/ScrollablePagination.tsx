@@ -5,23 +5,23 @@ import bidService from "@/services/bid.service";
 import { RequirementCardSkeleton } from "@/const/CustomSkeletons";
 import productService from "@/services/product.service";
 import TooltipComp from "@/utils/TooltipComp";
-import { SquarePen } from "lucide-react";
+import { SquarePen, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
   state: any;
   target: string;
   limit: number;
-  tab?:string
+  tab?: string
 };
 
-const ScrollablePagination: React.FC<Props> = ({ state, target, limit,tab='' }) => {
+const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' }) => {
   const [products, setProducts] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const isInitialized = useRef(false);
   const isFetching = useRef(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const fetchData = async (page: number, limit: number) => {
     if (target === "requirements") {
       return await bidService.getMyRequirements(page, limit);
@@ -52,13 +52,13 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit,tab='' }) 
 
   const fetchMoreData = async () => {
     if (!hasMore || isFetching.current) return;
-    
+
     isFetching.current = true;
-    
+
     try {
       const nextPage = page + 1;
-      let res= await fetchData(nextPage, limit);
-      
+      let res = await fetchData(nextPage, limit);
+
       if (res?.data && res.data.length > 0) {
         setProducts((prev) => {
           const existingIds = new Set(prev.map(p => p._id));
@@ -85,31 +85,39 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit,tab='' }) 
       next={fetchMoreData}
       hasMore={hasMore}
       loader={new Array(3).fill(0).map((_, idx) => <RequirementCardSkeleton key={idx} />)}
-    //   endMessage={
-    //     products.length > 0 ? (
-    //       <p className="text-center text-gray-500 py-4">
-    //         No more requirements to load
-    //       </p>
-    //     ) : null
-    //   }
+      //   endMessage={
+      //     products.length > 0 ? (
+      //       <p className="text-center text-gray-500 py-4">
+      //         No more requirements to load
+      //       </p>
+      //     ) : null
+      //   }
       className="grid grid-cols-1 gap-4"
     >
       {products?.map((item: any, idx: number) => (
         <div key={item._id || idx} className="border-2 border-gray-300 p-4 rounded-md w-full relative">
-        {
+
+          <div className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm  p-1 cursor-pointer'
+          >
+            <TooltipComp
+              hoverChildren={<X className='h-4 w-4' />}
+              contentChildren={<p>Delete Requirement</p>}
+            ></TooltipComp>
+          </div>
+          {
             target === 'drafts' && (
-                 <div 
-                     className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 border-[2px] shadow shadow-orange-200 border-dotted rounded-sm p-1 cursor-pointer'
-                    onClick={() => navigate('/update-draft/' + item._id)}
-                  >
-                     <TooltipComp
-                       hoverChildren={<SquarePen className='h-4 w-4' />}
-                       contentChildren={<p>Edit Draft</p>}
-                     />
-                   </div>
+              <div
+                className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 border-[2px] shadow shadow-orange-200 border-dotted rounded-sm p-1 cursor-pointer'
+                onClick={() => navigate('/update-draft/' + item._id)}
+              >
+                <TooltipComp
+                  hoverChildren={<SquarePen className='h-4 w-4' />}
+                  contentChildren={<p>Edit Draft</p>}
+                />
+              </div>
             )
-        }
-          <RequirementSlider product={item}  target={target} tab={tab} />
+          }
+          <RequirementSlider product={item} target={target} tab={tab} />
         </div>
       ))}
     </InfiniteScroll>

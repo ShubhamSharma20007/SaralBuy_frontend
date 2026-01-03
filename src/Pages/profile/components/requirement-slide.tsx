@@ -124,7 +124,9 @@ function handleSubmitDraft(targetProduct: any) {
         </p>
         <div>
           {target === "requirements" ? (
-            <Button size={'default'} className='cursor-pointer text-xs  bc'>
+            <Button
+            onClick={() => handleNavigate(product)}
+             size={'default'} className='cursor-pointer text-xs  bc'>
               Total Bids: <span className='font-bold'>{product?.product?.totalBidCount || 0}</span>
               <MoveRight className='w-5 h-5' />
             </Button>

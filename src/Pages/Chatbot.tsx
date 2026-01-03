@@ -481,7 +481,7 @@ const ChatArea = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-6 chat-messages-container">
         {isSelfChat ? (
           <div className="text-center text-red-500 font-semibold">
-            Cannot send messages to yourself. Buyer and seller must be different users.
+            Cannot sent messages to yourself. Buyer and seller must be different users.
           </div>
         ) : (
           messages.map((message) => {

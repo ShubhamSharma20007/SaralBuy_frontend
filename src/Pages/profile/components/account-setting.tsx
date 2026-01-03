@@ -105,7 +105,7 @@ export function AccountSettings() {
       {/* Personal Details */}
       <div className='flex justify-between items-center font-semibold w-full mb-3'>
           <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600 ">
-           Profile
+           Profile Details
           </p>
     
         </div>
@@ -120,7 +120,7 @@ export function AccountSettings() {
             }
           })} className="space-y-4">
             <div className="space-y-4 border border-gray-200 shadow-sm p-5 rounded-md">
-                <p className="font-[700] text-gray-600">Personal Details</p>
+                <p className="font-[700] text-gray-600">Personal Information</p>
             <div className="grid grid-cols-2 gap-4">
               
               <div className="space-y-2">
@@ -144,7 +144,7 @@ export function AccountSettings() {
             </div>
             <div className="grid grid-cols-2 gap-4 ">
               <div className="space-y-2">
-                <Label className="text-gray-600" htmlFor="email">Email Address</Label>
+                <Label className="text-gray-600" htmlFor="email">Email</Label>
                 <div className="flex items-center gap-2 relative">
                   <Input
                     id="email"
@@ -159,12 +159,12 @@ export function AccountSettings() {
                     variant="link"
                     className="p-0 text-orange-600 bg-transparent  cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 "
                   >
-                    Verify
+                    Verify Email
                   </Button>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-600" htmlFor="phone">Phone Number</Label>
+                <Label className="text-gray-600" htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   className="bg-transparent"
@@ -174,7 +174,7 @@ export function AccountSettings() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-600" htmlFor="address">Address</Label>
+              <Label className="text-gray-600" htmlFor="address">Residential Address</Label>
              <div className="relative">
                <Textarea
                cols={10}
@@ -189,7 +189,7 @@ export function AccountSettings() {
                     className="p-0 text-orange-600 cursor-pointer absolute right-5 bottom-2 gap-1"
                   >
                     <Plus className="w-4 h-4"/>
-                    Add New Address
+                    Add Address
                   </Button>
              </div>
             </div>
@@ -249,13 +249,13 @@ export function AccountSettings() {
                {user &&
               <Button
               disabled={logoutLoading}
-              className=" w-32 cursor-pointer text-xs" variant="destructive"
+              className=" w-32 cursor-pointer text-sm" variant="destructive"
               onClick={()=>logoutFn()}
-              >Logout</Button>
+              >Log out</Button>
               }
-              <Button type="submit" className="cursor-pointer w-32 ml-4 bc text-xs" disabled={loading}>
+              <Button type="submit" className="cursor-pointer w-32 ml-4 bc text-sm" disabled={loading}>
                 {
-                  loading ? <Spinner className="w-5 h-5 animate-spin " /> : 'Save Changes'
+                  loading ? <Spinner className="w-5 h-5 animate-spin " /> : 'Save Profile'
                 }
               </Button>
             </div>

@@ -127,7 +127,14 @@ const Profile = () => {
                 </button>
               </div>
             </div>
-              <span className="mb-5 block text-md underline text-center font-semibold text-gray-700">Update Photo</span>
+              <a
+              onClick={(e)=>{
+                  e.preventDefault()
+                  if(avatarRef){
+                    avatarRef.current?.click()
+                  }
+                }}
+              href="javascript:void(0)" className="mb-5 block text-md underline text-center font-semibold text-gray-700">Update Photo</a>
 
             <div className="grid gap-1 text-gray-600">
               {tags.map((tag) => {

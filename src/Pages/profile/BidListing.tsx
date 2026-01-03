@@ -21,7 +21,7 @@ import { fallBackName } from '@/helper/fallBackName';
 const BidListing = () => {
     const [data, setData] = useState([])
     const [open, setOpen] = useState(false);
-    const [currentBidId,setCurrentBidId] = useState<string|null>('')
+    const [currentBidId, setCurrentBidId] = useState<string | null>('')
     const message = {
         title: 'Are you sure you want to delete this bid?',
         message: 'This action cannot be undone. This will permanently delete your account and remove your data from our server.',
@@ -39,7 +39,6 @@ const BidListing = () => {
             accessorKey: "avtar",
             header: "",
             cell: ({ row }) => {
-                console.log()
                 return <div className=" ">
                     <Avatar className="w-10 h-10">
                         <AvatarImage src={row.original.avatar} alt="product image" className='rounded-full w-full h-full object-cover' />
@@ -104,22 +103,25 @@ const BidListing = () => {
                         });
                     }}>Chat now</p> */}
 
-                    <AlertPopup 
+                    <TooltipComp
+                        hoverChildren={<div
+                            onClick={() => {
+                                setCurrentBidId(row.original?._id)
+                                if(deleteBidloading) return;
+                                handleDeleteBid(row.original?._id)
+                            }}
+                            className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300">
+                            <Trash2Icon className="h-4 w-4  text-red-500 cursor-pointer rounded-full" /></div>}
+                        contentChildren={<p>Delete Bid</p>}
+                    ></TooltipComp>
+                    {/* <AlertPopup 
                     loading={deleteBidloading}
                     setOpen={setOpen} open={open} message={message} 
                     deleteFunction={handleDeleteBid}
                     triggerButton={
-                        <TooltipComp
-                            hoverChildren={<div 
-                            onClick={()=>{
-                                setCurrentBidId(row.original?._id)
-                            }}
-                            className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300">
-                                <Trash2Icon className="h-4 w-4  text-red-500 cursor-pointer rounded-full" /></div>}
-                            contentChildren={<p>Delete Bid</p>}
-                        ></TooltipComp>
+                       
 
-                    } />
+                    } /> */}
 
                 </div>
             }
@@ -158,21 +160,21 @@ const BidListing = () => {
     }, [fetchBidsResponse]);
 
 
-    async function handleDeleteBid(){
-        if(!currentBidId) return;
-       await deleteBidFn(currentBidId);
+    async function handleDeleteBid(id:string) {
+        // if (!currentBidId) return;
+        await deleteBidFn(id);
     }
 
-    useEffect(()=>{
-        if(deletBidResponse){
+    useEffect(() => {
+        if (deletBidResponse) {
 
-        toast.success('Bid deleted successfully')
-        //  remove the bid from the list
-        const updatedData = data.filter((item: any) => item._id !== currentBidId);
-        setData(updatedData);
-        setCurrentBidId(null)
+            toast.success('Bid deleted successfully')
+            //  remove the bid from the list
+            const updatedData = data.filter((item: any) => item._id !== currentBidId);
+            setData(updatedData);
+            setCurrentBidId(null)
         }
-    },[deletBidResponse])
+    }, [deletBidResponse])
 
     return (
         <>

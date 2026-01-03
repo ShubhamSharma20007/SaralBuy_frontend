@@ -78,7 +78,7 @@ const LoginPopup:React.FC<Props> = ({open,setOpen,setNumber,setOtpPopup,setSessi
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <Button type="submit" disabled={loading|| mobileNumber.length < 10} className="w-full rounded-sm py-5  text-white font-bold " >
             {
-              loading ? <Spinner className="w-5 h-5 animate-spin" /> : 'Send OTP'
+              loading ? <Spinner className="w-5 h-5 animate-spin" /> : 'Sent OTP'
             }
           </Button>
         </div>

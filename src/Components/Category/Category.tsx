@@ -247,7 +247,8 @@ const CategoryForm = ({
         <div className="md:col-span-1 lg:col-span-1 bg-transparent  border-0 p-6 xs:grid xs:grid-cols-2 gap-6 space-y-4">
           <div className="col-span-1 align-center sm:block flex flex-col justify-center">
             <h2 className="text-[15px] font-semibold mb-2 text-center">
-              {`Tell us about the ${currentCategoryName ? currentCategoryName.charAt(0).toUpperCase() + currentCategoryName.slice(1) : 'Product'} You need`}
+              {/* {`Tell us about the ${currentCategoryName ? currentCategoryName.charAt(0).toUpperCase() + currentCategoryName.slice(1) : 'Product'} You need`} */}
+              Tell us about your need
             </h2>
             <p className="text-[13px] text-muted-foreground text-center">
               Please help us tailor the experience by filling out the form below.
@@ -267,7 +268,8 @@ const CategoryForm = ({
 
         <div className="col-span-2 md:col-span-2 flex flex-col gap-3">
           <div className=" rounded-[5px] p-6  bg-gray-200/50">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Product Details</h3>
+          {/* Product Details */}
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Service Details</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <Input
                 type="text"
@@ -424,7 +426,7 @@ const CategoryForm = ({
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="kids">kids</SelectItem>
+                    <SelectItem value="kids">Kids</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -504,7 +506,7 @@ const CategoryForm = ({
                       />
                     )
                   }
-               
+
                   {
                     !subCatgoryName.toLowerCase().includes('accessories') && (
                       //    <Select
@@ -551,18 +553,18 @@ const CategoryForm = ({
                   }
                 </>
               )}
-              
-{/*  this model for only  mobile */}
-                 {
-                    subCatgoryName.toLowerCase() === 'mobile' && (
-                       <Input
-                        type="text"
-                        placeholder="Model"
-                        {...register('model')}
-                        className="bg-white col-span-1"
-                      />
-                    )
-                  }
+
+              {/*  this model for only  mobile */}
+              {
+                subCatgoryName.toLowerCase() === 'mobile' && (
+                  <Input
+                    type="text"
+                    placeholder="Model"
+                    {...register('model')}
+                    className="bg-white col-span-1"
+                  />
+                )
+              }
 
               {(currentCategoryName === "furniture" || currentCategoryName === "sports" ||
                 currentCategoryName === "automobile" || currentCategoryName === "home" ||
@@ -708,10 +710,11 @@ const CategoryForm = ({
                 />
               }
 
-              {currentCategoryName !== 'automobile'  &&
+              {currentCategoryName !== 'automobile' &&
+              // Product Type
                 <Input
                   type="text"
-                  placeholder="Product Type"
+                  placeholder="Service Type"
                   {...register('typeOfProduct')}
                   className="bg-white"
                 />
@@ -754,10 +757,10 @@ const CategoryForm = ({
                   ref={imageRef}
                   onChange={(e: any) => {
                     if (e.target.files?.[0]) {
-                    const newImage = e.target.files[0];
-                  
-                    if(newImage.size > 2 * 1024 * 1024){
-                        toast.error("Image size should be less than 2MB");
+                      const newImage = e.target.files[0];
+
+                      if (newImage.size > 2 * 1024 * 1024) {
+                        toast.info("Image size should not exceed 2MB");
                         return;
                       }
                       setImage(newImage);
@@ -802,6 +805,10 @@ const CategoryForm = ({
                         toast.error("Invalid Doc");
                         return;
                       }
+                      if (newDocument.size > 5 * 1024 * 1024) {
+                        toast.info("Document size should not exceed 5MB");
+                        return;
+                      }
                       setFileDoc(newDocument);
                       const currentFormData = {
                         ...getValues(),
@@ -831,7 +838,7 @@ const CategoryForm = ({
               <DatePicker
                 date={date}
                 title="Delivery Date"
-                disabledBeforeDate={new Date(new Date().getTime() - 24 * 60 * 60 * 1000)}
+                disabledBeforeDate={new Date(new Date().getTime())}
                 setDate={(val: any) => {
                   if (val) {
                     setDate(val);
@@ -871,19 +878,26 @@ const CategoryForm = ({
                 <>
                   <Input
                     type="text"
-                    placeholder="GST Number"
+                    placeholder="GST Number (15 characters - Format: 22AAAAA0000A1Z5)"
                     {...register("paymentAndDelivery.gstNumber")}
                     className="bg-white"
+                    maxLength={15}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      setValue("paymentAndDelivery.gstNumber", value, {
+                        shouldValidate: true
+                      });
+                    }}
                   />
                   <Input
                     type="text"
-                    placeholder="Form Name"
+                    placeholder="Enity Name"
                     {...register("paymentAndDelivery.organizationName")}
                     className="bg-white"
                   />
                   <Input
                     type="text"
-                    placeholder="Organization Address"
+                    placeholder="Entity Address"
                     {...register("paymentAndDelivery.organizationAddress")}
                     className="bg-white"
                   />
@@ -943,6 +957,7 @@ const Category = () => {
 
 
   const isValidForms = (forms: any[], isDraft: boolean) => {
+    const gstRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/;
     for (let i = 0; i < forms.length; i++) {
       if (!forms[i].title) {
         toast.error(`Title is required ${forms.length > 1 ? `in product form(s) ${i + 1}` : ''}`)
@@ -974,6 +989,13 @@ const Category = () => {
         return false
       }
 
+      else if (forms[i].gst_requirement === 'yes' && forms[i].paymentAndDelivery?.gstNumber && !isDraft) {
+        const gstNumber = forms[i].paymentAndDelivery.gstNumber.trim();
+        if (!gstRegex.test(gstNumber)) {
+          toast.error(`Invalid GST Number format in form ${forms.length > 1 ? `${i + 1}` : ''}. Must be 15 characters (Format: 22AAAAA0000A1Z5)`);
+          return false;
+        }
+      }
 
     }
     return true
@@ -982,7 +1004,7 @@ const Category = () => {
   const handleAddForm = () => {
     const formsArray = Object.values(formsData) as any
     if (formsArray.length > 4) {
-      toast.error("You can submit a maximum of 5 product forms at a time.");
+      toast.info("You can submit a maximum of 5 product forms at a time.");
       return
     }
     const newFormIndex = forms.length > 0 ? Math.max(...forms) + 1 : 0;
@@ -1197,7 +1219,7 @@ const Category = () => {
       // setButtonType(null)
       // setForms([0]);
       // setFormsData({});
-      if(!buttonType){
+      if (!buttonType) {
         navigate('/')
       }
       window.location.reload()
@@ -1221,7 +1243,7 @@ const Category = () => {
                 </BreadcrumbPage>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="capitalize font-semibold text-orange-600">
-                  {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Mobile, Tablet and Wearables' : currentCategoryName === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" :  currentCategoryName === 'furniture' ? 'furniture and decor' :currentCategoryName }
+                  {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Mobile, Tablet and Wearables' : currentCategoryName === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" : currentCategoryName === 'furniture' ? 'furniture and decor' : currentCategoryName}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>

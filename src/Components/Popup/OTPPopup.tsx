@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import saralBuyLogo from "../../image/Logo/saralBuyLogo.png";
 import { useFetch } from "@/helper/use-fetch";
 import { Button } from "../ui/button";
@@ -16,6 +16,7 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import { getUserProfile } from "@/zustand/userProfile";
 import { Spinner } from "../ui/shadcn-io/spinner";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 // import { toast } from "sonner";
 
 type Props={
@@ -23,12 +24,17 @@ type Props={
   setOpen:React.Dispatch<React.SetStateAction<boolean>>;
   number?:string;
   sessionId?:string
+  setSessionId?:React.Dispatch<React.SetStateAction<string>>
 } 
-const OtpPopup:React.FC<Props> = ({open,setOpen,number,sessionId}) => {
+const OtpPopup:React.FC<Props> = ({open,setOpen,number,sessionId,setSessionId}) => {
   const {fn,data,loading}= useFetch(authService.verifyOtp)
-    const [value, setValue] = React.useState("")
+  const [value, setValue] = React.useState("")
+  const countDown =60; 
+  const [sentTimer,setResentTimer]=React.useState(countDown)
   const getProfile=  getUserProfile()
   const navigate = useNavigate();
+  const timer = useRef<NodeJS.Timeout  |null>(null);
+  const {fn:sendOtp,data:sendOtpResponse} = useFetch(authService.sendOtp)
   const handleVerify = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // if(!sessionId) return toast.error('sessionId is missing')
@@ -42,6 +48,43 @@ useEffect(() => {
     window.location.reload()
   }
 }, [data]);
+
+useEffect(() => {
+  if (sentTimer === 0) {
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
+    }
+    return;
+  }
+
+  timer.current = setInterval(() => {
+    setResentTimer((prev) => prev - 1);
+  }, 1000);
+
+  return () => {
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
+    }
+  };
+}, [sentTimer]);
+
+async function callTimer() {
+  if (timer.current) {
+    clearInterval(timer.current);
+  }
+  setResentTimer(countDown);
+}
+
+ useEffect(()=>{
+    if(sendOtpResponse){
+      toast.success('OTP Resent successfully')
+      setSessionId?.(sendOtpResponse?.sessionId)
+    }
+  },[sendOtpResponse])
+
+
 useEffect(() => {
   if (getProfile.user) {
     const { firstName, lastName, email } = getProfile.user as any;
@@ -64,7 +107,7 @@ useEffect(() => {
         </div>
        <div className="space-y-2">
          <DialogTitle className=" text-gray-700 text-3xl font-extrabold ">OTP Verification</DialogTitle>
-         <p className="text-sm">Enter the OTP code send on your number {number?.toString().slice(0,4)}******</p>
+         <p className="text-sm">Enter the OTP code sent on your number {number?.toString().slice(0,4)}******</p>
        </div>
 
         <form onSubmit={handleVerify} className="flex justify-center items-center flex-col space-y-5">
@@ -97,12 +140,28 @@ useEffect(() => {
         />
       </InputOTPGroup>
     </InputOTP>
+ <div className="grid gap-3 w-full">
+ <button
+  type="button"
+  disabled={sentTimer > 0}
+  onClick={()=>{
+    callTimer();
+    sendOtp(number)
+  }}
+  className={`text-sm text-right w-full underline 
+    ${sentTimer > 0 ? "cursor-not-allowed text-gray-400" : "cursor-pointer text-orange-700"}`}
+>
+  Resend OTP {sentTimer > 0 ? `(${sentTimer}s)` : ""}
+</button>
+
      <Button type="submit" disabled={loading|| value.length !== 6} className="w-full py-5 cursor-pointer  text-white font-bold rounded-sm" >
                {
                 loading ? <Spinner className="w-5 h-5 animate-spin" /> : 'Continue'
                 }
               </Button>
+ </div>
         </form>
+        
       </DialogContent>
     </Dialog>
   );

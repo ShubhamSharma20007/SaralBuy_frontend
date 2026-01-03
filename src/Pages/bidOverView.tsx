@@ -44,7 +44,7 @@ const bidsColumns: ColumnDef<any>[] = [
       return <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 ">
         <Avatar className="w-10 h-10 flex justify-center items-center rounded-full">
           <AvatarImage src={row.original?.avatar} alt="@shadcn" className="h-full w-full rounded-full" />
-          <AvatarFallback>{
+          <AvatarFallback className="bg-gray-200 rounded-full flex w-full h-full  items-center justify-center text-sm font-semibold">{
             'SS'
             // fallBackName(row.original?.bid_to)
           }</AvatarFallback>
