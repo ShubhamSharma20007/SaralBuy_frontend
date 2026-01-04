@@ -10,7 +10,7 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
-import { FileUp, MoveLeft, XIcon, CloudUpload } from "lucide-react";
+import { FileUp, MoveLeft, XIcon, CloudUpload, File } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -34,6 +34,8 @@ import { electronicCategories, constructionIndustrialCategories, fashionCategori
 import { getCategorySpecificFields } from "@/const/categoriesFormdataFields";
 import Authentication from "@/Components/auth/Authentication";
 import { CategoryFormSkeleton } from "@/const/CustomSkeletons";
+import TooltipComp from "@/utils/TooltipComp";
+import { ImageSizeIncrease } from "@/helper/imageSizer";
 
 const innerFormImages = {
   automobile: "automobileFormImage.png",
@@ -206,6 +208,12 @@ const UpdateProductDraftForm = ({
       }
     }
   }, [initialData, catByIdData, subCategoriesData]);
+
+
+ const previewDoc = (url: string) => {
+  if(!url) return;
+  window.open(url, '_blank');
+};
 
 
 
@@ -748,21 +756,21 @@ const UpdateProductDraftForm = ({
                   <p className="text-xs mt-2 text-green-600 text-center">{(image as any)?.name}</p>
                 )}
                 {
-                  image && <div className="absolute h-16 w-16 right-2 top-2 rounded-lg shadow  select-none z-10">
-                    <img src={URL.createObjectURL(image)} className="h-full w-full object-contain" alt="" />
+                  image && <div className="absolute h-16 w-16 right-2 top-2  select-none z-10">
+                    <img onMouseEnter={(e:any)=>ImageSizeIncrease(e.target)}  onMouseLeave={(e:any)=>ImageSizeIncrease(e.target)}  src={URL.createObjectURL(image)} className="h-full w-full object-contain imageSizer" alt="" />
                   </div>
                 }
                 {!image && initialData?.image && (
                   <>
-                    <div className="absolute h-16 w-16 right-2 top-2 rounded-lg shadow  select-none z-10">
-                      <img src={image || initialData?.image!} className=" w-full h-full object-contain " />
+                    <div  className="absolute h-16 w-16 right-2 top-2   select-none z-10  ">
+                      <img onMouseEnter={(e:any)=>ImageSizeIncrease(e.target)}  onMouseLeave={(e:any)=>ImageSizeIncrease(e.target)}  src={image || initialData?.image!} className=" w-full h-full object-contain bg-white  imageSizer  " />
                     </div>
                   </>
                 )}
               </div>
               <div
                 onClick={() => fileDocRef.current?.click()}
-                className="border-2 border-dashed border-gray-300 rounded-lg flex bg-transparent flex-col items-center justify-center p-6 cursor-pointer"
+                className="border-2 relative border-dashed border-gray-300 rounded-lg flex bg-transparent flex-col items-center justify-center p-6 cursor-pointer"
               >
                 <FileUp className="h-6 w-6 mb-2 text-gray-500" />
                 <span className="text-sm text-muted-foreground">
@@ -801,7 +809,18 @@ const UpdateProductDraftForm = ({
                   <p className="text-xs mt-2 text-green-600">{(fileDoc as any).name}</p>
                 )}
                 {!fileDoc && initialData?.document && (
+                   <>
+                    <div 
+                    className='absolute top-1 right-1 z-10 bg-orange-50 text-orange-400 rounded-sm p-1 cursor-pointer'
+                    onClick={()=>previewDoc(initialData?.document)}
+                  >
+                    <TooltipComp
+                      hoverChildren={<File className='h-5 w-5' />}
+                      contentChildren={<p>Document Download</p>}
+                    />
+                  </div>
                   <p className="text-xs mt-2 text-blue-600">Current document uploaded</p>
+                   </>
                 )}
               </div>
             </div>
@@ -896,6 +915,7 @@ const UpdateDraft = () => {
   const [currentCategoryName, setCurrentCategoryName] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const { fn, data, loading } = useFetch(productService.updateDrafts)
+  const {fn:saveAsDraftFn,data:saveAsDraftRes,loading:saveAsDraftLoading} = useFetch(productService.saveAsDraft)
   const [subCategoriesData, setSubCategoriesData] = useState([]);
   const [resetForms, _] = useState(false);
 
@@ -1078,9 +1098,98 @@ const UpdateDraft = () => {
 
     // Determine if multiple products
     const isMultiple = forms.length > 1;
+
     await fn(formDataToSend, isMultiple);
 
   };
+
+ const handleSubmitSaveAsDraft = async () => {
+  const allowedFields = getCategorySpecificFields(currentCategoryName!);
+  const formDataToSend = new FormData();
+  const productsData = [] as any;
+
+  for (const [index, formData] of Object.entries(formsData) as any) {
+    if (formData.quantity) {
+      const qty = formData.quantity.toString().trim();
+      if (!/^\d+$/.test(qty) || parseInt(qty) < 1) {
+        toast.error(`Invalid Quantity in Form ${parseInt(index) + 1}.`);
+        return;
+      }
+    }
+
+    if (formData.minimumBudget) {
+      const minBudget = formData.minimumBudget.toString().trim();
+      if (!/^\d+$/.test(minBudget) || parseInt(minBudget) < 1) {
+        toast.error(`Invalid Budget Range in Form ${parseInt(index) + 1}.`);
+        return;
+      }
+    }
+  }
+
+  const fileMapping:File[] = [];
+
+  Object.entries(formsData).forEach(([index, formData]: any) => {
+    const productData: any = {
+      _id: formData._id
+    };
+    
+    allowedFields.forEach(field => {
+      if (field === 'image' || field === 'document') {
+        return;
+      }
+      if ((field === 'oldProductValue' || field === 'productCondition') && formData.productType !== 'old_product') {
+        return;
+      }
+
+      const value = formData[field];
+      if (value !== undefined && value !== null) {
+        if (typeof value === "object") {
+          productData[field] = JSON.stringify(value);
+        } else {
+          productData[field] = value;
+        }
+      } else {
+        productData[field] = '';
+      }
+    });
+
+    productsData.push(productData);
+
+    const formFileMapping: any = {
+      formIndex: parseInt(index),
+      hasImage: false,
+      hasDocument: false
+    };
+
+    if (formData.image && allowedFields.includes('image')) {
+      formDataToSend.append(`image`, formData.image);
+      formFileMapping.hasImage = true;
+    }
+    
+    if (formData.document && allowedFields.includes('document')) {
+      formDataToSend.append(`document`, formData.document);
+      formFileMapping.hasDocument = true;
+    }
+
+    fileMapping.push(formFileMapping);
+  });
+
+  formDataToSend.append('products', JSON.stringify(productsData));
+  formDataToSend.append('draft', 'true');
+  formDataToSend.append('createRequirement', 'false');
+  formDataToSend.append('fileMapping', JSON.stringify(fileMapping));
+
+  const isMultiple = forms.length > 1;
+  await saveAsDraftFn(formDataToSend, isMultiple);
+};
+
+    useEffect(()=>{
+      if(saveAsDraftRes){
+        toast.success(saveAsDraftRes?.message || 'Draft updated successfully')
+         if (productId)  getDraft(productId);
+      }
+
+    },[saveAsDraftRes])
 
   useEffect(() => {
     if (data) {
@@ -1161,6 +1270,19 @@ const UpdateDraft = () => {
 
               {/* Global Actions - Single Submit and Draft buttons for all forms */}
               <div className="flex justify-end gap-3 my-5">
+                  <Button
+                  type="button"
+                  onClick={handleSubmitSaveAsDraft}
+                  className="text-white w-32 cursor-pointer bc  border-primary-btn border-2 "
+
+                >
+                  {saveAsDraftLoading ? (
+                    <Spinner className="w-5 h-5 animate-spin" />
+                  ) : (
+                    'Save as Draft'
+                  )}
+                 
+                </Button>
                 <Button
                   type="button"
                   disabled={loading}

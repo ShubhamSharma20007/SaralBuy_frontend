@@ -36,6 +36,7 @@ import { electronicCategories, constructionIndustrialCategories, fashionCategori
 import { getCategorySpecificFields } from "@/const/categoriesFormdataFields";
 import Authentication from "../auth/Authentication";
 import PlaceRequirementPopup from "../Popup/PlaceRequirementPopup";
+import { ImageSizeIncrease } from "@/helper/imageSizer";
 
 const innerFormImages = {
   automobile: "automobileFormImage.png",
@@ -779,7 +780,7 @@ const CategoryForm = ({
                 )}
                 {
                   image && <div className="absolute h-16 w-16 right-2 top-2 rounded-lg shadow  select-none z-10">
-                    <img src={URL.createObjectURL(image)} className="h-full w-full object-contain" alt="" />
+                    <img  onMouseEnter={(e:any)=>ImageSizeIncrease(e.target)}  onMouseLeave={(e:any)=>ImageSizeIncrease(e.target)}  src={URL.createObjectURL(image)} className="h-full w-full bg-white object-contain imageSizer"  alt="" />
                   </div>
                 }
               </div>

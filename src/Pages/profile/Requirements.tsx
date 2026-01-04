@@ -64,7 +64,7 @@ const Requirement = () => {
               />
             ) : (
               <div className='w-full h-[300px] flex flex-col items-center justify-center'>
-                <img src="/observed.svg" width="10%" alt="No data" />
+                <img src="/empty-cart.webp" width="10%" alt="No data" />
                 <p className="text-gray-500 text-sm">No Requirements Found</p>
               </div>
             )}
@@ -96,7 +96,7 @@ const Requirement = () => {
               // ))
             ) : (
               <div className='w-full h-[300px] flex flex-col items-center justify-center'>
-                <img src="/observed.svg" width="10%" alt="No data" />
+                <img src="/empty-cart.webp" width="10%" alt="No data" />
                 <p className="text-gray-500 text-sm">No Drafts Found</p>
               </div>
             )}

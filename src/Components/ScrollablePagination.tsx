@@ -97,13 +97,13 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
       {products?.map((item: any, idx: number) => (
         <div key={item._id || idx} className="border-2 border-gray-300 p-4 rounded-md w-full relative">
 
-          <div className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm  p-1 cursor-pointer'
+          {/* <div className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm  p-1 cursor-pointer'
           >
             <TooltipComp
               hoverChildren={<X className='h-4 w-4' />}
               contentChildren={<p>Delete Requirement</p>}
             ></TooltipComp>
-          </div>
+          </div> */}
           {
             target === 'drafts' && (
               <div
