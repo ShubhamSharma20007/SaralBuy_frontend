@@ -67,7 +67,7 @@ useEffect(() => {
                     <RequirementSlider product={item} target="carts" key={idx} />
                   </div>
                 )) : <div className='w-full h-[300px]  flex flex-col items-center justify-center'>
-                    <img src="/observed.svg" width="10%" />
+                    <img src="/empty-cart.webp" width="10%" />
                     <p className="text-gray-500 text-sm">No Cart's Found</p>
                 </div>
             }
