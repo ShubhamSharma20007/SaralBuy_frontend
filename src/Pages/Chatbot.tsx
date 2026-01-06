@@ -261,6 +261,13 @@ const ChatArea = ({
     checkDealStatus();
   }, [selectedContact, productId]);
 
+  // Sync isDealClosed state when selectedContact.isDealClosed is updated via socket event
+  useEffect(() => {
+    if (selectedContact?.isDealClosed) {
+      setIsDealClosed(true);
+    }
+  }, [selectedContact?.isDealClosed]);
+
   const handleSendMessage = () => {
     if (messageText.trim()) {
       // Use IDs from selectedContact when possible
@@ -922,6 +929,38 @@ const Chatbot = () => {
       }
     };
 
+    // Handler for deal_closed event from backend
+    const handleDealClosed = (data: any) => {
+      console.log("Chatbot received deal_closed:", data);
+      
+      const { productId: closedProductId, buyerId: closedBuyerId, sellerId: closedSellerId, closedDeal, finalBudget } = data;
+      
+      // Generate roomId for the closed deal
+      const closedRoomId = chatService.generateRoomId(closedProductId, closedBuyerId, closedSellerId);
+      
+      // Update the recentChats to mark this chat as deal closed
+      setRecentChats((prev) =>
+        prev.map((chat) => {
+          if (chat.roomId === closedRoomId) {
+            return { ...chat, isDealClosed: true, closedDeal };
+          }
+          return chat;
+        })
+      );
+      
+      // Show toast notification to inform the user
+      const closedAt = closedDeal?.closedAt ? new Date(closedDeal.closedAt).toLocaleString() : 'just now';
+      toast.success(`Deal closed!`, {
+        description: `Final budget: ₹${finalBudget}. Closed at ${closedAt}`,
+        duration: 5000,
+      });
+      
+      // If current chat is the one that was closed, update selectedContact
+      if (selectedContact && selectedContact.roomId === closedRoomId) {
+        setSelectedContact((prev: any) => ({ ...prev, isDealClosed: true, closedDeal }));
+      }
+    };
+
     // Unified handler for recent_chat_update
     const handleRecentChatUpdate = (data: any) => {
         console.log("Chatbot received recent_chat_update:", data);
@@ -987,6 +1026,7 @@ const Chatbot = () => {
       chatService.socket.on("receive_message", handleReceiveMessage);
       chatService.socket.on("chat_last_message_update", handleLastMessageUpdate);
       chatService.socket.on("recent_chat_update", handleRecentChatUpdate);
+      chatService.socket.on("deal_closed", handleDealClosed);
     }
 
     return () => {
@@ -994,6 +1034,7 @@ const Chatbot = () => {
         chatService.socket.off("receive_message", handleReceiveMessage);
         chatService.socket.off("chat_last_message_update", handleLastMessageUpdate);
         chatService.socket.off("recent_chat_update", handleRecentChatUpdate);
+        chatService.socket.off("deal_closed", handleDealClosed);
       }
     };
   }, [currentUserId, selectedContact]);
