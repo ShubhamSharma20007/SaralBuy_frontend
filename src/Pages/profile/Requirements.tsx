@@ -34,7 +34,7 @@ const Requirement = () => {
       <div className='grid space-y-5 w-full'>
         <div className='flex justify-between items-center font-semibold w-full mb-3'>
           <p className="font-bold text-xl whitespace-nowrap tracking-tight text-gray-600">
-            Requirements
+           Requirements (Posted / Draft)
           </p>
           <Button variant={'ghost'} size={'icon'} className='w-24 flex gap-2 items-center justify-center text-sm font-medium text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
             Date

@@ -183,7 +183,7 @@ const BidListing = () => {
                     data={data}
                     columns={columns}
                     filters={true}
-                    title="Your Bids"
+                    title="Quotes Submitted"
                     colorPalette="gray"
                     page={page}
                     setPage={setPage}

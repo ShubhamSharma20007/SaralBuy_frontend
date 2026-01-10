@@ -3,12 +3,13 @@ import { SliderSkeleton } from '@/const/CustomSkeletons'
 import TooltipComp from '@/utils/TooltipComp'
 import { ListFilter, X } from 'lucide-react'
 import RequirementSlider from './components/requirement-slide'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import cartService from '@/services/cart.service'
 import { useFetch } from '@/helper/use-fetch'
 import { toast } from 'sonner'
 
 const Cart = () => {
+  const[isAscSorting,setIsAscSorting] = useState(false) // asc and deasc
   const {fn:getCartFn,data:getCartRes,loading:getCartLoading,setData:setCartItems} = useFetch(cartService.getCart)
   const {fn:removeCartFn,data:removeCartRes} = useFetch(cartService.removeCart)
 useEffect(()=>{
@@ -32,6 +33,30 @@ function handleCart(cartId: string, productId: string) {
   removeCartFn(cartId, productId)
 }
 
+const handleSort = () => {
+  setIsAscSorting((prev) => {
+    const next = !prev;
+    setCartItems((prevCart: any) => {
+      if (!prevCart?.cartItems) return prevCart;
+      const sortedItems = prevCart?.cartItems.sort((a: any, b: any) => {
+        if (next) {
+          return new Date(a.addedAt).getTime()- new Date(b.addedAt).getTime()
+        } else {
+          return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+        }
+      });
+
+      return {
+        ...prevCart,
+        cartItems: sortedItems,
+      };
+    });
+
+    return next;
+  });
+};
+
+
 useEffect(() => {
     if (removeCartRes) {
       toast.success(removeCartRes?.message || 'Cart item removed successfully');
@@ -42,9 +67,11 @@ useEffect(() => {
       <div className='grid space-y-5 w-full'>
         <div className='flex justify-between items-center font-semibold w-full mb-3'>
           <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600">
-           Your Cart
+            Cart
           </p>
-          <Button variant={'ghost'} size={'icon'} className=' w-24 flex gap-2 items-center justify-center text-sm font-medium  text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
+          <Button
+          onClick={handleSort}
+          variant={'ghost'} size={'icon'} className=' w-24 flex gap-2 items-center justify-center text-sm font-medium  text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
             Date
             <ListFilter className='w-5 h-5' />
           </Button>

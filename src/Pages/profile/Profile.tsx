@@ -46,10 +46,10 @@ const tags = [
     value: 'cart'
   },
   {
-    title: "Your Biding",
+    title: "Quotes Submitted",
     value: 'your_biding'
   }, {
-    title: "Your Posted/Draft requirement",
+    title: "Requirements (Posted / Draft)",
     value: 'requirements'
   }, {
     title: "Your Deal",
