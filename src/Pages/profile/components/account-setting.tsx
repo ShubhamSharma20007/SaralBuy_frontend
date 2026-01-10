@@ -120,7 +120,7 @@ export function AccountSettings() {
             }
           })} className="space-y-4">
             <div className="space-y-4 border border-gray-200 shadow-sm p-5 rounded-md">
-                <p className="font-[700] text-gray-600">Personal Information</p>
+                {/* <p className="font-[700] text-gray-600">Personal Information</p> */}
             <div className="grid grid-cols-2 gap-4">
               
               <div className="space-y-2">
@@ -141,6 +141,22 @@ export function AccountSettings() {
                   {...register("lastName")}
                 />
               </div>
+            </div>
+             <div className="grid  gap-4 ">
+              <div className="space-y-2">
+                <Label className="text-gray-600" htmlFor="business">Business Name</Label>
+                <div className="flex items-center gap-2 relative">
+                  <Input
+                    id="business"
+                    type="text"
+                    placeholder="Business Name"
+                 
+                    className="pr-16 bg-transparent"
+                  />
+                
+                </div>
+              </div>
+
             </div>
             <div className="grid grid-cols-2 gap-4 ">
               <div className="space-y-2">
@@ -173,8 +189,9 @@ export function AccountSettings() {
                 />
               </div>
             </div>
+           
             <div className="space-y-2">
-              <Label className="text-gray-600" htmlFor="address">Residential Address</Label>
+              <Label className="text-gray-600" htmlFor="address">Address</Label>
              <div className="relative">
                <Textarea
                cols={10}
@@ -183,14 +200,14 @@ export function AccountSettings() {
                 placeholder="Enter address"
                 {...register("address")}
               />
-                              <Button
+                              {/* <Button
                     type="button"
                     variant="link"
                     className="p-0 text-orange-600 cursor-pointer absolute right-5 bottom-2 gap-1"
                   >
                     <Plus className="w-4 h-4"/>
                     Add Address
-                  </Button>
+                  </Button> */}
              </div>
             </div>
             </div>
@@ -246,12 +263,18 @@ export function AccountSettings() {
 
             {/* Submit button */}
             <div className="flex justify-end">
-               {user &&
+               {user ?
               <Button
               disabled={logoutLoading}
               className=" w-32 cursor-pointer text-sm" variant="destructive"
               onClick={()=>logoutFn()}
               >Log out</Button>
+              :
+              <Button
+              disabled={logoutLoading}
+              className=" w-32 cursor-pointer text-sm bc"
+              onClick={()=>logoutFn()}
+              >Login</Button>
               }
               <Button type="submit" className="cursor-pointer w-32 ml-4 bc text-sm" disabled={loading}>
                 {

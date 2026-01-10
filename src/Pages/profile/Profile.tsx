@@ -68,9 +68,23 @@ const Profile = () => {
   const avatarRef = useRef<HTMLInputElement>(null)
    const handleUpdateProfile = async () => {
     const formData = new FormData()
-   if(avatarRef.current && avatarRef.current.files){
-    formData.append('image', avatarRef.current.files[0])
-   }
+   if (avatarRef.current && avatarRef.current.files) {
+  const file = avatarRef.current.files[0]
+  const maxSize = 2 * 1024 * 1024
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Only JPG, PNG or WEBP images are allowed')
+      avatarRef.current.value = ''
+      return
+    }
+
+    if (file.size > maxSize) {
+      toast.error('Image size should be less than 2MB')
+      avatarRef.current.value = ''
+      return
+    }
+    formData.append('image', file)
+  }
    await updateProfilefn(formData)
    }
 

@@ -350,6 +350,7 @@ const ChatArea = ({
         buyerId: sc.buyerId,
         finalBudget: amount!,
       });
+      
       toast.success("Deal closed successfully!");
       
       // Re-check deal status immediately
