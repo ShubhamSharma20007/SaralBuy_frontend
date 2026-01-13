@@ -8,13 +8,14 @@ import productService from '@/services/product.service';
 import bidService from '@/services/bid.service';
 import { SliderSkeleton } from '@/const/CustomSkeletons';
 import ScrollablePagination from '@/Components/ScrollablePagination';
+import { sortByDate } from '@/helper/sortByDate';
 const limit = 10;
 const Requirement = () => {
   const [tab, setTab] = useState('requirements')
-  const { fn: getDrafts, data: getDraftsRes, loading: getDraftLoading } = useFetch(productService.getDrafts)
-  const { fn: getMyRequirements, data: getMyRequirementsRes, loading: getMyRequirementsLoading } = useFetch(bidService.getMyRequirements)
+  const { fn: getDrafts, data: getDraftsRes, loading: getDraftLoading,setData: setGetDraftsRes } = useFetch(productService.getDrafts)
+  const { fn: getMyRequirements, data: getMyRequirementsRes, loading: getMyRequirementsLoading ,setData:setGetMyRequirementsRes} = useFetch(bidService.getMyRequirements)
   const [drafts, setDrafts] = useState<any>([])
- 
+  const[_,setIsAscSorting] = useState(false) 
   useEffect(() => {
     if (tab === 'requirements') {
       getMyRequirements(1, limit)
@@ -29,6 +30,39 @@ const Requirement = () => {
     }
   }, [getDraftsRes]);
 
+
+  const handleSorting = () => {
+  setIsAscSorting(prev => {
+    const isAsc = !prev;
+    if(tab === 'requirements'){
+      setGetMyRequirementsRes((prevState: any) => {
+      if (!Array.isArray(prevState?.data)) return prevState;
+
+      const sorted = sortByDate(prevState.data, isAsc);
+
+      return {
+        ...prevState,
+        data: sorted
+      };
+    });
+    }else{
+        setGetDraftsRes((prevState: any) => {
+      if (!Array.isArray(prevState?.data)) return prevState;
+
+      const sorted = sortByDate(prevState.data, isAsc);
+
+      return {
+        ...prevState,
+        data: sorted
+      };
+    });
+    }
+    
+
+    return isAsc;
+  });
+};
+
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
       <div className='grid space-y-5 w-full'>
@@ -36,7 +70,9 @@ const Requirement = () => {
           <p className="font-bold text-xl whitespace-nowrap tracking-tight text-gray-600">
            Requirements (Posted / Draft)
           </p>
-          <Button variant={'ghost'} size={'icon'} className='w-24 flex gap-2 items-center justify-center text-sm font-medium text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
+          <Button
+          onClick={handleSorting}
+          variant={'ghost'} size={'icon'} className='w-24 flex gap-2 items-center justify-center text-sm font-medium text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
             Date
             <ListFilter className='w-5 h-5' />
           </Button>
@@ -46,7 +82,7 @@ const Requirement = () => {
         <Tabs defaultValue="requirements" className='grid space-y-2 w-full overflow-hidden' onValueChange={(val) => setTab(val)}>
           <TabsList className='bg-transparent'>
             <TabsTrigger value="requirements" className='cursor-pointer min-w-32'>
-              Your Requirements
+              Posted
             </TabsTrigger>
             <TabsTrigger value="drafts" className='cursor-pointer min-w-32'>
               Drafts
@@ -60,6 +96,7 @@ const Requirement = () => {
               <ScrollablePagination
                 target="requirements"
                 state={getMyRequirementsRes}
+                setGetMyRequirementsRes={setGetMyRequirementsRes}
                 limit={limit}
               />
             ) : (

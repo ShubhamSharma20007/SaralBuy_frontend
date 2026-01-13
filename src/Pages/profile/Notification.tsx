@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../Components/ui/button';
 import { ListFilter } from 'lucide-react';
 import RequirementService from '../../services/requirement.service';
+import { sortByDate } from '@/helper/sortByDate';
 
 
 interface BidNotification {
@@ -33,7 +34,7 @@ const Notification = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
+  const[_,setIsAscSorting] = useState(false) 
   useEffect(() => {
     setLoading(true);
     RequirementService.getBidNotifications()
@@ -47,14 +48,27 @@ const Notification = () => {
       });
   }, []);
 
+
+    const handleSorting = () => {
+    setIsAscSorting((prev:boolean) => {
+      const isAsc = !prev;
+        setNotifications((prevState: any) => {
+        if (!Array.isArray(prevState)) return prevState;
+        const sorted = sortByDate(prevState, isAsc,'bidDate');
+        return sorted
+      });
+      return isAsc
+    });
+  };
+  console.log({notifications})
   return (
     <div className='grid space-y-5'>
       <div className={`flex justify-between items-center mb-3`}>
         <p className="font-bold text-xl whitespace-nowrap tracking-tight text-gray-600">
           Notifications
         </p>
-        <Button variant={'ghost'} size={'icon'} className='w-24 flex gap-2 items-center justify-center text-sm font-medium text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
-          Sort By
+        <Button onClick={handleSorting} variant={'ghost'} size={'icon'} className='w-24 flex gap-2 items-center justify-center text-sm font-medium text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
+          Date
           <ListFilter className='w-5 h-5' />
         </Button>
       </div>
@@ -64,7 +78,7 @@ const Notification = () => {
       {!loading && !error && notifications.length === 0 && (
         <div className="text-center text-gray-500">No notifications found.</div>
       )}
-      {!loading && !error && notifications.flatMap((notif, idx) => {
+      {!loading && !error && notifications?.flatMap((notif, idx) => {
         // Capitalize first letter of product title
         const productTitle =
           notif.product?.title
@@ -105,7 +119,7 @@ const Notification = () => {
                   </div>
                   <div className="grid grid-cols-3 items-center gap-5">
                     <p className="text-sm font-medium text-gray-600 line-clamp-1 col-span-2">
-                      You have got a new bid on <span className="font-semibold decoration-red-500">
+                      You have got a new Quote on <span className="font-semibold decoration-red-500">
                         {productTitle}
                       </span> by <span className="font-semibold decoration-red-500">
                         {sellerName}
@@ -154,7 +168,7 @@ const Notification = () => {
             <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2`}>
               <div className='grid grid-cols-3 items-center gap-5'>
                 <p className='text-md font-bold text-gray-800 capitalize col-span-2'>
-                  New Bid Received
+                  New Quote Received
                 </p>
                 <p className='text-sm text-orange-500 col-span-1 text-right'>
                   {bidDate}
@@ -162,7 +176,7 @@ const Notification = () => {
               </div>
               <div className="grid grid-cols-3 items-center gap-5">
                 <p className="text-sm font-medium text-gray-600 line-clamp-1 col-span-2">
-                  You have got a new bid on <span className="font-semibold decoration-red-500">
+                  You have got a new Quote on <span className="font-semibold decoration-red-500">
                     {productTitle}
                   </span> by <span className="font-semibold decoration-red-500">
                     {sellerName}

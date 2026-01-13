@@ -23,7 +23,7 @@ const BidListing = () => {
     const [open, setOpen] = useState(false);
     const [currentBidId, setCurrentBidId] = useState<string | null>('')
     const message = {
-        title: 'Are you sure you want to delete this bid?',
+        title: 'Warning',
         message: 'This action cannot be undone. This will permanently delete your account and remove your data from our server.',
     }
     const navigate = useNavigate()
@@ -34,6 +34,7 @@ const BidListing = () => {
     const [limit, setLimit] = useState(10);
     const [search, setSearch] = useState("");
     const [value, { isPending }] = useDebounce(search, 600);
+    console.log(fetchBidsResponse,234)
     const columns: ColumnDef<any>[] = [
         {
             accessorKey: "avtar",
@@ -59,13 +60,21 @@ const BidListing = () => {
             accessorKey: "product",
             header: "Product",
         },
-        {
-            accessorKey: "min_budget",
-            header: "Min. Budget",
-        },
+        // {
+        //     accessorKey: "min_budget",
+        //     header: "Min. Budget",
+        // },
         {
             accessorKey: "your_budget",
-            header: "Budget",
+            header: "Quoted Price",
+        },
+         {
+            accessorKey: "delivery",
+            header: "Delivery",
+        },
+         {
+            accessorKey: "location",
+            header: "Location",
         },
         {
             accessorKey: "status",
@@ -103,25 +112,27 @@ const BidListing = () => {
                         });
                     }}>Chat now</p> */}
 
-                    <TooltipComp
+                   
+                    <AlertPopup 
+                    loading={deleteBidloading}
+                    setOpen={setOpen} open={open} message={message} 
+                    deleteFunction={()=>{
+                        handleDeleteBid(currentBidId!)
+                    }}
+                    triggerButton={
+                         <TooltipComp
                         hoverChildren={<div
                             onClick={() => {
-                                setCurrentBidId(row.original?._id)
                                 if(deleteBidloading) return;
-                                handleDeleteBid(row.original?._id)
+                                setCurrentBidId(row.original?._id)
+                                // handleDeleteBid(row.original?._id)
                             }}
                             className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300">
                             <Trash2Icon className="h-4 w-4  text-red-500 cursor-pointer rounded-full" /></div>}
                         contentChildren={<p>Delete Bid</p>}
                     ></TooltipComp>
-                    {/* <AlertPopup 
-                    loading={deleteBidloading}
-                    setOpen={setOpen} open={open} message={message} 
-                    deleteFunction={handleDeleteBid}
-                    triggerButton={
-                       
-
-                    } /> */}
+                    }
+                     />
 
                 </div>
             }
@@ -147,6 +158,8 @@ const BidListing = () => {
                     product: item.product.title,
                     productId: mainProductId,
                     productBuyerId: mainProductBuyerId,
+                    delivery:dateFormatter(item.product?.paymentAndDelivery?.ex_deliveryDate) || 'N/A',
+                    location:item.product?.paymentAndDelivery?.organizationAddress || 'N/A',
                     min_budget: item?.product?.minimumBudget,
                     your_budget: item?.budgetQuation,
                     status: diff

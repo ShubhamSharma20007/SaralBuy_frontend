@@ -627,11 +627,11 @@ console.log(bidNotifications,"bidNotifications")
 
       <div className="flex-1 min-w-0">
         <p className="font-semibold">
-          {notif.product?.title || "New Bid"}
+          {notif.product?.title || "New Quote"}
         </p>
 
         <p className="text-sm text-gray-600 truncate">
-         You have new bids on your requirement.
+         You have new Quote on your requirement.
         </p>
 
         {notif.latestBid?.date && (

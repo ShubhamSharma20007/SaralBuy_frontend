@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import cartService from '@/services/cart.service'
 import { useFetch } from '@/helper/use-fetch'
 import { toast } from 'sonner'
+import { sortByDate } from '@/helper/sortByDate'
 
 const Cart = () => {
   const[isAscSorting,setIsAscSorting] = useState(false) // asc and deasc
@@ -38,14 +39,7 @@ const handleSort = () => {
     const next = !prev;
     setCartItems((prevCart: any) => {
       if (!prevCart?.cartItems) return prevCart;
-      const sortedItems = prevCart?.cartItems.sort((a: any, b: any) => {
-        if (next) {
-          return new Date(a.addedAt).getTime()- new Date(b.addedAt).getTime()
-        } else {
-          return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
-        }
-      });
-
+      const sortedItems = sortByDate(prevCart?.cartItems,next,'addedAt')
       return {
         ...prevCart,
         cartItems: sortedItems,

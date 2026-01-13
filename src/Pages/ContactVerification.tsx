@@ -75,7 +75,7 @@ export default function ContactVerification() {
             <div className="flex items-center space-x-2">
               <Checkbox id="showBid" />
               <label htmlFor="showBid" className="text-sm">
-                Do you want to show your bid to other sellers?
+                Do you want to show your Quote to other sellers?
               </label>
             </div>
             <Button className="w-32">Submit</Button>
@@ -85,7 +85,7 @@ export default function ContactVerification() {
         {/* Right Section - Bid Summary */}
         <Card className="p-4">
           <CardHeader className="px-0">
-            <CardTitle>Bid Summary</CardTitle>
+            <CardTitle>Quote Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {[1, 2].map((item) => (

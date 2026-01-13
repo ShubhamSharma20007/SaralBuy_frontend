@@ -711,15 +711,14 @@ const CategoryForm = ({
                 />
               }
 
-              {currentCategoryName !== 'automobile' &&
-              // Product Type
+
                 <Input
                   type="text"
-                  placeholder="Service Type"
+                  placeholder={currentCategoryName === 'service' ? 'Service Type' :'Product Type'}
                   {...register('typeOfProduct')}
                   className="bg-white"
                 />
-              }
+              
               {currentCategoryName === "industrial" && (
                 <Select
                   value={toolTypeValue}

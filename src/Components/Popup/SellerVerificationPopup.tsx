@@ -38,7 +38,7 @@ const SellerVerificationPopup:React.FC<Props> = ({open,setOpen,setValue,value,ha
     }} className="p-2 max-w-md inline-block space-y-5 ">
     <div className="space-y-2">
          <DialogHeader className=" text-black text-3xl font-extrabold ">Seller Verification</DialogHeader>
-         <DialogTitle className=" text-sm text-gray-600"> Placing Bid as an Individual or Business Owner?</DialogTitle>
+         <DialogTitle className=" text-sm text-gray-600"> Placing Quote as an Individual or Business Owner?</DialogTitle>
        </div>
      <div className="space-y-3">
     <Select onValueChange={(value) => setValue?.(value)} value={value}>
@@ -73,7 +73,7 @@ const SellerVerificationPopup:React.FC<Props> = ({open,setOpen,setValue,value,ha
          disabled={!value || createBidLoading}
          type="submit" className="w-full rounded-sm py-5  text-white font-bold cursor-pointer" >
             {
-              createBidLoading ? <Spinner className="w-5 h-5 animate-spin" /> : 'Place Bid'
+              createBidLoading ? <Spinner className="w-5 h-5 animate-spin" /> : 'Place Quote'
             }
           </Button>
   </div>

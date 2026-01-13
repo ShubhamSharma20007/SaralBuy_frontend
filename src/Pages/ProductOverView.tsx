@@ -151,7 +151,7 @@ const ProductOverview = () => {
       ])
     } catch (err) {
       console.log(err);
-      toast.error('Failed to place bid');
+      toast.error('Failed to place Quote');
     }
   }
 
@@ -162,7 +162,7 @@ const ProductOverview = () => {
       localStorage.setItem("preLoginBidForm", JSON.stringify(currentFormData));
       return setOpen(true);
     }
-    if (!productResponse && !bidOverviewRes) return console.log("product && bid not found in frontend");
+    if (!productResponse && !bidOverviewRes) return console.log("product && Quote not found in frontend");
 
     if (productResponse) {
       setSellerVerification(true);
@@ -174,7 +174,7 @@ const ProductOverview = () => {
 
   useEffect(() => {
     if (updateUserBidDetsRes) {
-      toast.success('Bid updated successfully')
+      toast.success('Quote updated successfully')
       setBusinessType('')
     }
   }, [updateUserBidDetsRes])
@@ -237,7 +237,7 @@ const ProductOverview = () => {
         console.log('main product is missing to update bid count');
       }
 
-      toast.success('Bid created successfully');
+      toast.success('Quote created successfully');
       setSellerVerification(false);
       setBusinessType('');
       reset({
@@ -313,6 +313,84 @@ const ProductOverview = () => {
       navigate('/bid-overview/' + _id)
     }
   }, [getBidByProductIdRes])
+
+
+  const SellerForm = () => {
+    return (
+      <form className="lg:col-span-5 bg-gray-200/80 rounded-lg p-6 space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <h3 className="font-semibold text-orange-600">Seller Quotation Details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          {
+            userProfile?.user?._id && (
+              <>
+                <div>
+                  <Label htmlFor="firstName" className="mb-2 text-sm">First Name</Label>
+                  <Input disabled type="text" placeholder="First Name" id="firstName" {...register("firstName")} className="bg-white  select-none" />
+                </div>
+                <div>
+                  <Label htmlFor="lastName" className="mb-2 text-sm">Last Name</Label>
+                  <Input disabled type="text" placeholder="Last Name" id="lastName" {...register("lastName")} className="bg-white  select-none" />
+                </div>
+              </>
+            )
+          }
+          <div>
+            <Label htmlFor="bq" className="mb-2 text-sm">Budget Quotation</Label>
+            <Input type="number" placeholder="₹ 00" id="bq" className="bg-white" {...register('budgetQuation')} />
+          </div>
+          <div>
+            <Label htmlFor="ab" className="mb-2 text-sm">Available Brand</Label>
+            <Input type="text" placeholder="Brand XYZ" id="ab" className="bg-white" {...register('availableBrand')} />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="ab" className="mb-2 text-sm">Earliest Deliver By</Label>
+            <Controller
+
+
+              control={control}
+              name="earliestDeliveryDate"
+              render={({ field }) => (
+                <DatePicker
+                  disabledBeforeDate={new Date(new Date().getTime())}
+                  date={field.value}
+                  title="DD-MM-YYYY"
+                  className="w-full"
+                  setDate={(val) => field.onChange(val)}
+                />
+              )}
+            />
+          </div>
+
+        </div>
+        {
+          !bidOverviewRes ? (
+            <Button
+
+              disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id || createBidLoading}
+              variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
+              Place Bid
+            </Button>
+          ) :
+            (
+              <Button
+                disabled={updateUserBidDetsLoading}
+                variant={'ghost'} className="w-32 float-end border shadow-orange-500 border-orange-500 bg-orange-600  transition-all ease-in-out duration-300 hover:bg-orange-500 text-white hover:text-white cursor-pointer">
+                {
+                  updateUserBidDetsLoading ?
+                    <Spinner className="w-5 h-5 animate-spin" />
+                    :
+                    'Update Bid'
+                }
+              </Button>
+            )
+        }
+        <div>
+
+        </div>
+      </form>
+    )
+  }
 
   return (
 
@@ -413,7 +491,7 @@ const ProductOverview = () => {
                           onClick={() => handleBidView(bidOverviewRes ? bidOverviewRes?.product?._id : productResponse?.mainProduct?._id)}
                           variant="outline" className="min-w-32 text-sm border-gray-400 bg-transparent border-[2px] flex items-center gap-2 hover:bg-transparent  cursor-pointer">
                           <img src="/icons/Layer_1.png" className="w-4 h-4 " />
-                          Total Bids :<span className="font-semibold">{bidOverviewRes ? bidOverviewRes.product?.totalBidCount : productResponse?.mainProduct?.totalBidCount || 0}</span>
+                          Total Quote :<span className="font-semibold">{bidOverviewRes ? bidOverviewRes.product?.totalBidCount : productResponse?.mainProduct?.totalBidCount || 0}</span>
                         </Button>
                         {
                           !bidOverviewRes && (
@@ -493,78 +571,7 @@ const ProductOverview = () => {
                     </div>
 
                     {/* Right: Form */}
-                    <form className="lg:col-span-5 bg-gray-200/80 rounded-lg p-6 space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                      <h3 className="font-semibold text-orange-600">Fill the Details to Place Bid</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                        {
-                          userProfile?.user?._id && (
-                            <>
-                              <div>
-                                <Label htmlFor="firstName" className="mb-2 text-sm">First Name</Label>
-                                <Input disabled type="text" placeholder="First Name" id="firstName" {...register("firstName")} className="bg-white  select-none" />
-                              </div>
-                              <div>
-                                <Label htmlFor="lastName" className="mb-2 text-sm">Last Name</Label>
-                                <Input disabled type="text" placeholder="Last Name" id="lastName" {...register("lastName")} className="bg-white  select-none" />
-                              </div>
-                            </>
-                          )
-                        }
-                        <div>
-                          <Label htmlFor="bq" className="mb-2 text-sm">Budget Quotation</Label>
-                          <Input type="number" placeholder="₹ 00" id="bq" className="bg-white" {...register('budgetQuation')} />
-                        </div>
-                        <div>
-                          <Label htmlFor="ab" className="mb-2 text-sm">Available Brand</Label>
-                          <Input type="text" placeholder="Brand XYZ" id="ab" className="bg-white" {...register('availableBrand')} />
-                        </div>
-                        <div className="col-span-2">
-                          <Label htmlFor="ab" className="mb-2 text-sm">Earliest Deliver By</Label>
-                          <Controller
-
-
-                            control={control}
-                            name="earliestDeliveryDate"
-                            render={({ field }) => (
-                              <DatePicker
-                                disabledBeforeDate={new Date(new Date().getTime())}
-                                date={field.value}
-                                title="DD-MM-YYYY"
-                                className="w-full"
-                                setDate={(val) => field.onChange(val)}
-                              />
-                            )}
-                          />
-                        </div>
-
-                      </div>
-                      {
-                        !bidOverviewRes ? (
-                          <Button
-
-                            disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id || createBidLoading}
-                            variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
-                            Place Bid
-                          </Button>
-                        ) :
-                          (
-                            <Button
-                              disabled={updateUserBidDetsLoading}
-                              variant={'ghost'} className="w-32 float-end border shadow-orange-500 border-orange-500 bg-orange-600  transition-all ease-in-out duration-300 hover:bg-orange-500 text-white hover:text-white cursor-pointer">
-                              {
-                                updateUserBidDetsLoading ?
-                                  <Spinner className="w-5 h-5 animate-spin" />
-                                  :
-                                  'Update Bid'
-                              }
-                            </Button>
-                          )
-                      }
-                      <div>
-
-                      </div>
-                    </form>
+                      <SellerForm/>
                   </div>
                 </div>
                 :
@@ -643,7 +650,7 @@ const ProductOverview = () => {
                                   // }}
                                   variant="outline" className="min-w-32 text-sm border-gray-400 bg-transparent border-[2px] flex items-center gap-2 hover:bg-transparent  cursor-pointer ">
                                   <img src="/icons/Layer_1.png" className="w-4 h-4 " />
-                                  Total Bids :<span className="font-semibold">{bidOverviewRes ? bidOverviewRes.product?.totalBidCount : item?.totalBidCount || 0}</span>
+                                  Total Quote :<span className="font-semibold">{bidOverviewRes ? bidOverviewRes.product?.totalBidCount : item?.totalBidCount || 0}</span>
 
                                 </Button>
                                 {
@@ -727,72 +734,73 @@ const ProductOverview = () => {
                         </div>
                         {
                           idx === productResponse?.products?.length - 1 && (
-                            <form className="lg:col-span-5  bg-gray-200/80 rounded-lg p-6 space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                              <h3 className="font-semibold text-orange-600">Fill the Details to Place Bid</h3>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            // <form className="lg:col-span-5  bg-gray-200/80 rounded-lg p-6 space-y-4" onSubmit={handleSubmit(onSubmit)}>
+                            //   <h3 className="font-semibold text-orange-600">Fill the Details to Place Bid</h3>
+                            //   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-                                {
-                                  userProfile?.user?._id && (
-                                    <>
-                                      <div>
-                                        <Label htmlFor="firstName" className="mb-2 text-sm">First Name</Label>
-                                        <Input disabled type="text" placeholder="First Name" id="firstName" {...register("firstName")} className="bg-white  select-none" />
-                                      </div>
-                                      <div>
-                                        <Label htmlFor="lastName" className="mb-2 text-sm">Last Name</Label>
-                                        <Input disabled type="text" placeholder="Last Name" id="lastName" {...register("lastName")} className="bg-white  select-none" />
-                                      </div>
-                                    </>
-                                  )
-                                }
-                                <div>
-                                  <Label htmlFor="bq" className="mb-2 text-sm">Budget Quotation</Label>
-                                  <Input type="number" placeholder="₹ 00" id="bq" className="bg-white" {...register('budgetQuation')} />
-                                </div>
-                                <div>
-                                  <Label htmlFor="ab" className="mb-2 text-sm">Available Brand</Label>
-                                  <Input type="text" placeholder="Brand XYZ" id="ab" className="bg-white" {...register('availableBrand')} />
-                                </div>
-                                <div className="col-span-2">
-                                  <Label htmlFor="ab" className="mb-2 text-sm">Earliest Deliver By</Label>
-                                  <Controller
-                                    control={control}
-                                    name="earliestDeliveryDate"
-                                    render={({ field }) => (
-                                      <DatePicker
-                                        disabledBeforeDate={new Date(new Date().getTime())}
-                                        date={field.value}
-                                        title="DD-MM-YYYY"
-                                        className="w-full"
-                                        setDate={(val) => field.onChange(val)}
-                                      />
-                                    )}
-                                  />
-                                </div>
+                            //     {
+                            //       userProfile?.user?._id && (
+                            //         <>
+                            //           <div>
+                            //             <Label htmlFor="firstName" className="mb-2 text-sm">First Name</Label>
+                            //             <Input disabled type="text" placeholder="First Name" id="firstName" {...register("firstName")} className="bg-white  select-none" />
+                            //           </div>
+                            //           <div>
+                            //             <Label htmlFor="lastName" className="mb-2 text-sm">Last Name</Label>
+                            //             <Input disabled type="text" placeholder="Last Name" id="lastName" {...register("lastName")} className="bg-white  select-none" />
+                            //           </div>
+                            //         </>
+                            //       )
+                            //     }
+                            //     <div>
+                            //       <Label htmlFor="bq" className="mb-2 text-sm">Budget Quotation</Label>
+                            //       <Input type="number" placeholder="₹ 00" id="bq" className="bg-white" {...register('budgetQuation')} />
+                            //     </div>
+                            //     <div>
+                            //       <Label htmlFor="ab" className="mb-2 text-sm">Available Brand</Label>
+                            //       <Input type="text" placeholder="Brand XYZ" id="ab" className="bg-white" {...register('availableBrand')} />
+                            //     </div>
+                            //     <div className="col-span-2">
+                            //       <Label htmlFor="ab" className="mb-2 text-sm">Earliest Deliver By</Label>
+                            //       <Controller
+                            //         control={control}
+                            //         name="earliestDeliveryDate"
+                            //         render={({ field }) => (
+                            //           <DatePicker
+                            //             disabledBeforeDate={new Date(new Date().getTime())}
+                            //             date={field.value}
+                            //             title="DD-MM-YYYY"
+                            //             className="w-full"
+                            //             setDate={(val) => field.onChange(val)}
+                            //           />
+                            //         )}
+                            //       />
+                            //     </div>
 
-                              </div>
-                              {
-                                !bidOverviewRes ? (
-                                  <Button
-                                    disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id || createBidLoading}
-                                    variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
-                                    Place Bid
-                                  </Button>
-                                ) :
-                                  (
-                                    <Button
-                                      disabled={updateUserBidDetsLoading}
-                                      variant={'ghost'} className="w-32 float-end border shadow-orange-500 border-orange-500 bg-orange-600  transition-all ease-in-out duration-300 hover:bg-orange-500 text-white hover:text-white cursor-pointer">
-                                      {
-                                        updateUserBidDetsLoading ?
-                                          <Spinner className="w-5 h-5 animate-spin" />
-                                          :
-                                          'Update Bid'
-                                      }
-                                    </Button>
-                                  )
-                              }
-                            </form>
+                            //   </div>
+                            //   {
+                            //     !bidOverviewRes ? (
+                            //       <Button
+                            //         disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id || createBidLoading}
+                            //         variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
+                            //         Place Bid
+                            //       </Button>
+                            //     ) :
+                            //       (
+                            //         <Button
+                            //           disabled={updateUserBidDetsLoading}
+                            //           variant={'ghost'} className="w-32 float-end border shadow-orange-500 border-orange-500 bg-orange-600  transition-all ease-in-out duration-300 hover:bg-orange-500 text-white hover:text-white cursor-pointer">
+                            //           {
+                            //             updateUserBidDetsLoading ?
+                            //               <Spinner className="w-5 h-5 animate-spin" />
+                            //               :
+                            //               'Update Bid'
+                            //           }
+                            //         </Button>
+                            //       )
+                            //   }
+                            // </form>
+                            <SellerForm/>
                           )
                         }
                       </div>

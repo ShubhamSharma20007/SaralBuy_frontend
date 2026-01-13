@@ -88,7 +88,7 @@ const Home = () => {
             bidResponseLoading ?
               <ItemSkeleton />
               :
-              bids.length > 0 ? <SwiperSlider key={'bid'} title="Your Bids" target="bids" color="gray" data={bids} /> : <SwiperSlider title="Your Bids" target="bids" color="gray" data={[]} />
+              bids.length > 0 ? <SwiperSlider key={'bid'} title="Your Quote" target="bids" color="gray" data={bids} /> : <SwiperSlider title="Your Quote" target="bids" color="gray" data={[]} />
           }
           {
             bidResponseLoading ?

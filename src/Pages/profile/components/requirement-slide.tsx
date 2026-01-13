@@ -87,7 +87,7 @@ function handleSubmitDraft(targetProduct: any) {
         {modifiedProducts.map((prt: any) => (
           <div
             key={prt._id}
-            className={`keen-slider__slide ${target === 'requirement' ? 'cursor-pointer' : ''}`}
+            className={`keen-slider__slide ${(target === 'requirement' || target === 'drafts') ? 'cursor-pointer' : ''}`}
             onClick={() => handleNavigate(prt)}
           >
             <ProductCard product={prt} target={target} />
@@ -126,7 +126,12 @@ function handleSubmitDraft(targetProduct: any) {
         </p>
         :
           <p className="text-xs text-gray-600 font-medium whitespace-nowrap">
-          Dated: {dateFormatter(product?.createdAt || product?.product?.createdAt)  || 'N/A'}
+         {
+          target ==='drafts' ?
+         <p>  Last Edited: {dateFormatter(product?.updatedAt || product?.product?.updatedAt)  || 'N/A'}</p>
+           :
+           <p> Dated: {dateFormatter(product?.createdAt || product?.product?.createdAt)  || 'N/A'}</p>
+         }
         </p>
       }
         <div>

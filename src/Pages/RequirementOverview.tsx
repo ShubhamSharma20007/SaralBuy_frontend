@@ -124,11 +124,11 @@ const RequirementOverview = () => {
     },
     {
       accessorKey: "bid_buy",
-      header: "Bid By",
+      header: "Quote By",
     },
     {
       accessorKey: "bid_amount",
-      header: "Bid Amount",
+      header: "Quote Amount",
     },
     {
       accessorKey: "chat_message",

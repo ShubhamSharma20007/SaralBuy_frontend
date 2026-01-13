@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
+import { CircleAlert } from "lucide-react";
 
 type Message = {
   title: string;
@@ -30,7 +31,11 @@ const AlertPopup:React.FC<Props> =({open,setOpen,message,triggerButton,deleteFun
   <AlertDialogTrigger>{triggerButton}</AlertDialogTrigger>
   <AlertDialogContent>
     <AlertDialogHeader>
-      <AlertDialogTitle>{message.title}</AlertDialogTitle>
+      <AlertDialogTitle className="flex gap-3">
+        <div className="bg-orange-100 rounded-full p-1">
+          <CircleAlert className="text-yellow-500"></CircleAlert>
+        </div>
+        {message.title}</AlertDialogTitle>
       <AlertDialogDescription>
         {message.message}
       </AlertDialogDescription>
@@ -40,7 +45,7 @@ const AlertPopup:React.FC<Props> =({open,setOpen,message,triggerButton,deleteFun
       <AlertDialogAction
       disabled={loading}
       onClick={deleteFunction}
-      className="cursor-pointer bc  border-primary-btn border-2">Continue</AlertDialogAction>
+      className="cursor-pointer bc  border-primary-btn border-2 ">Delete</AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>
 </AlertDialog>

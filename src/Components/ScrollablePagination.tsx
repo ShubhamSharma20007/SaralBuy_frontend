@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, type Dispatch } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import RequirementSlider from "@/Pages/profile/components/requirement-slide";
 import bidService from "@/services/bid.service";
@@ -12,10 +12,11 @@ type Props = {
   state: any;
   target: string;
   limit: number;
-  tab?: string
+  tab?: string;
+  setGetMyRequirementsRes?:any
 };
 
-const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' }) => {
+const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' ,setGetMyRequirementsRes}) => {
   const [products, setProducts] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -30,18 +31,34 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
     }
   };
 
+  // useEffect(() => {
+  //   if (state?.data?.length > 0 && !isInitialized.current) {
+  //     setProducts(state.data);
+  //     setGetMyRequirementsRes((prev:any)=>{
+  //       return {...prev, data:state.data}
+  //     })
+  //     setPage(state.page);
+  //     setHasMore(state.page < state.totalPages);
+  //     isInitialized.current = true;
+  //   } else if (state?.data?.length === 0 && state?.totalPages === 0 && !isInitialized.current) {
+  //     setProducts([]);
+  //     setHasMore(false);
+  //     isInitialized.current = true;
+  //   }
+  // }, [state]);
+
   useEffect(() => {
-    if (state?.data?.length > 0 && !isInitialized.current) {
-      setProducts(state.data);
-      setPage(state.page);
-      setHasMore(state.page < state.totalPages);
-      isInitialized.current = true;
-    } else if (state?.data?.length === 0 && state?.totalPages === 0 && !isInitialized.current) {
-      setProducts([]);
-      setHasMore(false);
-      isInitialized.current = true;
-    }
-  }, [state]);
+  if (!Array.isArray(state?.data)) return;
+
+  setProducts(state.data);
+
+
+  if (!isInitialized.current) {
+    setPage(state.page);
+    setHasMore(state.page < state.totalPages);
+    isInitialized.current = true;
+  }
+}, [state.data]);
 
   useEffect(() => {
     return () => {
@@ -64,6 +81,14 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
           const existingIds = new Set(prev.map(p => p._id));
           const newItems = res.data.filter((item: any) => !existingIds.has(item._id));
           const updatedProducts = [...prev, ...newItems];
+          setGetMyRequirementsRes((prev:any)=>{
+            return {
+              ...prev,
+              data: updatedProducts,
+              page: nextPage,
+              totalPages: res.totalPages,
+            }
+          })
           return updatedProducts;
         });
         setPage(nextPage);
@@ -104,10 +129,10 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
               contentChildren={<p>Delete Requirement</p>}
             ></TooltipComp>
           </div> */}
-          {
+          {/* {
             target === 'drafts' && (
               <div
-                className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 border-[2px] shadow shadow-orange-200 border-dotted rounded-sm p-1 cursor-pointer'
+                className='absolute top-1 right-1 z-10 bg-orange-50 text-orange-400 border-[2px] shadow shadow-orange-200 border-dotted rounded-sm p-1 cursor-pointer'
                 onClick={() => navigate('/update-draft/' + item._id)}
               >
                 <TooltipComp
@@ -116,8 +141,12 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
                 />
               </div>
             )
-          }
-          <RequirementSlider product={item} target={target} tab={tab} />
+          } */}
+         <div onClick={() =>{
+          if(target ==='drafts')  navigate('/update-draft/' + item._id);
+         }}>
+           <RequirementSlider product={item} target={target} tab={tab} />
+         </div>
         </div>
       ))}
     </InfiniteScroll>

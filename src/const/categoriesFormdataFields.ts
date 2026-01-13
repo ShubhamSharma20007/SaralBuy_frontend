@@ -10,7 +10,7 @@ export const getCategorySpecificFields = (categoryName: string) => {
       return [
         ...baseFields,
         'brand', 'quantity', 'additionalDeliveryAndPackage', 'fuelType', 
-        'model', 'color', 'transmission', 'productType', 'oldProductValue', 'typeOfVehicle'
+        'model', 'color', 'transmission', 'productType', 'oldProductValue', 'typeOfVehicle','typeOfProduct'
         // 'productCondition'
       ];
     

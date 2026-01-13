@@ -59,7 +59,7 @@ const bidsColumns: ColumnDef<any>[] = [
   },
   {
     accessorKey: "bid_by",
-    header: "Bid By",
+    header: "Quote By",
   },
  
   {
@@ -68,7 +68,7 @@ const bidsColumns: ColumnDef<any>[] = [
   },
 {
     accessorKey: "bid_budget",
-    header: "Bid Budget",
+    header: "Quote Budget",
   },
 
 ];
@@ -139,7 +139,7 @@ useEffect(() => {
           <BreadcrumbItem className="flex items-center gap-2 cursor-pointer" onClick={()=>navigate(-1)}>
             <BreadcrumbPage className="capitalize font-regular text-gray-500"><House className="w-5 h-5" /></BreadcrumbPage>
             <BreadcrumbSeparator />
-            <BreadcrumbPage className="capitalize font-regular text-gray-500">Bid Overview</BreadcrumbPage>
+            <BreadcrumbPage className="capitalize font-regular text-gray-500">Quote Overview</BreadcrumbPage>
             <BreadcrumbSeparator />
             <BreadcrumbPage className="capitalize font-regular text-orange-600 font-semibold">{bidRes?.product?.title}</BreadcrumbPage>
           </BreadcrumbItem>
@@ -243,7 +243,7 @@ useEffect(() => {
               </div>
               <div className="mt-10 ">
                  <p className="font-bold text-lg whitespace-nowrap   tracking-tight text-orange-700/90">
-            Bids Placed
+            Quote Placed
           </p>
           {/* table */}
           {

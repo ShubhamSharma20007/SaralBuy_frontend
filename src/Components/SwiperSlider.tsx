@@ -83,7 +83,7 @@ const SwiperSlider = ({ title, color, target,data }: Props) => {
                   target !== 'drafts' ? <p className="text-sm cursor-pointer border rounded px-2 py-1 bg-gray-50" onClick={()=>{
                        navigate('/bid-overview/' + item?._id)
                   }}>
-                  Total Bids:{" "}
+                  Total Quote:{" "}
                   <span className="font-semibold text-orange-600">
                     {item.totalBids}
                   </span>

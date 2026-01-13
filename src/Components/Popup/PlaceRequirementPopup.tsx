@@ -26,7 +26,7 @@ const PlaceRequirementPopup:React.FC<Props> = ({open,setOpen,createProductFn,bid
     e.preventDefault();
     const value = Number(e.currentTarget?.bidDuration.value);
     if(value <= 0){
-      toast.error("Bid duration must be greater than 0");
+      toast.error("Quote duration must be greater than 0");
       return;
     }
     setBidDuration(value)

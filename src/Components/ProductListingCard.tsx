@@ -66,7 +66,7 @@ const ProductListingCard = ({product}:{product:any}) => {
   product?.createdAt && <p className="text-sm text-gray-600 font-semibold ">Date: {format(product?.createdAt, "dd/MM/yyyy")}</p>
 }
      <Button onClick={handleSendOtp} variant="ghost" size="lg" className="border rounded-sm  font-semibold shadow-orange-500 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white cursor-pointer">
-          Place Bid
+          Place Quote
     </Button>
     </div>
      </div>
