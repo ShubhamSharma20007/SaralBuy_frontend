@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ChatService from '../services/chat.service'
-import { Search, Send, Menu, Circle, List, Paperclip, Star } from 'lucide-react'
+import { Search, Send, Menu, Paperclip, Star } from 'lucide-react'
 import RatingPopup from '../Components/Popup/RatingPopup';
 import { Input } from '../Components/ui/input'
 import { Button } from '../Components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar'
 import { Sheet, SheetContent, SheetTrigger } from '../Components/ui/sheet'
-import { Badge } from '../Components/ui/badge'
 import { fallBackName } from '@/helper/fallBackName'
 import { getUserProfile } from "@/zustand/userProfile"
 import { useChatStore } from '@/zustand/chatStore'
@@ -28,12 +27,19 @@ const ContactsList = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   
-  const filteredContacts = contacts.filter(
-    (c) =>
-      c &&
-      c.name &&
-      c.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredContacts = contacts
+    .filter(
+      (c) =>
+        c &&
+        c.name &&
+        c.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Sort by last message timestamp (latest first)
+      const timeA = a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0;
+      const timeB = b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0;
+      return timeB - timeA; // Descending order (latest first)
+    });
 
   return (
     <div className="h-full flex flex-col bg-chat-sidebar border-r-0 border-chat-border">
@@ -89,7 +95,11 @@ const ContactsList = ({
                       <div className='flex flex-col items-end gap-1'>
                       <span className="text-xs text-muted-foreground ml-2">
                         {contact.lastMessage && contact.lastMessage.timestamp
-                          ? new Date(contact.lastMessage.timestamp).toLocaleTimeString()
+                          ? new Date(contact.lastMessage.timestamp).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })
                           : ""}
                       </span>
                       {contact.chatrating > 0 && (
@@ -151,6 +161,7 @@ const ChatArea = ({
   onSidebarContactUpdate,
   setSelectedContact,
 }: ChatAreaProps) => {
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messageText, setMessageText] = useState('');
   const [chatService] = useState(() => ChatService.getInstance());
   const [isClosingDeal, setIsClosingDeal] = useState(false);
@@ -163,6 +174,29 @@ const ChatArea = ({
 
   // Store last closed chatId for rating
   const [lastClosedChatId, setLastClosedChatId] = useState<string | null>(null);
+
+  // Attachment state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedAttachment, setUploadedAttachment] = useState<{
+    url: string;
+    type: 'image' | 'document';
+    mimeType: string;
+    fileName: string;
+    fileSize: number;
+  } | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Smooth scroll to bottom function
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   useEffect(() => {
     // Use IDs from selectedContact when available, otherwise fall back to props
@@ -194,8 +228,11 @@ const ChatArea = ({
           time: msg.timestamp
             ? new Date(msg.timestamp).toLocaleTimeString()
             : "",
+          attachment: msg.attachment || null,
         }));
         setMessages(mappedMessages);
+        // Scroll to bottom after messages are loaded
+        setTimeout(() => scrollToBottom(), 100);
         // Update sidebar contact info with proper unread counts
         if (typeof onSidebarContactUpdate === "function" && selectedContact) {
           onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
@@ -268,60 +305,135 @@ const ChatArea = ({
     }
   }, [selectedContact?.isDealClosed]);
 
-  const handleSendMessage = () => {
-    if (messageText.trim()) {
-      // Use IDs from selectedContact when possible
-      const actualBuyerId = selectedContact?.buyerId || buyerId;
-      const actualSellerId = selectedContact?.sellerId || sellerId;
-      const actualProductId = selectedContact?.productId || productId;
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      // senderId should be the actual logged-in user id
-      const senderId = currentUserId || (userType === "buyer" ? actualBuyerId : actualSellerId);
-
-      chatService.sendMessage(
-        actualProductId,
-        actualSellerId,
-        messageText,
-        senderId,
-        userType,
-        actualBuyerId
-      );
-      
-      const newMessage = {
-        id: Date.now().toString(),
-        text: messageText,
-        senderId: senderId,
-        senderType: userType,
-        time: new Date().toLocaleTimeString(),
-        isOptimistic: true,
-      };
-      
-      setMessages((prev) => [...prev, newMessage]);
-      setMessageText('');
-
-      // Update sidebar contact info for this chat immediately
-      if (typeof onSidebarContactUpdate === "function" && selectedContact) {
-        onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
-          ...prev,
-          lastMessage: {
-            message: messageText,
-            timestamp: new Date().toISOString(),
-            senderId: senderId,
-            senderType: userType,
-          },
-          // Reset unread count for the current user
-          buyerUnreadCount: userType === "buyer" ? 0 : prev.buyerUnreadCount,
-          sellerUnreadCount: userType === "seller" ? 0 : prev.sellerUnreadCount,
-        }));
-      }
-
-      setTimeout(() => {
-        const chatContainer = document.querySelector('.chat-messages-container');
-        if (chatContainer) {
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-      }, 100);
+    // Validate file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('File size exceeds 10MB limit');
+      return;
     }
+
+    // Validate file type
+    const allowedMimeTypes = [
+      'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/tiff', 'image/bmp', 'image/avif',
+      'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain', 'text/csv', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+
+    if (!allowedMimeTypes.includes(file.type)) {
+      toast.error('Invalid file type. Only images and documents are allowed.');
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAttachmentPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAttachmentPreview(null);
+    }
+
+    // Upload file immediately
+    handleFileUpload(file);
+  };
+
+  // Handle file upload
+  const handleFileUpload = (file: File) => {
+    setIsUploading(true);
+    
+    chatService.uploadAttachment(
+      file,
+      (data) => {
+        setUploadedAttachment(data);
+        setIsUploading(false);
+        toast.success('File uploaded successfully');
+      },
+      (error) => {
+        setIsUploading(false);
+        toast.error(error || 'Failed to upload file');
+        setSelectedFile(null);
+        setAttachmentPreview(null);
+      }
+    );
+  };
+
+  // Clear attachment
+  const clearAttachment = () => {
+    setSelectedFile(null);
+    setAttachmentPreview(null);
+    setUploadedAttachment(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!messageText.trim() && !uploadedAttachment) return;
+
+    // Use IDs from selectedContact when possible
+    const actualBuyerId = selectedContact?.buyerId || buyerId;
+    const actualSellerId = selectedContact?.sellerId || sellerId;
+    const actualProductId = selectedContact?.productId || productId;
+
+    // senderId should be the actual logged-in user id
+    const senderId = currentUserId || (userType === "buyer" ? actualBuyerId : actualSellerId);
+
+    chatService.sendMessage(
+      actualProductId,
+      actualSellerId,
+      messageText || (uploadedAttachment ? `Sent ${uploadedAttachment.type === 'image' ? 'an image' : 'a document'}` : ''),
+      senderId,
+      userType,
+      actualBuyerId,
+      uploadedAttachment || undefined
+    );
+    
+    const newMessage = {
+      id: Date.now().toString(),
+      text: messageText || (uploadedAttachment ? `Sent ${uploadedAttachment.type === 'image' ? 'an image' : 'a document'}` : ''),
+      senderId: senderId,
+      senderType: userType,
+      time: new Date().toLocaleTimeString(),
+      isOptimistic: true,
+      attachment: uploadedAttachment || null,
+    };
+    
+    setMessages((prev) => [...prev, newMessage]);
+    setMessageText('');
+    clearAttachment();
+
+    // Update sidebar contact info for this chat immediately
+    if (typeof onSidebarContactUpdate === "function" && selectedContact) {
+      onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
+        ...prev,
+        lastMessage: {
+          message: messageText || (uploadedAttachment ? `Sent ${uploadedAttachment.type === 'image' ? 'an image' : 'a document'}` : ''),
+          timestamp: new Date().toISOString(),
+          senderId: senderId,
+          senderType: userType,
+        },
+        // Reset unread count for the current user
+        buyerUnreadCount: userType === "buyer" ? 0 : prev.buyerUnreadCount,
+        sellerUnreadCount: userType === "seller" ? 0 : prev.sellerUnreadCount,
+      }));
+    }
+
+    setTimeout(() => {
+      const chatContainer = document.querySelector('.chat-messages-container');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, 100);
   };
 
   const handleCloseDeal = async () => {
@@ -486,37 +598,102 @@ const ChatArea = ({
         </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 chat-messages-container">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-6 chat-messages-container">
         {isSelfChat ? (
           <div className="text-center text-red-500 font-semibold">
             Cannot sent messages to yourself. Buyer and seller must be different users.
           </div>
         ) : (
-          messages.map((message) => {
+          messages.map((message, index) => {
             const isMine = message.senderId === userId && message.senderType === userType;
+            
+            // Helper function to format date
+            const getDateLabel = (timestamp: string | Date) => {
+              const messageDate = new Date(timestamp);
+              const today = new Date();
+              const yesterday = new Date(today);
+              yesterday.setDate(yesterday.getDate() - 1);
+              
+              // Reset time to compare dates only
+              const messageDateOnly = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
+              const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+              const yesterdayDateOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+              
+              if (messageDateOnly.getTime() === todayDateOnly.getTime()) {
+                return 'Today';
+              } else if (messageDateOnly.getTime() === yesterdayDateOnly.getTime()) {
+                return 'Yesterday';
+              } else {
+                return messageDate.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: messageDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+                });
+              }
+            };
+            
+            // Check if we need to show date separator
+            const showDateSeparator = index === 0 || (
+              message.timestamp && messages[index - 1]?.timestamp &&
+              new Date(message.timestamp).toDateString() !== new Date(messages[index - 1].timestamp).toDateString()
+            );
+            
             return (
-              <div
-                key={message.id}
-                className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-              >
+              <React.Fragment key={message.id}>
+                {/* Date Separator */}
+                {showDateSeparator && (message.timestamp || message.time) && (
+                  <div className="flex items-center justify-center my-4">
+                    <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                      {message.timestamp ? getDateLabel(message.timestamp) : getDateLabel(new Date())}
+                    </div>
+                  </div>
+                )}
+                
                 <div
-                  className={`max-w-[70%] px-4 py-2 ${
-                    isMine
-                      ? 'bg-gray-500 text-white rounded-tl-lg rounded-bl-lg rounded-br-lg'
-                      : 'bg-gray-600 text-white rounded-tr-lg rounded-bl-lg rounded-br-lg'
-                  }`}
+                  className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <div
+                    className={`max-w-[70%] px-4 py-2 ${
+                      isMine
+                        ? 'bg-gray-500 text-white rounded-tl-lg rounded-bl-lg rounded-br-lg'
+                        : 'bg-gray-600 text-white rounded-tr-lg rounded-bl-lg rounded-br-lg'
+                    }`}
+                  >
+                    {/* Display attachment if present */}
+                    {message.attachment && message.attachment.url && message.attachment.type && (
+                      <div className="mb-2">
+                        {message.attachment.type === 'image' ? (
+                          <img 
+                            src={message.attachment.url} 
+                            alt={message.attachment.fileName}
+                            className="max-w-full h-auto rounded-md cursor-pointer"
+                            onClick={() => window.open(message.attachment.url, '_blank')}
+                          />
+                        ) : (
+                          <a 
+                            href={message.attachment.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-2 bg-white/10 rounded hover:bg-white/20 transition-colors"
+                          >
+                            <Paperclip className="w-4 h-4" />
+                            <span className="text-sm">{message.attachment.fileName}</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    {message.text && <p className="text-sm">{message.text}</p>}
+                  </div>
+                  <span className="text-xs text-muted-foreground mt-1">
+                    {message.time || (message.timestamp ? new Date(message.timestamp).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      }) : "")}
+                    {" "}• {isMine ? 'You' : message.senderType}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground mt-1">
-                  {message.time || (message.timestamp ? new Date(message.timestamp).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true,
-                    }) : "")}
-                  {" "}• {isMine ? 'You' : message.senderType}
-                </span>
-              </div>
+              </React.Fragment>
             );
           })
         )}
@@ -524,25 +701,71 @@ const ChatArea = ({
 
       {/* Message Input */}
       <div className="p-4 border-t border-chat-border bg-background">
+        {/* Attachment Preview */}
+        {(selectedFile || uploadedAttachment) && (
+          <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {attachmentPreview ? (
+                  <img src={attachmentPreview} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                    <Paperclip className="w-6 h-6 text-gray-500" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">{selectedFile?.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {selectedFile ? `${(selectedFile.size / 1024).toFixed(2)} KB` : ''}
+                  </p>
+                  {isUploading && <p className="text-xs text-orange-500">Uploading...</p>}
+                  {uploadedAttachment && !isUploading && <p className="text-xs text-green-500">Ready to send</p>}
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAttachment}
+                disabled={isUploading}
+                className="text-red-500 hover:text-red-700"
+              >
+                Remove
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center space-x-5">
           <div className="flex-1 relative">
             <Input
               placeholder="Type your message"
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={(e) => e.key === 'Enter' && !isUploading && handleSendMessage()}
               className="h-12 px-5 bg-white rounded-full text-sm placeholder:text-muted-foreground tracking-wide focus-visible:ring-1 focus-visible:ring-orange-500 border border-gray-300"
-              disabled={isSelfChat}
+              disabled={isSelfChat || isUploading}
             />
           </div>
-          {/* <div className={`p-1 rounded-full border-2 border-gray-500 ${isSelfChat ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-100'}`}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.ppt,.pptx"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <div 
+            className={`p-2 rounded-full border-2 border-gray-500 ${
+              isSelfChat || isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-100'
+            }`}
+            onClick={() => !isSelfChat && !isUploading && fileInputRef.current?.click()}
+          >
             <Paperclip className='w-4 h-4 text-gray-700'/>
-          </div> */}
+          </div>
           <Button
             onClick={handleSendMessage}
             size="icon"
             className="cursor-pointer w-12"
-            disabled={isSelfChat}
+            disabled={isSelfChat || isUploading || (!messageText.trim() && !uploadedAttachment)}
           >
             <Send className="h-4 w-4" />
           </Button>
@@ -898,6 +1121,7 @@ const Chatbot = () => {
               time: data.timestamp
                 ? new Date(data.timestamp).toLocaleTimeString()
                 : new Date().toLocaleTimeString(),
+              attachment: data.attachment || null,
             },
           ];
         });
@@ -1009,7 +1233,8 @@ const Chatbot = () => {
                     text: msg.message,
                     senderId: msg.senderId,
                     senderType: msg.senderType,
-                    time: msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString()
+                    time: msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString(),
+                    attachment: msg.attachment || null,
                 }];
             });
         }

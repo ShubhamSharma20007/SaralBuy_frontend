@@ -206,26 +206,28 @@ class ChatService {
     }
   }
 
-  // FIXED: Send message with buyerId parameter
-  public sendMessage(productId: string, sellerId: string, message: string, senderId: string, senderType: string, buyerId?: string) {
+  // FIXED: Send message with buyerId parameter and optional attachment
+  public sendMessage(
+    productId: string, 
+    sellerId: string, 
+    message: string, 
+    senderId: string, 
+    senderType: string, 
+    buyerId?: string,
+    attachment?: {
+      url: string;
+      type: 'image' | 'document';
+      mimeType: string;
+      fileName: string;
+      fileSize?: number;
+    }
+  ) {
     if (this.socket) {
       // Determine buyerId if not provided
       let finalBuyerId = buyerId;
       if (!finalBuyerId) {
         finalBuyerId = senderType === 'buyer' ? senderId : undefined;
       }
-      // Compute the roomId using sorted IDs (for logging/debug)
-      // const roomId = this.generateRoomId(productId, finalBuyerId!, sellerId);
-
-      // console.log(`[ChatService] Sending message:`, {
-      //   productId,
-      //   sellerId,
-      //   message,
-      //   senderId,
-      //   senderType,
-      //   buyerId: finalBuyerId,
-      //   roomId
-      // });
 
       this.socket.emit("send_message", {
         productId,
@@ -233,7 +235,8 @@ class ChatService {
         message,
         senderId,
         senderType,
-        buyerId: finalBuyerId
+        buyerId: finalBuyerId,
+        attachment: attachment || undefined
       });
     }
   }
@@ -381,6 +384,60 @@ class ChatService {
     // POST /chat/rate { chatId, rating }
     return instance.post('/chat/rate', params, { withCredentials: true })
       .then(res => res.data?.data || res.data);
+  }
+
+  /**
+   * Upload a chat attachment (image or document) via socket
+   * @param file The file to upload
+   * @param onSuccess Callback when upload succeeds
+   * @param onError Callback when upload fails
+   */
+  public uploadAttachment(
+    file: File,
+    onSuccess: (data: { url: string; type: 'image' | 'document'; mimeType: string; fileName: string; fileSize: number }) => void,
+    onError: (error: string) => void
+  ) {
+    if (!this.socket) {
+      onError('Socket not connected');
+      return;
+    }
+
+    // Read file as base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result as string;
+      
+      // Emit upload event
+      this.socket!.emit('upload_chat_attachment', {
+        fileBuffer: base64Data,
+        fileName: file.name,
+        mimeType: file.type,
+        fileSize: file.size
+      });
+
+      // Listen for success
+      const successHandler = (data: any) => {
+        onSuccess(data);
+        this.socket?.off('upload_success', successHandler);
+        this.socket?.off('upload_error', errorHandler);
+      };
+
+      // Listen for error
+      const errorHandler = (data: any) => {
+        onError(data.message || 'Upload failed');
+        this.socket?.off('upload_success', successHandler);
+        this.socket?.off('upload_error', errorHandler);
+      };
+
+      this.socket!.once('upload_success', successHandler);
+      this.socket!.once('upload_error', errorHandler);
+    };
+
+    reader.onerror = () => {
+      onError('Failed to read file');
+    };
+
+    reader.readAsDataURL(file);
   }
 }
 

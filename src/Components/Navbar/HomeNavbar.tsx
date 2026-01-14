@@ -161,17 +161,61 @@
     useEffect(() => {
       const chatService = ChatService.getInstance();
       chatService.connect();
-      if (user?._id) {
-        chatService.identify(user._id);
-        chatService.getBidNotifications(user._id);
-        
-        // Initial fetch of recent chats to populate store
-        chatService.getRecentChats(user._id, (data) => {
-            if (Array.isArray(data)) {
-                setRecentChats(data);
+      
+      const fetchRecentChats = () => {
+        if (user?._id) {
+          chatService.identify(user._id);
+          chatService.getBidNotifications(user._id);
+          
+          // Fetch recent chats to populate store
+          chatService.getRecentChats(user._id, (data) => {
+            if (data && Array.isArray(data.chats)) {
+              // Transform chats to include all necessary fields
+              const transformedChats = data.chats.map((chat: any) => ({
+                _id: chat._id,
+                roomId: chat.roomId,
+                productId: chat.product?._id || chat.productId,
+                sellerId: chat.seller?._id || chat.sellerId,
+                buyerId: chat.buyer?._id || chat.buyerId,
+                name: chat.name || (chat.userType === 'buyer' 
+                  ? `${chat.seller?.firstName || ''} ${chat.seller?.lastName || ''}`.trim() || 'Seller'
+                  : `${chat.buyer?.firstName || ''} ${chat.buyer?.lastName || ''}`.trim() || 'Buyer'),
+                avatar: chat.userType === 'buyer' ? chat.seller?.profileImage : chat.buyer?.profileImage,
+                lastMessage: chat.lastMessage,
+                messageCount: chat.messageCount || 0,
+                buyerUnreadCount: chat.buyerUnreadCount || 0,
+                sellerUnreadCount: chat.sellerUnreadCount || 0,
+                productName: chat.product?.title || 'Product Discussion',
+                userType: chat.userType,
+                buyer: chat.buyer,
+                seller: chat.seller,
+              }));
+              
+              setRecentChats(transformedChats);
             }
-        });
-      }
+          });
+        }
+      };
+
+      // Initial fetch
+      fetchRecentChats();
+
+      // Refetch when page becomes visible (user comes back to tab)
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && user?._id) {
+          fetchRecentChats();
+        }
+      };
+
+      // Refetch when window gains focus
+      const handleFocus = () => {
+        if (user?._id) {
+          fetchRecentChats();
+        }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('focus', handleFocus);
       
       // We rely on chatService.ts handling 'recent_chat_update' to update the store
       // But we call identify above to ensure socket is ready
@@ -252,6 +296,8 @@
       chatService.onNewMessageNotification(handleNewMessage);
 
       return () => {
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          window.removeEventListener('focus', handleFocus);
           chatService.offProductNotification(handleProductNotification);
           chatService.offBidNotification(handleBidNotificationList);
           chatService.offNewBid(handleNewBid);
@@ -514,7 +560,7 @@ console.log(bidNotifications,"bidNotifications")
                     </div>
                 </PopoverTrigger>
 
-              <PopoverContent className="mt-2 w-80  empty:p-0 p-2 rounded-xl shadow-lg border border-gray-200 bg-white">
+              <PopoverContent className="mt-2 w-80  empty:p-0 p-0 rounded-xl shadow-lg border border-gray-200 bg-white">
       {showNotifDropdown && (
       <>
         {recentChats.filter(chat => chat.lastMessage).length === 0 ? (
@@ -522,55 +568,79 @@ console.log(bidNotifications,"bidNotifications")
             No active conversations
           </p>
         ) : (
-          <div className="max-h-80 overflow-y-auto overflow-x-hidden custom-scrollbar w-full grid space-y-1">
-            {recentChats
-              .filter(chat => chat.lastMessage) // Only show chats with messages
-              .map((chat, idx) => {
-               // Determine visual urgency if unread
-               const isBuyer = chat.buyerId === user?._id;
-               const isSeller = chat.sellerId === user?._id;
-               const unreadCount = isBuyer ? chat.buyerUnreadCount : (isSeller ? chat.sellerUnreadCount : 0);
-               const isUnread = unreadCount > 0;
+          <>
+            <div className="max-h-80 overflow-y-auto overflow-x-hidden custom-scrollbar w-full grid space-y-1 p-2">
+              {recentChats
+                .filter(chat => chat.lastMessage) // Only show chats with messages
+                .sort((a, b) => {
+                  // Sort by last message timestamp (latest first)
+                  const timeA = a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0;
+                  const timeB = b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0;
+                  return timeB - timeA; // Descending order (latest first)
+                })
+                .slice(0, 5) // Show only the latest 5 chats
+                .map((chat, idx) => {
+                 // Determine visual urgency if unread
+                 const isBuyer = chat.buyerId === user?._id;
+                 const isSeller = chat.sellerId === user?._id;
+                 const unreadCount = isBuyer ? chat.buyerUnreadCount : (isSeller ? chat.sellerUnreadCount : 0);
+                 const isUnread = unreadCount > 0;
 
-               return (
-              <div
-                key={idx}
-                onClick={() => handleNotificationClick(chat)}
-                className={`flex w-full items-center gap-3 p-2 rounded-lg transition cursor-pointer ${isUnread ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50'}`}
-              >
-                <div className="bg-orange-500 p-2 rounded-full text-white flex items-center justify-center shadow-sm flex-shrink-0 relative">
-                  <MessageCircle className="w-4 h-4 " />
-                  {isUnread && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>}
-                </div>
+                 return (
+                <div
+                  key={idx}
+                  onClick={() => handleNotificationClick(chat)}
+                  className={`flex w-full items-center gap-3 p-2 rounded-lg transition cursor-pointer ${isUnread ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50'}`}
+                >
+                  <div className="bg-orange-500 p-2 rounded-full text-white flex items-center justify-center shadow-sm flex-shrink-0 relative">
+                    <MessageCircle className="w-4 h-4 " />
+                    {isUnread && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>}
+                  </div>
 
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-md mb-1 flex justify-between">
-                    <span>{(() => {
-                        if (chat.name) return chat.name;
-                        // Fallback derivation
-                        const isBuyer = chat.buyerId === user?._id;
-                        const partner = isBuyer ? chat.seller : chat.buyer;
-                        if (partner?.firstName || partner?.lastName) {
-                            return `${partner.firstName || ''} ${partner.lastName || ''}`.trim();
-                        }
-                        return isBuyer ? "Seller" : "Buyer";
-                    })()}</span>
-                    {isUnread && <span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full">{unreadCount}</span>}
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className={`text-sm flex-1 min-w-0 truncate ${isUnread ? 'font-medium text-gray-800' : 'text-gray-600'}`}>
-                      {chat.lastMessage?.message || "Attachment"}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 text-md mb-1 flex justify-between">
+                      <span>{(() => {
+                          if (chat.name) return chat.name;
+                          // Fallback derivation
+                          const isBuyer = chat.buyerId === user?._id;
+                          const partner = isBuyer ? chat.seller : chat.buyer;
+                          if (partner?.firstName || partner?.lastName) {
+                              return `${partner.firstName || ''} ${partner.lastName || ''}`.trim();
+                          }
+                          return isBuyer ? "Seller" : "Buyer";
+                      })()}</span>
+                      {isUnread && <span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full">{unreadCount}</span>}
                     </p>
-                    <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                      {chat.lastMessage?.timestamp
-                        ? format(new Date(chat.lastMessage.timestamp), "hh:mm a").toLowerCase()
-                        : ""}
-                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`text-sm flex-1 min-w-0 truncate ${isUnread ? 'font-medium text-gray-800' : 'text-gray-600'}`}>
+                        {chat.lastMessage?.message || "Attachment"}
+                      </p>
+                      <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                        {chat.lastMessage?.timestamp
+                          ? format(new Date(chat.lastMessage.timestamp), "hh:mm a").toLowerCase()
+                          : ""}
+                      </span>
+                    </div>
                   </div>
                 </div>
+              )})}
+            </div>
+            
+            {/* View All Button */}
+            {recentChats.filter(chat => chat.lastMessage).length > 5 && (
+              <div className="border-t border-gray-200 p-2">
+                <button
+                  onClick={() => {
+                    setShowNotifDropdown(false);
+                    navigate('/chat');
+                  }}
+                  className="w-full text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
+                >
+                  View All Chats
+                </button>
               </div>
-            )})}
-          </div>
+            )}
+          </>
         )}
       </>
     )}
