@@ -274,11 +274,89 @@
 
       const handleNewMessage = (data: any) => {
         console.log("New Message Notification in Navbar:", data);
-        toast.message(`New message from ${data.senderName || 'User'}`, {
-           description: data.message,
+        console.log("Available fields:", Object.keys(data));
+        
+        // Extract senderType and message from lastMessage object
+        const senderType = data.lastMessage?.senderType;
+        const message = data.lastMessage?.message || 'New message';
+        
+        console.log("Sender type:", senderType);
+        console.log("Message:", message);
+        
+        // Determine sender's name - check multiple sources
+        let senderName = 'User';
+        
+        // First, try direct fields from notification
+        if (data.senderName) {
+          senderName = data.senderName;
+          console.log("Using senderName:", senderName);
+        } else if (senderType === 'buyer' && data.buyerName) {
+          senderName = data.buyerName;
+          console.log("Using buyerName:", senderName);
+        } else if (senderType === 'seller' && data.sellerName) {
+          senderName = data.sellerName;
+          console.log("Using sellerName:", senderName);
+        } 
+        // If not found, try to get from recentChats store
+        else if (data.roomId) {
+          const chat = recentChats.find(c => c.roomId === data.roomId);
+          console.log("Found chat in recentChats:", chat);
+          if (chat) {
+            // Show the sender's name (the person who sent the message)
+            if (senderType === 'buyer') {
+              // Message is from buyer - show buyer's name
+              // Use chat.name if current user is NOT the buyer (meaning chat.name is the buyer's name)
+              // Otherwise extract from buyer object
+              senderName = chat.buyerId !== user?._id 
+                ? chat.name || 'Buyer'
+                : (chat.buyer?.firstName || chat.buyer?.lastName 
+                    ? `${chat.buyer?.firstName || ''} ${chat.buyer?.lastName || ''}`.trim() 
+                    : 'Buyer');
+            } else if (senderType === 'seller') {
+              // Message is from seller - show seller's name
+              // Use chat.name if current user is NOT the seller (meaning chat.name is the seller's name)
+              // Otherwise extract from seller object
+              senderName = chat.sellerId !== user?._id
+                ? chat.name || 'Seller'
+                : (chat.seller?.firstName || chat.seller?.lastName
+                    ? `${chat.seller?.firstName || ''} ${chat.seller?.lastName || ''}`.trim()
+                    : 'Seller');
+            }
+            console.log("Using name from recentChats:", senderName);
+          }
+        }
+        // Final fallback to senderType
+        else if (senderType) {
+          senderName = senderType.charAt(0).toUpperCase() + senderType.slice(1);
+          console.log("Using senderType fallback:", senderName);
+        }
+        
+        console.log("Final sender name:", senderName);
+        
+        toast.message(`New message from ${senderName}`, {
+           description: message,
            action: {
              label: 'View',
-             onClick: () => navigate('/chat')
+             onClick: () => {
+               if (data.productId && data.buyerId && data.sellerId) {
+                 localStorage.setItem('chatIds', JSON.stringify({
+                   productId: data.productId,
+                   buyerId: data.buyerId,
+                   sellerId: data.sellerId,
+                   roomId: data.roomId,
+                 }));
+                 navigate('/chat', {
+                   state: {
+                     productId: data.productId,
+                     buyerId: data.buyerId,
+                     sellerId: data.sellerId,
+                     roomId: data.roomId,
+                   }
+                 });
+               } else {
+                 navigate('/chat');
+               }
+             }
            },
         });
       };
