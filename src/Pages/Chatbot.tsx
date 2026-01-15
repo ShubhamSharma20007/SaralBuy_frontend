@@ -26,6 +26,7 @@ const ContactsList = ({
   currentUserId?: string | null;
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const { isUserOnline } = useChatStore();
   
   const filteredContacts = contacts
     .filter(
@@ -67,6 +68,10 @@ const ContactsList = ({
               : (contact.sellerUnreadCount || 0);
             const isSelected = contact.roomId === selectedContactId;
             
+            // Check if the other person is online
+            const otherPersonId = contact.userType === 'buyer' ? contact.sellerId : contact.buyerId;
+            const isOnline = isUserOnline(otherPersonId);
+            
             return (
               <div
                 key={contact.roomId}
@@ -85,13 +90,21 @@ const ContactsList = ({
                       <AvatarImage src={contact.avatar} alt={contact.name} />
                       <AvatarFallback>{fallBackName(contact.name)}</AvatarFallback>
                     </Avatar>
-                    {contact.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-chat-online border-2 border-white rounded-full"></div>
+                    {/* Online/Offline indicator - green for online, red for offline */}
+                    {isOnline ? (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    ) : (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full"></div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">
-                      <h3 className="font-semibold text-gray-600 truncate">{contact.name}</h3>
+                      <div className="flex flex-col">
+                        <h3 className="font-semibold text-gray-600 truncate">{contact.name}</h3>
+                        <span className={`text-xs font-medium ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+                          {isOnline ? 'Online' : 'Offline'}
+                        </span>
+                      </div>
                       <div className='flex flex-col items-end gap-1'>
                       <span className="text-xs text-muted-foreground ml-2">
                         {contact.lastMessage && contact.lastMessage.timestamp
@@ -146,6 +159,7 @@ interface ChatAreaProps {
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   onSidebarContactUpdate: (roomId: string, updater: (prev: any) => any) => void;
   setSelectedContact: React.Dispatch<any>;
+  isOnline: boolean;
 }
 
 const ChatArea = ({
@@ -160,6 +174,7 @@ const ChatArea = ({
   setMessages,
   onSidebarContactUpdate,
   setSelectedContact,
+  isOnline,
 }: ChatAreaProps) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messageText, setMessageText] = useState('');
@@ -570,12 +585,14 @@ const ChatArea = ({
                     <AvatarImage src={selectedContact.avatar} alt={selectedContact.name} />
                     <AvatarFallback>{selectedContact.name.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  <div className='flex items-center space-x-4'>
+                  <div className='flex flex-col'>
                     <h3 className="font-semibold text-gray-700">{selectedContact.name}</h3>
-                    {/* <div className="flex items-center gap-1">
-                      <Circle className="h-2 w-2 overflow-hidden bg-green-600 rounded-full border-0 text-transparent" />
-                      <span className="text-sm text-muted-foreground">Online</span>
-                    </div> */}
+                    <div className="flex items-center gap-1">
+                      <div className={`h-2 w-2 rounded-full ${isOnline ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                      <span className={`text-sm font-medium ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+                        {isOnline ? 'Online' : 'Offline'}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -1487,6 +1504,11 @@ const Chatbot = () => {
                 setMessages={setMessages}
                 onSidebarContactUpdate={handleSidebarContactUpdate}
                 setSelectedContact={setSelectedContact}
+                isOnline={(() => {
+                  const { isUserOnline } = useChatStore.getState();
+                  const otherPersonId = userType === 'buyer' ? selectedContact.sellerId : selectedContact.buyerId;
+                  return isUserOnline(otherPersonId);
+                })()}
               />
             ) : (
               <div className="flex-1 flex items-center justify-center bg-background">

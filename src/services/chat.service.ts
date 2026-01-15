@@ -11,6 +11,8 @@ class ChatService {
   private _bidNotificationListeners?: Array<(data: any) => void>;
   private _recentChatListeners?: Array<(chat: any) => void>;
   private _newBidListeners?: Array<(data: any) => void>;
+  private _userOnlineListeners?: Array<(data: any) => void>;
+  private _userOfflineListeners?: Array<(data: any) => void>;
 
   // Helper to generate consistent roomId (matches backend logic)
   public generateRoomId(productId: string, buyerId: string, sellerId: string) {
@@ -154,6 +156,24 @@ class ChatService {
     this.socket.on("new_bid", (data) => {
       if (this._newBidListeners) {
         this._newBidListeners.forEach((cb) => cb(data));
+      }
+    });
+
+    // Listen for user_online events
+    this._userOnlineListeners = [];
+    this.socket.on("user_online", (data) => {
+      console.log("🟢 User came online:", data);
+      if (this._userOnlineListeners) {
+        this._userOnlineListeners.forEach((cb) => cb(data));
+      }
+    });
+
+    // Listen for user_offline events
+    this._userOfflineListeners = [];
+    this.socket.on("user_offline", (data) => {
+      console.log("🔴 User went offline:", data);
+      if (this._userOfflineListeners) {
+        this._userOfflineListeners.forEach((cb) => cb(data));
       }
     });
 
@@ -376,6 +396,30 @@ class ChatService {
   public offNewBid(cb: (data: any) => void) {
     if (this._newBidListeners) {
       this._newBidListeners = this._newBidListeners.filter((l) => l !== cb);
+    }
+  }
+
+  // Register a callback for user_online events
+  public onUserOnline(cb: (data: any) => void) {
+    if (!this._userOnlineListeners) this._userOnlineListeners = [];
+    this._userOnlineListeners.push(cb);
+  }
+
+  public offUserOnline(cb: (data: any) => void) {
+    if (this._userOnlineListeners) {
+      this._userOnlineListeners = this._userOnlineListeners.filter((l) => l !== cb);
+    }
+  }
+
+  // Register a callback for user_offline events
+  public onUserOffline(cb: (data: any) => void) {
+    if (!this._userOfflineListeners) this._userOfflineListeners = [];
+    this._userOfflineListeners.push(cb);
+  }
+
+  public offUserOffline(cb: (data: any) => void) {
+    if (this._userOfflineListeners) {
+      this._userOfflineListeners = this._userOfflineListeners.filter((l) => l !== cb);
     }
   }
 

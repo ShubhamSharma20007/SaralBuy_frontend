@@ -117,7 +117,7 @@
 
     const { user } = getUserProfile();
     // Chat store
-    const { recentChats, setRecentChats, markAsRead } = useChatStore();
+    const { recentChats, setRecentChats, markAsRead, setUserOnline, setUserOffline, isUserOnline } = useChatStore();
     const [showNotifDropdown, setShowNotifDropdown] = useState(false);
     const location = useLocation();
     const isChatActive = location.pathname === '/chat' || (typeof window !== 'undefined' && localStorage.getItem('chatbot_active_user') === 'true');
@@ -373,6 +373,20 @@
       // Listen for new message notifications
       chatService.onNewMessageNotification(handleNewMessage);
 
+      // Listen for user online/offline status
+      const handleUserOnline = (data: any) => {
+        console.log("🟢 User came online:", data.userId);
+        setUserOnline(data.userId);
+      };
+
+      const handleUserOffline = (data: any) => {
+        console.log("🔴 User went offline:", data.userId);
+        setUserOffline(data.userId);
+      };
+
+      chatService.onUserOnline(handleUserOnline);
+      chatService.onUserOffline(handleUserOffline);
+
       return () => {
           document.removeEventListener('visibilitychange', handleVisibilityChange);
           window.removeEventListener('focus', handleFocus);
@@ -380,6 +394,8 @@
           chatService.offBidNotification(handleBidNotificationList);
           chatService.offNewBid(handleNewBid);
           chatService.offNewMessageNotification(handleNewMessage);
+          chatService.offUserOnline(handleUserOnline);
+          chatService.offUserOffline(handleUserOffline);
       };
     }, [user?._id]);
 /* Removed effect that clears bid notifications on dropdown open */
@@ -663,6 +679,10 @@ console.log(bidNotifications,"bidNotifications")
                  const isSeller = chat.sellerId === user?._id;
                  const unreadCount = isBuyer ? chat.buyerUnreadCount : (isSeller ? chat.sellerUnreadCount : 0);
                  const isUnread = unreadCount > 0;
+                 
+                 // Check if the other person is online
+                 const otherPersonId = isBuyer ? chat.sellerId : chat.buyerId;
+                 const isOnline = isUserOnline(otherPersonId);
 
                  return (
                 <div
@@ -673,19 +693,29 @@ console.log(bidNotifications,"bidNotifications")
                   <div className="bg-orange-500 p-2 rounded-full text-white flex items-center justify-center shadow-sm flex-shrink-0 relative">
                     <MessageCircle className="w-4 h-4 " />
                     {isUnread && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>}
+                    {isOnline ? (
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-white"></span>
+                      </span>
+                    ) : (
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white"></span>
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-800 text-md mb-1 flex justify-between">
                       <span>{(() => {
-                          if (chat.name) return chat.name;
-                          // Fallback derivation
-                          const isBuyer = chat.buyerId === user?._id;
-                          const partner = isBuyer ? chat.seller : chat.buyer;
-                          if (partner?.firstName || partner?.lastName) {
-                              return `${partner.firstName || ''} ${partner.lastName || ''}`.trim();
-                          }
-                          return isBuyer ? "Seller" : "Buyer";
+                            if (chat.name) return chat.name;
+                            // Fallback derivation
+                            const isBuyer = chat.buyerId === user?._id;
+                            const partner = isBuyer ? chat.seller : chat.buyer;
+                            if (partner?.firstName || partner?.lastName) {
+                                return `${partner.firstName || ''} ${partner.lastName || ''}`.trim();
+                            }
+                            return isBuyer ? "Seller" : "Buyer";
                       })()}</span>
                       {isUnread && <span className="text-xs bg-red-100 text-red-600 px-1.5 rounded-full">{unreadCount}</span>}
                     </p>

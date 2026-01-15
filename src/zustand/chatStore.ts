@@ -24,9 +24,13 @@ interface ChatState {
   activeRoomId?: string | null;
   setActiveRoomId: (roomId: string | null) => void;
   markAsRead: (roomId: string, userId: string) => void;
+  onlineUsers: Set<string>;
+  setUserOnline: (userId: string) => void;
+  setUserOffline: (userId: string) => void;
+  isUserOnline: (userId: string) => boolean;
 }
 
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<ChatState>((set, get) => ({
   recentChats: [],
   updateRecentChat: (chat) =>
     set((state) => {
@@ -57,4 +61,18 @@ export const useChatStore = create<ChatState>((set) => ({
         return c;
       }),
     })),
+  onlineUsers: new Set<string>(),
+  setUserOnline: (userId) =>
+    set((state) => {
+      const newOnlineUsers = new Set(state.onlineUsers);
+      newOnlineUsers.add(userId);
+      return { onlineUsers: newOnlineUsers };
+    }),
+  setUserOffline: (userId) =>
+    set((state) => {
+      const newOnlineUsers = new Set(state.onlineUsers);
+      newOnlineUsers.delete(userId);
+      return { onlineUsers: newOnlineUsers };
+    }),
+  isUserOnline: (userId) => get().onlineUsers.has(userId),
 }));
