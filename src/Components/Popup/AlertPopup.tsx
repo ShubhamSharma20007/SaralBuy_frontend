@@ -20,15 +20,13 @@ type Props={
   open:boolean;
   setOpen:React.Dispatch<React.SetStateAction<boolean>>;
   message:Message,
-  triggerButton:React.ReactNode;
   deleteFunction:()=> void;
   loading:boolean
 } 
 
-const AlertPopup:React.FC<Props> =({open,setOpen,message,triggerButton,deleteFunction,loading})=>{
+const AlertPopup:React.FC<Props> =({open,setOpen,message,deleteFunction,loading})=>{
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
-  <AlertDialogTrigger>{triggerButton}</AlertDialogTrigger>
   <AlertDialogContent>
     <AlertDialogHeader>
       <AlertDialogTitle className="flex gap-3">

@@ -8,7 +8,7 @@ export const CategoryFormSchema = z.object({
   productType: z.string().optional(),
   budgetRange: z.string().optional(), // Added for budget range field
   // budget:z.coerce.number().refine((value)=> value >= 0, { message: "Budget must be greater than 0" }),
-  
+
   oldProductValue: z.object({
     min: z.string().optional(),
     max: z.string().optional(),
@@ -44,8 +44,8 @@ export const CategoryFormSchema = z.object({
   toolType: z.string().optional(),
   rateAService: z.string().optional(),
   brandName: z.string().optional(),
-  typeOfVehicle:z.string().optional(),
-  typeOfProduct:z.string().optional()
+  typeOfVehicle: z.string().optional(),
+  typeOfProduct: z.string().optional()
 
 });
 
@@ -55,19 +55,28 @@ export const ProfileSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().min(10, "Phone number is required"),
   address: z.string().min(1, "Address is required").min(3, "Address is too short"),
-  aadhaarNumber:z.string().refine((value)=> !value || /^[2-9]{1}[0-9]{11}$/.test(value),{
+  aadhaarNumber: z.string().refine((value) => !value || /^[2-9]{1}[0-9]{11}$/.test(value), {
     message: 'Invalid Aadhaar Number'
   })
 })
 
 export const productOverviewBidSchema = z.object({
   budgetQuation: z.coerce.number({
-    error:'Budget Quation is required'
+    error: 'Quation Price is required'
   }).positive("Budget Quation must be positive"),
-  availableBrand: z.string().min(1, "Available Brand is required"),
+  // availableBrand: z.string().min(1, "Available Brand is required"),
   earliestDeliveryDate: z.
-  union([z.coerce.date(),z.undefined()]). // it can be date or undefined
-  refine((value)=> value !== undefined,{   // firsty check if value is not undefined
-    message: 'Earliest Delivery Date is required'
-  })
+    union([z.coerce.date(), z.undefined()]). // it can be date or undefined
+    refine((value) => value !== undefined, {   // firsty check if value is not undefined
+      message: 'Delivery Timeline is required'
+    }),
+  sellerType: z.string().optional(),
+  taxes: z.string().optional(),
+  buyerNote: z.string().optional(),
+  freightTerms: z.string().optional(),
+  location: z.string().optional(),
+  paymentTerms: z.string().optional(),
+  priceBasis: z.string().optional(),
+
+
 });

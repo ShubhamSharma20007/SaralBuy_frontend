@@ -66,7 +66,8 @@ export const getCategorySpecificFields = (categoryName: string) => {
     case 'service':
       return [
         ...baseFields,
-        'rateAService','typeOfProduct'
+        // 'rateAService',
+        'typeOfProduct'
       ];
     case 'others':
       return[

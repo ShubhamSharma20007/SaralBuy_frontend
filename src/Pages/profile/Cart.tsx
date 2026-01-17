@@ -8,15 +8,25 @@ import cartService from '@/services/cart.service'
 import { useFetch } from '@/helper/use-fetch'
 import { toast } from 'sonner'
 import { sortByDate } from '@/helper/sortByDate'
+import AlertPopup from '@/Components/Popup/AlertPopup'
 
 const Cart = () => {
-  const[isAscSorting,setIsAscSorting] = useState(false) // asc and deasc
+  const[_,setIsAscSorting] = useState(false) // asc and deasc
+  const [ids,setIds]= useState({
+    productId:'',
+    cartId:''
+  })
   const {fn:getCartFn,data:getCartRes,loading:getCartLoading,setData:setCartItems} = useFetch(cartService.getCart)
   const {fn:removeCartFn,data:removeCartRes} = useFetch(cartService.removeCart)
+  const [open, setOpen] = useState(false);
 useEffect(()=>{
   getCartFn()
 },[])
 
+ const message = {
+        title: 'Warning',
+        message: 'This action cannot be undone. This Cart will permanently delete your account.',
+    }
 
 function handleCart(cartId: string, productId: string) {
 
@@ -54,14 +64,26 @@ const handleSort = () => {
 useEffect(() => {
     if (removeCartRes) {
       toast.success(removeCartRes?.message || 'Cart item removed successfully');
+      setIds({
+        cartId:'',
+        productId:''
+      })
     }
   }, [removeCartRes])
   return (
+    <>
+       <AlertPopup
+                loading={false}
+                setOpen={setOpen} open={open} message={message}
+                deleteFunction={() => {
+                    handleCart(ids.cartId,ids.productId)
+                }}
+            />
      <div className="w-full max-w-7xl mx-auto  space-y-6 ">
       <div className='grid space-y-5 w-full'>
         <div className='flex justify-between items-center font-semibold w-full mb-3'>
           <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600">
-            Cart
+            Your Cart
           </p>
           <Button
           onClick={handleSort}
@@ -77,7 +99,15 @@ useEffect(() => {
             getCartRes && getCartRes.cartItems?.length > 0 ? getCartRes?.cartItems?.map((item: any, idx: number) => (
                   <div key={item?.product?._id} className='border-2 border-gray-300 p-4 rounded-md w-full mb-2 relative'>
                     <div className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm  p-1 cursor-pointer'
-                      onClick={()=>handleCart(getCartRes?._id,item?.product?._id)}
+                      // onClick={()=>handleCart(getCartRes?._id,item?.product?._id)}
+                      onClick={()=>{
+                        setOpen(true)
+                        setIds({
+                        cartId:getCartRes?._id,
+                        productId:item?.product?._id
+                      })
+                      }}
+
                     >
                       <TooltipComp
                         hoverChildren={<X className='h-4 w-4' />}
@@ -95,6 +125,7 @@ useEffect(() => {
        
       </div>
     </div>
+    </>
   )
 }
 

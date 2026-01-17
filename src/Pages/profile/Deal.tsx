@@ -42,16 +42,16 @@ const Deal = () => {
     },
     {
       accessorKey: "finalized_with",
-      header: "Finalized With",
+      header: "Awarded To",
     },
     {
-      accessorKey: "product_categories",
-      header: "Product Category",
+      accessorKey: "requirement",
+      header: "Requirement",
     },
-    {
-      accessorKey: "your_budget",
-      header: "Budget",
-    },
+    // {
+    //   accessorKey: "your_budget",
+    //   header: "Budget",
+    // },
     {
       accessorKey: "final_budget",
       header: "Final Budget",
@@ -85,25 +85,33 @@ const Deal = () => {
         </div>
       }
     },
-    {
-      accessorKey: "date",
-      header: "Date",
-    },
+  {
+  accessorKey: "date",
+  header: "Date",
+  cell: ({ row }) => {
+    return (
+      <span className="whitespace-nowrap text-sm">
+        {row.getValue("date")}
+      </span>
+    );
+  },
+},
+
     {
       accessorKey: "bid_to",
-      header: "Bid To",
+      header: "Buyer",
     },
     {
-      accessorKey: "product_categories",
-      header: "Product Category",
+      accessorKey: "product",
+      header: "Product",
     },
-    {
-      accessorKey: "min_budget",
-      header: "Min Budget",
-    },
+    // {
+    //   accessorKey: "min_budget",
+    //   header: "Min Budget",
+    // },
     {
       accessorKey: "your_budget",
-      header: "Budget",
+      header: "Final Price",
     },
 
     {
@@ -143,7 +151,7 @@ const Deal = () => {
           avatar: item?.product?.image,
           date: dateFormatter(item?.createdAt),
           finalized_with: mergeName(item?.seller),
-          product_categories: item?.product?.title,
+          requirement: item?.product?.title,
           your_budget: item?.product?.minimumBudget,
           final_budget: item?.finalBudget,
         }))
@@ -158,7 +166,7 @@ const Deal = () => {
           avatar: item?.product?.image,
           bid_to: mergeName(item?.sellerDetails?.sellerId),
           date: dateFormatter(item?.date),
-          product_categories: item?.product?.categoryId?.categoryName,
+          product: item?.product?.title,
           min_budget: item?.minBudget,
           your_budget: item?.sellerDetails?.budgetAmount
         }))

@@ -59,7 +59,7 @@ const bidsColumns: ColumnDef<any>[] = [
   },
   {
     accessorKey: "bid_by",
-    header: "Quote By",
+    header: "Seller",
   },
  
   {
@@ -70,6 +70,8 @@ const bidsColumns: ColumnDef<any>[] = [
     accessorKey: "bid_budget",
     header: "Quote Budget",
   },
+
+
 
 ];
 
@@ -207,9 +209,11 @@ useEffect(() => {
               </p>
 
             </div>
-            {/* <Button variant="ghost" size="lg" className="border w-full mt-5 shadow-orange-500 border-orange-600 text-orange-600 rounded-[5px]  hover:bg-orange-500 hover:text-white cursor-pointer transition-all duration-300 ease-in-out underline-0">
-              Add To Cart
-            </Button> */}
+            <Button onClick={()=>{
+            navigate('/product-overview?productId='+bidRes?.product?._id)
+            }} variant="ghost" size="lg" className="border w-full mt-5 shadow-orange-500 border-orange-600 text-orange-600 rounded-[5px]  hover:bg-orange-500 hover:text-white cursor-pointer transition-all duration-300 ease-in-out underline-0">
+              Product Preview
+            </Button>
           </div>
 
           {/* Main Content */}

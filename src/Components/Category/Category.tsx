@@ -337,6 +337,7 @@ const CategoryForm = ({
                   renderItems={brandRenderItems}
                 />
               )}
+              
               {
                 currentCategoryName === "others" && (
                   <Input
@@ -382,7 +383,7 @@ const CategoryForm = ({
                 />
               )}
 
-              {currentCategoryName === "service" && (
+              {/* {currentCategoryName === "service" && (
                 <Select
                   value={rateAServiceValue}
                   onValueChange={(value) => setValue("rateAService", value)}
@@ -396,7 +397,7 @@ const CategoryForm = ({
                     <SelectItem value="bad">Bad</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              )} */}
 
               {/* {(currentCategoryName === "automobile" || currentCategoryName === "furniture" ||
                 currentCategoryName === "sports" || currentCategoryName === "fashion" ||
@@ -739,7 +740,7 @@ const CategoryForm = ({
           <div className="rounded-[5px] p-6  bg-gray-200/50">
             <div className="mb-4">
               <h3 className="text-lg font-semibold  text-gray-700">Other Details</h3>
-              <sup className="italic text-gray-500">Product Image and document are not mendatory.</sup>
+              <sup className="italic text-gray-500">Product Image and document are not mandatory.</sup>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -750,6 +751,7 @@ const CategoryForm = ({
               >
                 <CloudUpload className="h-6 w-6 mb-2 text-gray-500" />
                 <span className="text-sm text-muted-foreground font-semibold">Upload Image</span>
+                <p className="text-xs text-gray-500 ">to upload your image (max 2 MB)</p>
                 <input
                   type="file"
                   accept="image/*"
@@ -790,8 +792,9 @@ const CategoryForm = ({
               >
                 <FileUp className="h-6 w-6 mb-2 text-gray-500" />
                 <span className="text-sm text-muted-foreground text-center ">
-                  <span className="font-semibold">Browse From Device</span> <br /><span className="text-xs">(doc/pdf)</span>
+                  <span className="font-semibold">Browse From Device</span> <br /><span className="text-xs">to upload your doc/pdf (max 5 MB)</span>
                 </span>
+      
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"

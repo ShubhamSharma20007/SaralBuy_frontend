@@ -17,6 +17,7 @@ import AlertPopup from '@/Components/Popup/AlertPopup';
 import TooltipComp from '@/utils/TooltipComp';
 import { toast } from 'sonner';
 import { fallBackName } from '@/helper/fallBackName';
+import { mergeName } from '@/helper/mergeName';
 
 const BidListing = () => {
     const [data, setData] = useState([])
@@ -24,7 +25,7 @@ const BidListing = () => {
     const [currentBidId, setCurrentBidId] = useState<string | null>('')
     const message = {
         title: 'Warning',
-        message: 'This action cannot be undone. This will permanently delete your account and remove your data from our server.',
+        message: 'This action cannot be undone. This Quote will permanently delete your account.',
     }
     const navigate = useNavigate()
     const { fn: fetchBidsFn, data: fetchBidsResponse, loading: bidLoading } = useFetch(bidService.getAllBids)
@@ -34,7 +35,7 @@ const BidListing = () => {
     const [limit, setLimit] = useState(10);
     const [search, setSearch] = useState("");
     const [value, { isPending }] = useDebounce(search, 600);
-    console.log(fetchBidsResponse,234)
+    console.log(fetchBidsResponse, 234)
     const columns: ColumnDef<any>[] = [
         {
             accessorKey: "avtar",
@@ -55,6 +56,18 @@ const BidListing = () => {
         {
             accessorKey: "date",
             header: "Date",
+            cell: ({ row }) => {
+                return (
+                    <span className="whitespace-nowrap text-sm">
+                        {row.getValue("date")}
+                    </span>
+                );
+            },
+        },
+
+        {
+            accessorKey: "seller",
+            header: "Seller",
         },
         {
             accessorKey: "product",
@@ -68,11 +81,21 @@ const BidListing = () => {
             accessorKey: "your_budget",
             header: "Quoted Price",
         },
-         {
+
+        {
             accessorKey: "delivery",
             header: "Delivery",
+            cell: ({ row }) => {
+                return (
+                    <span className="whitespace-nowrap text-sm">
+                        {row.getValue("date")}
+                    </span>
+                );
+            },
         },
-         {
+
+
+        {
             accessorKey: "location",
             header: "Location",
         },
@@ -111,28 +134,18 @@ const BidListing = () => {
                             }
                         });
                     }}>Chat now</p> */}
-
-                   
-                    <AlertPopup 
-                    loading={deleteBidloading}
-                    setOpen={setOpen} open={open} message={message} 
-                    deleteFunction={()=>{
-                        handleDeleteBid(currentBidId!)
-                    }}
-                    triggerButton={
-                         <TooltipComp
+                    <TooltipComp
                         hoverChildren={<div
                             onClick={() => {
-                                if(deleteBidloading) return;
+                                if (deleteBidloading) return;
                                 setCurrentBidId(row.original?._id)
                                 // handleDeleteBid(row.original?._id)
+                                setOpen(true)
                             }}
                             className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300">
                             <Trash2Icon className="h-4 w-4  text-red-500 cursor-pointer rounded-full" /></div>}
                         contentChildren={<p>Delete Bid</p>}
                     ></TooltipComp>
-                    }
-                     />
 
                 </div>
             }
@@ -154,12 +167,13 @@ const BidListing = () => {
                 return {
                     _id: item._id,
                     date: dateFormatter(item.createdAt),
+                    seller: mergeName(item.seller),
                     avatar: item?.product?.image,
                     product: item.product.title,
                     productId: mainProductId,
                     productBuyerId: mainProductBuyerId,
-                    delivery:dateFormatter(item.product?.paymentAndDelivery?.ex_deliveryDate) || 'N/A',
-                    location:item.product?.paymentAndDelivery?.organizationAddress || 'N/A',
+                    delivery: dateFormatter(item.earliestDeliveryDate || item.product?.paymentAndDelivery?.ex_deliveryDate) || 'N/A',
+                    location: item?.location || item.product?.paymentAndDelivery?.organizationAddress || 'N/A',
                     min_budget: item?.product?.minimumBudget,
                     your_budget: item?.budgetQuation,
                     status: diff
@@ -173,7 +187,7 @@ const BidListing = () => {
     }, [fetchBidsResponse]);
 
 
-    async function handleDeleteBid(id:string) {
+    async function handleDeleteBid(id: string) {
         // if (!currentBidId) return;
         await deleteBidFn(id);
     }
@@ -191,12 +205,19 @@ const BidListing = () => {
 
     return (
         <>
+            <AlertPopup
+                loading={deleteBidloading}
+                setOpen={setOpen} open={open} message={message}
+                deleteFunction={() => {
+                    handleDeleteBid(currentBidId!)
+                }}
+            />
             {
                 (bidLoading && !fetchBidsResponse) ? <SkeletonTable /> : <TableListing
                     data={data}
                     columns={columns}
                     filters={true}
-                    title="Quotes Submitted"
+                    title="Quotes Received"
                     colorPalette="gray"
                     page={page}
                     setPage={setPage}

@@ -109,7 +109,7 @@ const SwiperSlider = ({ title, color, target,data }: Props) => {
         ))
       :
         <div className="h-full w-full flex-col flex justify-center items-center">
-           <img src="/observed.svg" width="20%" />
+           <img src="/empty-cart.webp" width="20%" />
            <p className="text-gray-500 text-sm capitalize">No {target === "bids"? "bids":'drafts'} Registered</p>
         </div>
       }

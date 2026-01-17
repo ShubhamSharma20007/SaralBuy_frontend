@@ -30,6 +30,8 @@ import Authentication from "@/Components/auth/Authentication";
 // import fileDownload from "js-file-download";
 // import instance from "@/lib/instance";
 import { CategoryFormSkeleton } from "@/const/CustomSkeletons";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Textarea } from "@/Components/ui/textarea";
 
 //  for other brand value condition
 
@@ -62,14 +64,21 @@ const ProductOverview = () => {
 
 
 
-  const { handleSubmit, formState: { errors }, register, reset, control, getValues } = useForm({
+  const { handleSubmit, formState: { errors }, register, reset, control, getValues,setValue } = useForm({
     resolver: zodResolver(productOverviewBidSchema) as any,
     defaultValues: {
       firstName: '',
       lastName: '',
-      budgetQuation: "",
-      availableBrand: '',
-      earliestDeliveryDate: undefined,
+      budgetQuation: '', // this is quotedPrice
+      // availableBrand: '',
+      earliestDeliveryDate: undefined, // this is deliveryTimeLine
+      sellerType:'',
+      priceBasis:'',
+      taxes:'',
+      location:'',
+      freightTerms:'',
+      paymentTerms:'',
+      buyerNote:''
     }
   })
 
@@ -124,7 +133,7 @@ const ProductOverview = () => {
   async function handleCreteBid() {
     if (!productResponse) return;
     if (productResponse?.mainProduct?.userId?._id === userProfile?.user?._id) return;
-
+    const formData = getValues();
     //  validation
     if (businessType === "business" && !businessDets.company_name.trim()) {
       toast.error('company name is required')
@@ -243,9 +252,18 @@ const ProductOverview = () => {
       reset({
         firstName: userProfile.user.firstName,
         lastName: userProfile.user.lastName,
-        budgetQuation: '',
-        availableBrand: '',
-        earliestDeliveryDate: undefined
+        budgetQuation: '', // this is quotedPrice
+        // availableBrand: '',
+        earliestDeliveryDate: undefined, // this is deliveryTimeLine
+        taxes:'',
+        buyerNote:'',
+        freightTerms:'',
+        location:'',
+        paymentTerms:'',
+        priceBasis:'',
+        // quotedPrice:"",
+        sellerType:''
+        
       });
     }
   }, [createBidRes]);
@@ -270,8 +288,15 @@ const ProductOverview = () => {
           firstName: bidOverviewRes ? bidOverviewRes?.seller?.firstName : userProfile.user.firstName,
           lastName: bidOverviewRes ? bidOverviewRes?.seller?.lastName : userProfile.user.lastName,
           budgetQuation: bidOverviewRes ? bidOverviewRes?.budgetQuation : '',
-          availableBrand: bidOverviewRes ? bidOverviewRes?.availableBrand : '',
-          earliestDeliveryDate: bidOverviewRes ? bidOverviewRes?.earliestDeliveryDate : undefined
+          // availableBrand: bidOverviewRes ? bidOverviewRes?.availableBrand : '',
+          earliestDeliveryDate: bidOverviewRes ? bidOverviewRes?.earliestDeliveryDate : undefined,
+          sellerType: bidOverviewRes ? bidOverviewRes?.sellerType : '',
+          priceBasis: bidOverviewRes ? bidOverviewRes?.priceBasis : '',
+          taxes: bidOverviewRes ? bidOverviewRes?.taxes : '',
+          location: bidOverviewRes ? bidOverviewRes?.location : '',
+          freightTerms: bidOverviewRes ? bidOverviewRes?.freightTerms : '',
+          paymentTerms: bidOverviewRes ? bidOverviewRes?.paymentTerms : '',
+          buyerNote: bidOverviewRes ? bidOverviewRes?.buyerNote : '',
         });
       }
     }
@@ -335,19 +360,120 @@ const ProductOverview = () => {
               </>
             )
           }
-          <div>
+          {/* <div>
             <Label htmlFor="bq" className="mb-2 text-sm">Budget Quotation</Label>
             <Input type="number" placeholder="₹ 00" id="bq" className="bg-white" {...register('budgetQuation')} />
-          </div>
-          <div>
+          </div> */}
+          {/* <div>
             <Label htmlFor="ab" className="mb-2 text-sm">Available Brand</Label>
-            <Input type="text" placeholder="Brand XYZ" id="ab" className="bg-white" {...register('availableBrand')} />
-          </div>
-          <div className="col-span-2">
+            <Input type="text" placeholder="Brand XYZ" className="bg-white" {...register('availableBrand')} />
+          </div> */}
+          {/* <div >
+
             <Label htmlFor="ab" className="mb-2 text-sm">Earliest Deliver By</Label>
             <Controller
+              control={control}
+              name="earliestDeliveryDate"
+              render={({ field }) => (
+                <DatePicker
+                  disabledBeforeDate={new Date(new Date().getTime())}
+                  date={field.value}
+                  title="DD-MM-YYYY"
+                  className="w-full"
+                  setDate={(val) => field.onChange(val)}
+                />
+              )}
+            />
 
+          </div> */}
+          {/*  Seller Type */}
+          <div>
+  <Label className="mb-2 text-sm">Seller Type</Label>
+  <Controller
+    name="sellerType"
+    control={control}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue placeholder="Select Seller Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+           <SelectItem value="manufacturer">Manufacturer</SelectItem>
+            <SelectItem value="trader_wholesaler">Trader / Wholesaler</SelectItem>
+            <SelectItem value="distributor">Distributor</SelectItem>
+            <SelectItem value="service_provider">Service Provider</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
 
+          <div>
+            <Label htmlFor="ab" className="mb-2 text-sm">Quoted Price(₹)</Label>
+            <Input type="number" placeholder="Quoted Price" className="bg-white" {...register('budgetQuation')} />
+          </div>
+          {/* Price Basis */}
+         <div>
+  <Label className="mb-2 text-sm">Price Basis</Label>
+  <Controller
+    name="priceBasis"
+    control={control}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue placeholder="Select Price Basis" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="per_unit">Per Unit</SelectItem>
+            <SelectItem value="per_kg">Per Kg</SelectItem>
+            <SelectItem value="per_lot">Per Lot</SelectItem>
+            <SelectItem value="per_piece">Per Piece</SelectItem>
+            <SelectItem value="per_service">Per Service</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
+
+{/* Taxes */}
+           <div>
+  <Label className="mb-2 text-sm">Taxes</Label>
+  <Controller
+    name="taxes"
+    control={control}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue placeholder="Select Taxes" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="inclusive_gst">Inclusive of GST</SelectItem>
+            <SelectItem value="exclusive_gst">Exclusive of GST</SelectItem>
+            <SelectItem value="gst_rate">GST Rate (%)</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
+
+            <div>
+            <Label htmlFor="ab" className="mb-2 text-sm">Location</Label>
+            <Input type="text" placeholder="Location"  className="bg-white" {...register('location')} />
+          </div>
+           {/* <div>
+            <Label htmlFor="ab" className="mb-2 text-sm">Available Qty. / Cap.</Label>
+            <Input type="number" placeholder="Enter MOQ"  className="bg-white" {...register('availableBrand')} />
+          </div> */}
+           <div >
+
+            <Label htmlFor="ab" className="mb-2 text-sm">Delivery Timeline</Label>
+            <Controller
               control={control}
               name="earliestDeliveryDate"
               render={({ field }) => (
@@ -361,12 +487,61 @@ const ProductOverview = () => {
               )}
             />
           </div>
+          {/* Freight Terms */}
+          <div>
+  <Label className="mb-2 text-sm">Freight Terms</Label>
+  <Controller
+    name="freightTerms"
+    control={control}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue placeholder="Select Freight Terms" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="ex_works">Ex-Works</SelectItem>
+            <SelectItem value="fob">FOB</SelectItem>
+            <SelectItem value="delivered">Delivered (DAP / DDP)</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
+{/* Payment Terms */}
+           <div>
+  <Label className="mb-2 text-sm">Payment Terms</Label>
+  <Controller
+    name="paymentTerms"
+    control={control}
+    render={({ field }) => (
+      <Select onValueChange={field.onChange} value={field.value}>
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue placeholder="Select Payment Terms" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="advance">Advance</SelectItem>
+            <SelectItem value="partial_advance">Partial Advance</SelectItem>
+            <SelectItem value="on_delivery">On Delivery</SelectItem>
+            <SelectItem value="credit">Credit (X days)</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
 
+             <div className="w-full col-span-2">
+            <Label htmlFor="ab" className="mb-2 text-sm">Buyer Note</Label>
+          <Textarea {...register('buyerNote')} placeholder="Short message (hard limit: 300 characters)"  className="bg-white w-full" />
+          </div>
         </div>
         {
           !bidOverviewRes ? (
             <Button
-
+              type="submit"
               disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id || createBidLoading}
               variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
               Place Bid
@@ -374,6 +549,7 @@ const ProductOverview = () => {
           ) :
             (
               <Button
+                type="submit"
                 disabled={updateUserBidDetsLoading}
                 variant={'ghost'} className="w-32 float-end border shadow-orange-500 border-orange-500 bg-orange-600  transition-all ease-in-out duration-300 hover:bg-orange-500 text-white hover:text-white cursor-pointer">
                 {
@@ -571,7 +747,7 @@ const ProductOverview = () => {
                     </div>
 
                     {/* Right: Form */}
-                      <SellerForm/>
+                    <SellerForm/>
                   </div>
                 </div>
                 :
@@ -800,7 +976,7 @@ const ProductOverview = () => {
                             //       )
                             //   }
                             // </form>
-                            <SellerForm/>
+                            <SellerForm />
                           )
                         }
                       </div>

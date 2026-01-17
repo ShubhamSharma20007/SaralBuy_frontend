@@ -1,6 +1,7 @@
 
 import instance from "@/lib/instance";
 
+
 class BidService{
     createBid(buyerId:string,productId:string,dataObj:any){
         return instance.post(`/bid/create/${buyerId}/${productId}`,dataObj,{
@@ -25,7 +26,7 @@ class BidService{
         return instance.get('/bid/get-three-latest-bid-and-draft',{withCredentials:true}).then(res => res.data?.data|| res.data)
     }
 
-    createRequirement(params: { productId: string; sellerId: string;buyerId:string, budgetAmount: number }) {
+    createRequirement(params:any) {
         return instance.post('/requirement/create', params, { withCredentials: true })
             .then(res => res.data?.data || res.data);
     }

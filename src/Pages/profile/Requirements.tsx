@@ -9,13 +9,20 @@ import bidService from '@/services/bid.service';
 import { SliderSkeleton } from '@/const/CustomSkeletons';
 import ScrollablePagination from '@/Components/ScrollablePagination';
 import { sortByDate } from '@/helper/sortByDate';
+import AlertPopup from '@/Components/Popup/AlertPopup';
 const limit = 10;
 const Requirement = () => {
   const [tab, setTab] = useState('requirements')
   const { fn: getDrafts, data: getDraftsRes, loading: getDraftLoading,setData: setGetDraftsRes } = useFetch(productService.getDrafts)
   const { fn: getMyRequirements, data: getMyRequirementsRes, loading: getMyRequirementsLoading ,setData:setGetMyRequirementsRes} = useFetch(bidService.getMyRequirements)
   const [drafts, setDrafts] = useState<any>([])
-  const[_,setIsAscSorting] = useState(false) 
+  const [selectedRequirementId,setSelectedRequirementId] = useState<any>(null)
+  const [open, setOpen] = useState(false);
+  const[_,setIsAscSorting] = useState(false) ;
+    const message = {
+        title: 'Warning',
+        message: 'This action cannot be undone. This Requirement will permanently delete your account.',
+    }
   useEffect(() => {
     if (tab === 'requirements') {
       getMyRequirements(1, limit)
@@ -63,7 +70,20 @@ const Requirement = () => {
   });
 };
 
+const handleDeleteRequirement =(requirementId:string)=>{
+  alert(requirementId)
+}
+
   return (
+    <>
+     <AlertPopup
+                loading={false}
+                setOpen={setOpen} open={open} message={message}
+                deleteFunction={() => {
+                    handleDeleteRequirement(selectedRequirementId!)
+                }}
+            />
+    
     <div className="w-full max-w-7xl mx-auto space-y-6">
       <div className='grid space-y-5 w-full'>
         <div className='flex justify-between items-center font-semibold w-full mb-3'>
@@ -96,8 +116,10 @@ const Requirement = () => {
               <ScrollablePagination
                 target="requirements"
                 state={getMyRequirementsRes}
-                setGetMyRequirementsRes={setGetMyRequirementsRes}
+                setState={setGetMyRequirementsRes}
                 limit={limit}
+                setSelectedTileId={setSelectedRequirementId}
+                setOpen={setOpen}
               />
             ) : (
               <div className='w-full h-[300px] flex flex-col items-center justify-center'>
@@ -141,6 +163,7 @@ const Requirement = () => {
         </Tabs>
       </div>
     </div>
+    </>
   )
 }
 

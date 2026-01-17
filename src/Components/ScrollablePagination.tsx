@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, type Dispatch } from "react";
+import React, { useEffect, useState, useRef, type Dispatch, type SetStateAction } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import RequirementSlider from "@/Pages/profile/components/requirement-slide";
 import bidService from "@/services/bid.service";
@@ -13,10 +13,12 @@ type Props = {
   target: string;
   limit: number;
   tab?: string;
-  setGetMyRequirementsRes?:any
+  setState?:any
+  setSelectedTileId?:React.Dispatch<React.SetStateAction<string>>;
+  setOpen?:React.Dispatch<React.SetStateAction<boolean>>;  // this is for shadcn 
 };
 
-const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' ,setGetMyRequirementsRes}) => {
+const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' ,setState,setSelectedTileId,setOpen}) => {
   const [products, setProducts] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -34,7 +36,7 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
   // useEffect(() => {
   //   if (state?.data?.length > 0 && !isInitialized.current) {
   //     setProducts(state.data);
-  //     setGetMyRequirementsRes((prev:any)=>{
+  //     setState((prev:any)=>{
   //       return {...prev, data:state.data}
   //     })
   //     setPage(state.page);
@@ -81,7 +83,7 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
           const existingIds = new Set(prev.map(p => p._id));
           const newItems = res.data.filter((item: any) => !existingIds.has(item._id));
           const updatedProducts = [...prev, ...newItems];
-          setGetMyRequirementsRes((prev:any)=>{
+          setState((prev:any)=>{
             return {
               ...prev,
               data: updatedProducts,
@@ -122,13 +124,19 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
       {products?.map((item: any, idx: number) => (
         <div key={item._id || idx} className="border-2 border-gray-300 p-4 rounded-md w-full relative">
 
-          {/* <div className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm  p-1 cursor-pointer'
+        {/* {
+          target === 'requirements' && <div className='absolute top-1 left-1 z-10 bg-orange-50 text-orange-400 rounded-sm  p-1 cursor-pointer'
+          onClick={()=>{
+            setOpen?.(true)
+            setSelectedTileId?.(item._id)
+          }}
           >
             <TooltipComp
               hoverChildren={<X className='h-4 w-4' />}
               contentChildren={<p>Delete Requirement</p>}
             ></TooltipComp>
-          </div> */}
+          </div>
+        } */}
           {/* {
             target === 'drafts' && (
               <div
