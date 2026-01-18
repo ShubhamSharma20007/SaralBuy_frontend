@@ -21,6 +21,7 @@ import { dateFormatter } from "@/helper/dateFormatter";
 import { mergeName } from "@/helper/mergeName";
 import { currencyConvertor } from "@/helper/currencyConvertor";
 import { Skeleton } from "@/Components/ui/skeleton";
+import { Badge } from "@/Components/ui/badge";
 const BidOverview = () => {
   const {bidId} = useParams();
   const {fn:bidFn,data:bidRes,loading} = useFetch(bidService.getBidById)
@@ -53,24 +54,56 @@ const bidsColumns: ColumnDef<any>[] = [
       </div>
     }
   },
-  {
-    accessorKey: "date",
-    header: "Date",
+    {
+    accessorKey: "requirement",
+    header: "Requirement ",
   },
+
+    {
+    accessorKey: "requirement_post_on",
+    header: "Requirement Posted On",
+  },
+  
   {
-    accessorKey: "bid_by",
-    header: "Seller",
+    accessorKey: "quote_submssion_date",
+    header: "Quote Submission Date",
   },
  
   {
-    accessorKey: "budget",
-    header: "Budget",
+    accessorKey: "your_quote",
+    header: "Your Quote",
   },
-{
-    accessorKey: "bid_budget",
-    header: "Quote Budget",
-  },
-
+   {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const diff =row.original.status;
+                console.log(diff)
+                if (diff <= 0) {
+                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>
+                } else {
+                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge>
+                }
+            }
+        },
+        {
+            accessorKey: "action",
+            header: "Action",
+            cell: ({ row }) => {
+                return <div className="flex items-center gap-2">
+                      <Button
+                      onClick={()=>{
+                        navigate('/chat')
+                      }}
+          className="text-sm cursor-pointer text-orange-600 underline"
+          variant="link"
+        
+        >
+          Chat Now
+        </Button>
+                </div>
+            }
+        },
 
 
 ];
@@ -80,15 +113,26 @@ useEffect(()=>{
   if(bidRes){
       const {totalSellers: totalCount, limit: pageLimit,page } = bidRes;
        const budget = bidRes?.product?.minimumBudget|| 0;
-       const mappedSellers = bidRes?.sellers?.map((item: any) => ({
-      id: item?._id,
+       
+       const mappedSellers = bidRes?.sellers?.map((item: any) => {
+        const createdAt = new Date(item.earliestDeliveryDate).getTime();
+                const durationDays = Number(bidRes.product?.bidActiveDuration);
+                const expiryTime = createdAt + durationDays * 24 * 60 * 60 * 1000;
+                const now = Date.now();
+                const diff = expiryTime - now;
+             
+      return({
+        id: item?._id,
+      requirement_post_on:dateFormatter(bidRes?.product?.createdAt),
+      requirement:bidRes?.product?.title,
       avatar: item?.seller?.profileImage,
-      date: dateFormatter(item?.createdAt),
-      bid_by: mergeName(item?.seller),
-      budget: currencyConvertor(budget),
-      bid_budget: currencyConvertor(item?.budgetQuation),
-    })) || [];
-    setSellers(mappedSellers);
+      quote_submssion_date:dateFormatter(item?.createdAt),
+      // date: dateFormatter(item?.createdAt),
+      your_quote: item?.budgetQuation,
+      status:diff
+      })
+    }) || [];
+      setSellers(mappedSellers);
       setTotal(totalCount)
       setLimit(pageLimit)
       setPage(page)

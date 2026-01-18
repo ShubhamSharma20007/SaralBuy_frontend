@@ -798,7 +798,7 @@ const ChatArea = ({
                           <img 
                             src={message.attachment.url} 
                             alt={message.attachment.fileName}
-                            className="max-w-full h-auto rounded-md cursor-pointer"
+                            className="max-w-full h-auto rounded-md cursor-pointer  w-32"
                             onClick={() => window.open(message.attachment.url, '_blank')}
                           />
                         ) : (
@@ -816,14 +816,24 @@ const ChatArea = ({
                     )}
                     {message.text && <p className="text-sm">{message.text}</p>}
                   </div>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {message.time || (message.timestamp ? new Date(message.timestamp).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                      }) : "")}
-                    {" "}• {isMine ? 'You' : message.senderType}
-                  </span>
+                 <span className="text-xs text-muted-foreground mt-1">
+            {message.time
+              ? new Date(`1970-01-01T${message.time}`).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+              : message.timestamp
+              ? new Date(message.timestamp).toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })
+              : ""}
+            {" "}
+            {/* • {isMine ? 'You' : message.senderType} */}
+          </span>
+
                 </div>
               </React.Fragment>
             );
@@ -1279,6 +1289,12 @@ const Chatbot = () => {
           duration: 3000,
         });
       }
+       setTimeout(() => {
+      const chatContainer = document.querySelector('.chat-messages-container');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, 100);
     };
 
     const handleLastMessageUpdate = (data: any) => {
