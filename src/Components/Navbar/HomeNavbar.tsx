@@ -905,7 +905,7 @@ console.log(bidNotifications,"bidNotifications")
       onClick={() => {
         setBidNotifications((prev) => prev.filter((_, i) => i !== idx));
         if (notif.requirementId) {
-            navigate(`/account/requirements`);
+            navigate(`/account/bid`);
         }
         setShowProductNotifDropdown(false);
       }}
