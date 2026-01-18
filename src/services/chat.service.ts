@@ -13,6 +13,9 @@ class ChatService {
   private _newBidListeners?: Array<(data: any) => void>;
   private _userOnlineListeners?: Array<(data: any) => void>;
   private _userOfflineListeners?: Array<(data: any) => void>;
+  private _chatRatingListeners?: Array<(data: any) => void>;
+  private _closeDealRequestListeners?: Array<(data: any) => void>;
+  private _dealResolutionListeners?: Array<(data: any) => void>;
 
   // Helper to generate consistent roomId (matches backend logic)
   public generateRoomId(productId: string, buyerId: string, sellerId: string) {
@@ -100,7 +103,6 @@ class ChatService {
       });
 
       // Notification event handler registry
-      this._notificationListeners = [];
       this.socket.on("new_message_notification", (data) => {
         // Only emit/listen if user is NOT active in Chatbot (i.e., not on Chatbot page)
         const isActiveUser = typeof window !== "undefined" && localStorage.getItem('chatbot_active_user') === 'true';
@@ -116,7 +118,6 @@ class ChatService {
       });
 
       // Product notification event handler registry
-      this._productNotificationListeners = [];
       this.socket.on("product_notification", (data) => {
         console.log("🛎️ Product notification received:", data);
         if (this._productNotificationListeners) {
@@ -125,7 +126,6 @@ class ChatService {
       });
 
       // Bid notification event handler registry
-      this._bidNotificationListeners = [];
       this.socket.on("bid_notifications_list", (data) => {
         console.log("🔨 Bid notifications received:", data);
         if (this._bidNotificationListeners) {
@@ -149,33 +149,53 @@ class ChatService {
           console.debug("Could not update Zustand chat store dynamically:", err);
         }
       });
+      // Listen for new_bid events
+      this.socket.on("new_bid", (data) => {
+        if (this._newBidListeners) {
+          this._newBidListeners.forEach((cb) => cb(data));
+        }
+      });
+
+      // Listen for user_online events
+      this.socket.on("user_online", (data) => {
+        console.log("🟢 User came online:", data);
+        if (this._userOnlineListeners) {
+          this._userOnlineListeners.forEach((cb) => cb(data));
+        }
+      });
+
+      // Listen for user_offline events
+      this.socket.on("user_offline", (data) => {
+        console.log("🔴 User went offline:", data);
+        if (this._userOfflineListeners) {
+          this._userOfflineListeners.forEach((cb) => cb(data));
+        }
+      });
+
+      // Listen for chat_rating_notification events
+      this.socket.on("chat_rating_notification", (data) => {
+        console.log("⭐ Chat rating notification received:", data);
+        if (this._chatRatingListeners) {
+          this._chatRatingListeners.forEach((cb) => cb(data));
+        }
+      });
+
+      // Listen for close_deal_request events
+      this.socket.on("close_deal_request", (data) => {
+          console.log("📝 Close deal request received:", data);
+          if (this._closeDealRequestListeners) {
+              this._closeDealRequestListeners.forEach((cb) => cb(data));
+          }
+      });
+
+      // Listen for close_deal_resolution events
+      this.socket.on("close_deal_resolution", (data) => {
+          console.log("⚖️ Deal resolution received:", data);
+          if (this._dealResolutionListeners) {
+              this._dealResolutionListeners.forEach((cb) => cb(data));
+          }
+      });
     }
-
-    // Listen for new_bid events
-    this._newBidListeners = [];
-    this.socket.on("new_bid", (data) => {
-      if (this._newBidListeners) {
-        this._newBidListeners.forEach((cb) => cb(data));
-      }
-    });
-
-    // Listen for user_online events
-    this._userOnlineListeners = [];
-    this.socket.on("user_online", (data) => {
-      console.log("🟢 User came online:", data);
-      if (this._userOnlineListeners) {
-        this._userOnlineListeners.forEach((cb) => cb(data));
-      }
-    });
-
-    // Listen for user_offline events
-    this._userOfflineListeners = [];
-    this.socket.on("user_offline", (data) => {
-      console.log("🔴 User went offline:", data);
-      if (this._userOfflineListeners) {
-        this._userOfflineListeners.forEach((cb) => cb(data));
-      }
-    });
 
     return this.socket;
   }
@@ -423,9 +443,44 @@ class ChatService {
     }
   }
 
+  // Register a callback for chat_rating_notification events
+  public onChatRating(cb: (data: any) => void) {
+    if (!this._chatRatingListeners) this._chatRatingListeners = [];
+    this._chatRatingListeners.push(cb);
+  }
+
+  public offChatRating(cb: (data: any) => void) {
+    if (this._chatRatingListeners) {
+      this._chatRatingListeners = this._chatRatingListeners.filter((l) => l !== cb);
+    }
+  }
+
+  // Deal Notification Listeners
+  public onCloseDealRequest(callback: (data: any) => void) {
+    if (!this._closeDealRequestListeners) {
+      this._closeDealRequestListeners = [];
+    }
+    this._closeDealRequestListeners.push(callback);
+  }
+
+  public offCloseDealRequest(callback: (data: any) => void) {
+    this._closeDealRequestListeners = this._closeDealRequestListeners?.filter(cb => cb !== callback);
+  }
+
+  public onDealResolution(callback: (data: any) => void) {
+    if (!this._dealResolutionListeners) {
+      this._dealResolutionListeners = [];
+    }
+    this._dealResolutionListeners.push(callback);
+  }
+
+  public offDealResolution(callback: (data: any) => void) {
+    this._dealResolutionListeners = this._dealResolutionListeners?.filter(cb => cb !== callback);
+  }
+
   // --- ADD: Rate Chat API ---
-  public rateChat(params: { chatId: string; rating: number }) {
-    // POST /chat/rate { chatId, rating }
+  public rateChat(params: { chatId: string; rating: number; ratedBy: string }) {
+    // POST /chat/rate { chatId, rating, ratedBy }
     return instance.post('/chat/rate', params, { withCredentials: true })
       .then(res => res.data?.data || res.data);
   }

@@ -1,4 +1,4 @@
-  import { Bell, Box, CircleUserRound, Gavel, Handshake, MapPin, Menu, MessageCircle, MessageCircleMore, MessageSquareText, Package, SearchIcon, ShoppingCart, UserRound } from "lucide-react";
+  import { Bell, Box, CircleUserRound, Gavel, Handshake, MapPin, Menu, MessageCircle, MessageCircleMore, MessageSquareText, Package, SearchIcon, ShoppingCart, Star, UserRound, FileText, CheckCircle, XCircle } from "lucide-react";
 
   import {
     Accordion,
@@ -135,6 +135,26 @@
 
     // Product notifications
     const [productNotifications, setProductNotifications] = useState<any[]>([]);
+    
+    // Chat rating notifications
+    // Chat rating notifications
+    const [chatRatingNotifications, setChatRatingNotifications] = useState<any[]>([]);
+
+    // Deal notifications
+    const [dealNotifications, setDealNotifications] = useState<any[]>([]);
+    
+    // Notification count
+    const [notificationCount, setNotificationCount] = useState(0);
+
+    useEffect(() => {
+        setNotificationCount(
+            bidNotifications.length + 
+            productNotifications.length + 
+            chatRatingNotifications.length + 
+            dealNotifications.length
+        );
+    }, [bidNotifications, productNotifications, chatRatingNotifications, dealNotifications]);
+
     const [showProductNotifDropdown, setShowProductNotifDropdown] = useState(false);
     const { fn, data } = useFetch(ProductService.getSeachProduct)
     const [text, setText] = useState('');
@@ -384,8 +404,95 @@
         setUserOffline(data.userId);
       };
 
+      // Listen for chat rating notifications
+      const handleChatRating = (data: any) => {
+        console.log("⭐ Chat rating notification in Navbar:", data);
+        
+        const { rating, raterName, message, chatId, roomId, timestamp, ratedBy } = data;
+        
+        // Prevent showing notification to the person who gave the rating
+        if (user?._id && ratedBy && user._id === ratedBy) {
+            console.log("🚫 Ignoring self-rating notification");
+            return;
+        }
+        
+        // Add to notifications list
+        setChatRatingNotifications((prev) => {
+          // Prevent duplicates
+          const exists = prev.some((n) => n.chatId === chatId && n.timestamp === timestamp);
+          if (exists) return prev;
+          
+          return [
+            {
+              chatId,
+              roomId,
+              rating,
+              raterName,
+              message,
+              timestamp,
+              receivedAt: Date.now(),
+            },
+            ...prev,
+          ];
+        });
+        
+        // Show toast notification
+        toast.info(`Chat Rated`, {
+          description: message || `${raterName} rated the chat ${rating} stars`,
+          duration: 4000,
+        });
+      };
+
+      // Handle Deal Notifications
+      const handleCloseDealRequest = (data: any) => {
+        console.log("📝 Close deal request in Navbar:", data);
+        const { deal, message } = data;
+        
+        setDealNotifications((prev) => [
+            {
+                type: 'request',
+                deal,
+                message: message || "New deal close request",
+                timestamp: Date.now(),
+                read: false
+            },
+            ...prev
+        ]);
+        
+        toast.info("Deal Request", {
+            description: message || "Buyer requested to close the deal",
+            duration: 5000,
+        });
+      };
+
+      const handleDealResolution = (data: any) => {
+        console.log("⚖️ Deal resolution in Navbar:", data);
+        const { deal, action, message } = data;
+        
+        setDealNotifications((prev) => [
+            {
+                type: 'resolution',
+                action,
+                deal,
+                message: message || `Deal was ${action}ed`,
+                timestamp: Date.now(),
+                read: false
+            },
+            ...prev
+        ]);
+
+        if (action === 'accept') {
+            toast.success("Deal Accepted", { description: message || "Seller accepted the deal" });
+        } else {
+            toast.error("Deal Rejected", { description: message || "Seller rejected the deal" });
+        }
+      };
+
       chatService.onUserOnline(handleUserOnline);
       chatService.onUserOffline(handleUserOffline);
+      chatService.onChatRating(handleChatRating);
+      chatService.onCloseDealRequest(handleCloseDealRequest);
+      chatService.onDealResolution(handleDealResolution);
 
       return () => {
           document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -396,6 +503,11 @@
           chatService.offNewMessageNotification(handleNewMessage);
           chatService.offUserOnline(handleUserOnline);
           chatService.offUserOffline(handleUserOffline);
+          chatService.offChatRating(handleChatRating);
+          chatService.offCloseDealRequest(handleCloseDealRequest);
+          chatService.offDealResolution(handleDealResolution);
+          chatService.offCloseDealRequest(handleCloseDealRequest);
+          chatService.offDealResolution(handleDealResolution);
       };
     }, [user?._id]);
 /* Removed effect that clears bid notifications on dropdown open */
@@ -767,19 +879,19 @@ console.log(bidNotifications,"bidNotifications")
         className="cursor-pointer relative  bg-transparent border-0 shadow-none"
       >
         <Bell className="w-5 h-5 text-gray-600 " />
-        {(productNotifications.length > 0 || bidNotifications.length > 0) && (
+        {notificationCount > 0 && (
           <Badge
             className="h-5 min-w-5 text-xs rounded-full px-1.5 py-0.5 flex items-center justify-center absolute -top-2 -right-2 shadow-md"
             variant="destructive"
           >
-            {productNotifications.length + bidNotifications.length}
+            {notificationCount}
           </Badge>
         )}
       </div>
     </PopoverTrigger>
 
     <PopoverContent className="mt-2 w-80 p-2 rounded-xl shadow-lg border border-gray-200 bg-white empty:p-0">
-      {productNotifications.length === 0 && bidNotifications.length === 0 ? (
+      {notificationCount === 0 ? (
         <p className="text-sm text-center text-gray-500 py-4">
           No new notifications
         </p>
@@ -857,6 +969,94 @@ console.log(bidNotifications,"bidNotifications")
                 <span className="text-xs text-gray-400">
                   {notif.receivedAt
                     ? format(new Date(notif.receivedAt), "hh:mm a").toLowerCase()
+                    : ""}
+                </span>
+              </div>
+            </div>
+          ))}
+
+          {/* Deal Notifications */}
+          {dealNotifications.map((notif, index) => (
+            <div 
+                key={`deal-${index}`}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+                onClick={() => {
+                    // Navigate to chat if deal info available
+                    if (notif.deal) {
+                        navigate('/chat', {
+                            state: {
+                                productId: notif.deal.productId, 
+                                sellerId: notif.deal.sellerDetails?.sellerId || notif.deal.sellerId,
+                                buyerId: notif.deal.buyerId
+                            }
+                        });
+                    }
+                    setDealNotifications(prev => prev.filter((_, i) => i !== index));
+                    setShowNotifDropdown(false); // Close Popover (matching showProductNotifDropdown usage if that was the name, but here it seems to be showProductNotifDropdown for everything?? No wait, looking at code it seems showProductNotifDropdown is used for this popover?
+                    // Wait, let's check what popover this is.
+                    // Lines 34-37 imported Popover.
+                    // Lines 998: </PopoverContent>
+                    // Line 937: setShowProductNotifDropdown(false);
+                    // It seems the MAIN bell icon uses showProductNotifDropdown? 
+                    // Let's check the Trigger.
+                    setShowProductNotifDropdown(false);
+                }}
+            >
+                <div className={`p-2 rounded-full text-white flex-shrink-0 ${
+                    notif.type === 'request' ? 'bg-blue-500' :
+                    notif.action === 'accept' ? 'bg-green-500' : 
+                    'bg-red-500'
+                }`}>
+                    {notif.type === 'request' ? <FileText className="w-4 h-4 fill-white" /> : 
+                     notif.action === 'accept' ? <CheckCircle className="w-4 h-4" /> : 
+                     <XCircle className="w-4 h-4" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <p className="font-semibold">
+                        {notif.type === 'request' ? 'Deal Requested' : 
+                         notif.action === 'accept' ? 'Deal Accepted' : 'Deal Rejected'}
+                    </p>
+                    <p className="text-sm text-gray-600 truncate">
+                        {notif.message}
+                    </p>
+                    <span className="text-xs text-gray-400">
+                        {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
+                    </span>
+                </div>
+            </div>
+          ))}
+
+          {/* Chat Rating Notifications */}
+          {chatRatingNotifications.map((notif, idx) => (
+            <div
+              key={`rating-${idx}`}
+              onClick={() => {
+                // Remove from list
+                setChatRatingNotifications((prev) =>
+                  prev.filter((_, i) => i !== idx)
+                );
+                // Navigate to chat
+                if (notif.roomId) {
+                  navigate('/chat');
+                } else {
+                  toast.error("Chat information missing in notification.");
+                }
+                // Close Popover
+                setShowProductNotifDropdown(false);
+              }}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+            >
+              <div className="bg-yellow-500 p-2 rounded-full text-white flex-shrink-0">
+                <Star className="w-4 h-4 fill-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold">Chat Rated</p>
+                <p className="text-sm text-gray-600 truncate">
+                  {notif.raterName} rated {notif.rating} star{notif.rating !== 1 ? 's' : ''}
+                </p>
+                <span className="text-xs text-gray-400">
+                  {notif.timestamp
+                    ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase()
                     : ""}
                 </span>
               </div>

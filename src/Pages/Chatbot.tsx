@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import ChatService from '../services/chat.service'
 import { Search, Send, Menu, Paperclip, Star } from 'lucide-react'
 import RatingPopup from '../Components/Popup/RatingPopup';
+import ApprovalPopup from '../Components/Popup/ApprovalPopup';
 import { Input } from '../Components/ui/input'
 import { Button } from '../Components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar'
@@ -282,13 +283,24 @@ const ChatArea = ({
     };
   }, [userId, selectedContact, userType, currentUserId]);
 
-  // Check if deal is already closed
+  // Approval popup state
+  const [showApprovalPopup, setShowApprovalPopup] = useState(false);
+  const [approvalLoading, setApprovalLoading] = useState(false);
+  const [waitingSellerApproval, setWaitingSellerApproval] = useState(false);
+  const [isSeller, setIsSeller] = useState(false);
+  const [isBuyer, setIsBuyer] = useState(false);
+  const [isDealRejected, setIsDealRejected] = useState(false);
+  const [closedDealId, setClosedDealId] = useState<string | null>(null);
+  const [finalBudget, setFinalBudget] = useState<number>(0);
+
+  // Check if deal is already closed or pending approval
   const checkDealStatus = async () => {
     const actualProductId = selectedContact?.productId || productId;
     
     // Reset state if no product is selected
     if (!actualProductId) {
       setIsDealClosed(false);
+      setWaitingSellerApproval(false);
       return;
     }
 
@@ -299,15 +311,100 @@ const ChatArea = ({
         buyerId: selectedContact?.buyerId || buyerId
       });
       
+      console.log("checkDealStatus response:", response);
+      
       if (response && response.exists) {
         setIsDealClosed(true);
+        setClosedDealId(response.closedDeal?._id);
+        
+        // Check for waiting approval
+        if (response.closedDeal?.closedDealStatus === 'waiting_seller_approval') {
+           setWaitingSellerApproval(true);
+           setFinalBudget(response.closedDeal?.finalBudget || 0);
+        } else if (response.closedDeal?.closedDealStatus === 'rejected') {
+           setWaitingSellerApproval(false);
+           setIsDealRejected(true);
+           setIsDealClosed(false); 
+        } else {
+           setWaitingSellerApproval(false);
+           setIsDealRejected(false);
+        }
+        
+        // Update user role from response if available
+        if (response.userRole?.isSeller) {
+           setIsSeller(true);
+           setIsBuyer(false);
+        } else if (response.userRole?.isBuyer) {
+           setIsSeller(false);
+           setIsBuyer(true);
+        } else {
+           // Fallback
+           setIsSeller(false);
+           setIsBuyer(false);
+        }
+        
       } else {
         setIsDealClosed(false);
+        setWaitingSellerApproval(false);
+        // Fallback or keep previous role assumption? 
+        // Better to re-verify role if needed, but usually static per chat
       }
     } catch (error) {
       console.error("Error fetching requirement status:", error);
     }
   };
+
+  const handleDealApproval = async (dealId: string, action: 'accept' | 'reject') => {
+    setApprovalLoading(true);
+    try {
+       await requirementService.respondToCloseDeal({ dealId, action });
+       toast.success(`Deal ${action}ed successfully`);
+       setShowApprovalPopup(false);
+       
+       // Refresh status
+       await checkDealStatus();
+       
+       if (action === 'accept') {
+           // Maybe trigger rating popup for seller?
+           // For now just refresh status
+           setLastClosedChatId(selectedContact._id);
+           setShowRatingPopup(true);
+       }
+    } catch (error: any) {
+        toast.error(error.message || "Failed to respond to deal");
+    } finally {
+        setApprovalLoading(false);
+    }
+  };
+
+  // Socket listener for deal resolution
+  useEffect(() => {
+    const handleDealResolution = (data: any) => {
+        console.log("ChatArea received close_deal_resolution:", data);
+        const { action, message } = data;
+        
+        toast.info(message || `Deal was ${action}ed`);
+        checkDealStatus(); // Refresh status to update UI
+    };
+
+    const handleCloseDealRequest = (data: any) => {
+        console.log("ChatArea received close_deal_request:", data);
+        toast.info("Buyer requested to close the deal");
+        checkDealStatus(); // Refresh status to update UI for seller
+    };
+
+    if (chatService.socket) {
+        chatService.socket.on("close_deal_resolution", handleDealResolution);
+        chatService.socket.on("close_deal_request", handleCloseDealRequest);
+    }
+
+    return () => {
+        if (chatService.socket) {
+            chatService.socket.off("close_deal_resolution", handleDealResolution);
+            chatService.socket.off("close_deal_request", handleCloseDealRequest);
+        }
+    };
+  }, [checkDealStatus]);
 
   useEffect(() => {
     checkDealStatus();
@@ -528,7 +625,7 @@ const ChatArea = ({
     if (!chatId) return;
     setRatingLoading(true);
     try {
-      await chatService.rateChat({ chatId, rating });
+      await chatService.rateChat({ chatId, rating, ratedBy: currentUserId });
       toast.success("Thank you for your feedback!");
       setShowRatingPopup(false);
       setLastClosedChatId(null);
@@ -597,15 +694,33 @@ const ChatArea = ({
                 </div>
                 <div>
                   <div className='flex items-center gap-3 '>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-orange-600 hover:text-orange-600 bg-transparent cursor-pointer hover:bg-transparent border-orange-600 w-20 sm:w-32 text-sm font-medium "
-                      onClick={handleCloseDeal}
-                      disabled={isClosingDeal || isDealClosed || messages.length === 0}
-                    >
-                      {isClosingDeal ? "Closing..." : isDealClosed ? "Deal Closed" : "Close Deal"}
-                    </Button>
+                    {(userType === 'buyer' || isDealClosed || isDealRejected) && (
+                      <Button
+                        variant={(waitingSellerApproval && isSeller) ? "default" : (isDealRejected ? "destructive" : "outline")}
+                        size="sm"
+                        className={`${
+                            (waitingSellerApproval && isSeller) || (waitingSellerApproval && isBuyer) 
+                                ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
+                                : isDealRejected 
+                                    ? "bg-red-100 text-red-600 border-red-200 hover:bg-red-100 cursor-not-allowed"
+                                    : "text-orange-600 hover:text-orange-600 bg-transparent cursor-pointer hover:bg-transparent border-orange-600"
+                        } w-24 sm:w-auto px-4 text-sm font-medium`}
+                        onClick={waitingSellerApproval && isSeller ? () => setShowApprovalPopup(true) : handleCloseDeal}
+                        disabled={isClosingDeal || (isDealClosed && !(waitingSellerApproval && isSeller)) || messages.length === 0 || isDealRejected}
+                      >
+                        {isClosingDeal 
+                          ? "Closing..." 
+                          : (waitingSellerApproval && isSeller) 
+                            ? "Closed deal request" 
+                            : (waitingSellerApproval && isBuyer)
+                              ? "Deal in Progress"
+                              : isDealRejected
+                                ? "Deal Rejected"
+                                : isDealClosed 
+                                  ? "Deal Closed" 
+                                  : "Close Deal"}
+                      </Button>
+                    )}
                     {/* <LayoutGrid className='w-5 h-5 text-gray-600' /> */}
                   </div>
                 </div>
@@ -796,6 +911,17 @@ const ChatArea = ({
         chatId={lastClosedChatId || selectedContact?._id || ""}
         onSubmit={handleSubmitRating}
         loading={ratingLoading}
+      />
+      
+      {/* Approval Popup */}
+      <ApprovalPopup 
+        open={showApprovalPopup}
+        setOpen={setShowApprovalPopup}
+        dealId={closedDealId || ""}
+        budget={finalBudget}
+        partnerName={selectedContact?.name || "Buyer"}
+        onAction={handleDealApproval}
+        loading={approvalLoading}
       />
     </>
   );
@@ -1265,11 +1391,44 @@ const Chatbot = () => {
         // (Optional: depending on if store update is fast enough).
     };
 
+    // Handler for chat_rating_notification event from backend
+    const handleChatRating = (data: any) => {
+      console.log("Chatbot received chat_rating_notification:", data);
+      
+      const { chatId, roomId, rating, ratedBy, raterName, message } = data;
+      
+      // Update the recentChats to reflect the new rating
+      setRecentChats((prev) =>
+        prev.map((chat) => {
+          if (chat._id === chatId || chat.roomId === roomId) {
+            return { ...chat, chatrating: rating };
+          }
+          return chat;
+        })
+      );
+      
+      // If current chat is the one that was rated, update selectedContact
+      if (selectedContact && (selectedContact._id === chatId || selectedContact.roomId === roomId)) {
+        setSelectedContact((prev: any) => ({ ...prev, chatrating: rating }));
+      }
+      
+      // Show toast notification only to the other party
+      if (currentUserId && ratedBy && currentUserId !== ratedBy) {
+        toast.info(`Rating Update`, {
+          description: message || `${raterName} rated this chat ${rating} stars`,
+          duration: 4000,
+        });
+      }
+    };
+
+
+
     if (chatService.socket) {
       chatService.socket.on("receive_message", handleReceiveMessage);
       chatService.socket.on("chat_last_message_update", handleLastMessageUpdate);
       chatService.socket.on("recent_chat_update", handleRecentChatUpdate);
       chatService.socket.on("deal_closed", handleDealClosed);
+      chatService.socket.on("chat_rating_notification", handleChatRating); 
     }
 
     return () => {
@@ -1278,6 +1437,7 @@ const Chatbot = () => {
         chatService.socket.off("chat_last_message_update", handleLastMessageUpdate);
         chatService.socket.off("recent_chat_update", handleRecentChatUpdate);
         chatService.socket.off("deal_closed", handleDealClosed);
+        chatService.socket.off("chat_rating_notification", handleChatRating);
       }
     };
   }, [currentUserId, selectedContact]);

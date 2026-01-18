@@ -33,5 +33,10 @@ class RequirementService {
         return instance.post('/requirement/closed-deal-check', params, { withCredentials: true })
             .then(res => res.data?.data || res.data);
     }
+
+    respondToCloseDeal(params: { dealId: string; action: 'accept' | 'reject' }) {
+        return instance.post('/requirement/respond-close-deal', params, { withCredentials: true })
+            .then(res => res.data?.data || res.data);
+    }
 }
 export default new RequirementService();
