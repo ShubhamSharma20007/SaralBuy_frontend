@@ -156,7 +156,7 @@ function handleSubmitDraft(targetProduct: any) {
               navigate(`/product-overview?productId=${product?.product?._id}`)
             }}
             >
-              Place Bid
+              Place Quote
             </Button>
           ) :
           null}

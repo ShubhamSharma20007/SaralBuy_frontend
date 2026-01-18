@@ -5,9 +5,11 @@ import { dateFormatter } from '@/helper/dateFormatter'
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Banknote, CalendarDays, MoveLeft } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import requirementService from '@/services/requirement.service'
+import { Skeleton } from '@/Components/ui/skeleton'
+import { CategoryFormSkeleton } from '@/const/CustomSkeletons'
 
 const RequirementOverview = () => {
   const location = useLocation()
@@ -19,6 +21,8 @@ const RequirementOverview = () => {
   const [iterateData, setIterateData] = useState<any[]>([])
   const [requirementData, setRequirementData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+   const [timeLeft, setTimeLeft] = useState<string>('');
+   let intervalRef = useRef<NodeJS.Timeout | null>(null)
 
 
   useEffect(() => {
@@ -149,11 +153,44 @@ const RequirementOverview = () => {
     },
   ]
 
+  useEffect(() => {
+  if (!requirementData?.createdAt || !requirementData?.product?.bidActiveDuration) return;
+
+
+  const createdAt = new Date(requirementData.createdAt).getTime();
+  const durationDays = Number(requirementData.product.bidActiveDuration); 
+  const expiryTime = createdAt + durationDays * 24 * 60 * 60 * 1000;
+
+  const updateTimer = () => {
+    const now = Date.now();
+    const diff = expiryTime - now;
+
+    if (diff <= 0) {
+      setTimeLeft('Expired');
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+  };
+
+  // Initial call
+  updateTimer();
+
+  intervalRef.current = setInterval(updateTimer, 1000);
+
+  return () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  };
+}, [requirementData]);
+
   if (loading) {
     return (
-      <div className="w-full max-w-7xl mx-auto space-y-6 p-4">
-        <div className="text-center">Loading...</div>
-      </div>
+      <CategoryFormSkeleton/>
     )
   }
 
@@ -197,6 +234,24 @@ const RequirementOverview = () => {
             <h2 className="text-sm font-medium mb-2">
               Date: {dateFormatter(item.createdAt) || 'N/A'}
             </h2>
+             {loading || !timeLeft ? (
+                <Skeleton className="h-8 w-24 rounded-full float-end" />
+              ) : timeLeft !== 'Expired' ? (
+                <Button
+                  variant="ghost"
+                  className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
+                >
+                  {timeLeft}
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
+                >
+                  Expired
+                </Button>
+               
+              )}
 
             <h2 className="text-xl font-bold capitalize">
               {item.title || 'N/A'}

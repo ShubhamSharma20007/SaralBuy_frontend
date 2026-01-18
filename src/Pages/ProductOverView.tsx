@@ -544,7 +544,7 @@ const ProductOverview = () => {
               type="submit"
               disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id || createBidLoading}
               variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
-              Place Bid
+              Place Quote
             </Button>
           ) :
             (

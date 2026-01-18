@@ -237,7 +237,12 @@ useEffect(() => {
                   {timeLeft}
                 </Button>
               ) : (
-                <span className="text-red-500 text-sm font-medium float-end">Expired</span>
+                <Button
+                  variant="ghost"
+                  className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
+                >
+                  Expired
+                </Button>
               )}
 
                 </div>

@@ -468,7 +468,7 @@ const ChatArea = ({
       (data) => {
         setUploadedAttachment(data);
         setIsUploading(false);
-        toast.success('File uploaded successfully');
+        // toast.success('File uploaded successfully');
       },
       (error) => {
         setIsUploading(false);
