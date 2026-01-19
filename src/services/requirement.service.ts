@@ -43,5 +43,10 @@ class RequirementService {
         return instance.delete(`/product/notifications/${notificationId}`, { withCredentials: true })
             .then(res => res.data?.data || res.data);
     }
+
+    markNotificationsSeen(notificationIds: string[]) {
+        return instance.post('/product/notifications/mark-seen', { notificationIds }, { withCredentials: true })
+            .then(res => res.data?.data || res.data);
+    }
 }
 export default new RequirementService();

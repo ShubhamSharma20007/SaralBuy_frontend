@@ -35,6 +35,7 @@
     PopoverContent,
     PopoverTrigger,
   } from "@/Components/ui/popover"
+  import RequirementService from "@/services/requirement.service";
 
   import { Badge } from "../ui/badge";
   import { format } from "date-fns";
@@ -147,8 +148,9 @@
     const [notificationCount, setNotificationCount] = useState(0);
 
     useEffect(() => {
+        const unseenBidCount = bidNotifications.filter(n => n.seen === false).length;
         setNotificationCount(
-            bidNotifications.length + 
+            unseenBidCount + 
             productNotifications.length + 
             chatRatingNotifications.length + 
             dealNotifications.length
@@ -186,6 +188,18 @@
         if (user?._id) {
           chatService.identify(user._id);
           chatService.getBidNotifications(user._id);
+          
+          // Fetch bid notifications from API on mount/refresh
+          RequirementService.getBidNotifications()
+            .then((data) => {
+              if (Array.isArray(data)) {
+                // On initial load, just set the notifications from API
+                setBidNotifications(data);
+              }
+            })
+            .catch((err) => {
+              console.error('Failed to fetch bid notifications:', err);
+            });
           
           // Fetch recent chats to populate store
           chatService.getRecentChats(user._id, (data) => {
@@ -262,29 +276,52 @@
       };
 
       const handleBidNotificationList = (data: any) => {
-        setBidNotifications(data);
+        if (Array.isArray(data)) {
+          setBidNotifications((prev) => {
+            // Merge socket data with existing, remove duplicates based on _id
+            const existingIds = new Set(prev.map(n => n._id).filter(Boolean));
+            const newNotifications = data.filter((n: any) => !n._id || !existingIds.has(n._id));
+            return [...newNotifications, ...prev];
+          });
+        }
       };
 
       const handleNewBid = (data: any) => {
         console.log("socket NEW BID received in Navbar:", data);
         setBidNotifications((prev) => {
-          // Only prevent exact duplicate BID IDs (same event received twice)
-          // Do NOT block if it's a different bid for the same product
-          const isExactDuplicate = prev.some((n) => n.bidId === data.bidId);
+          // Check for duplicates using multiple fields: _id, bidId, or combination of requirementId + timestamp
+          const isDuplicate = prev.some((n) => {
+            // Check by _id if both exist
+            if (n._id && data._id && n._id === data._id) return true;
+            // Check by bidId if both exist
+            if (n.bidId && data.bidId && n.bidId === data.bidId) return true;
+            // Check by requirementId + productId combination
+            if (n.requirementId && data.requirementId && 
+                n.requirementId === data.requirementId &&
+                n.productId === data.productId) {
+              // If same requirement and product, check if timestamp is very close (within 1 second)
+              const timeDiff = Math.abs((n.latestBid?.date || 0) - (data.latestBid?.date || Date.now()));
+              if (timeDiff < 1000) return true;
+            }
+            return false;
+          });
           
-          if (isExactDuplicate) {
-             console.log("Duplicate bidId ignored:", data.bidId);
+          if (isDuplicate) {
+             console.log("Duplicate notification ignored");
              return prev;
           }
 
-          // Just add the new notification to the top
+          // Add the new notification to the top
           return [
             {
+              _id: data._id,
               requirementId: data.requirementId,
+              productId: data.productId,
               product: { title: data.productTitle, _id: data.productId },
               totalBids: data.totalBids || 1, 
               latestBid: { date: Date.now() },
               allBids: [], 
+              seen: false,
               ...data
             },
             ...prev,
@@ -517,6 +554,29 @@ console.log(bidNotifications,"bidNotifications")
     const handleBellClick = () => {
       setShowNotifDropdown((prev) => !prev);
       // Do not clear notifications here; let user see them in dropdown
+    };
+
+    // Mark bid notifications as seen
+    const markBidNotificationsAsSeen = () => {
+      const unseenBidNotifications = bidNotifications.filter(n => n.seen === false);
+      if (unseenBidNotifications.length > 0) {
+        const notificationIds = unseenBidNotifications.map(n => n._id).filter(Boolean);
+        if (notificationIds.length > 0) {
+          // Mark as seen via API
+          RequirementService.markNotificationsSeen(notificationIds)
+            .then(() => {
+              // Update local state to mark as seen
+              setBidNotifications((prev) => 
+                prev.map(n => 
+                  notificationIds.includes(n._id) ? { ...n, seen: true } : n
+                )
+              );
+            })
+            .catch((err) => {
+              console.error('Failed to mark notifications as seen:', err);
+            });
+        }
+      }
     };
 
     // Show/hide product notification dropdown
@@ -872,10 +932,15 @@ console.log(bidNotifications,"bidNotifications")
 
   {/*  product + bid notification */}
 
-  <Popover open={showProductNotifDropdown} onOpenChange={setShowProductNotifDropdown}>
+  <Popover open={showProductNotifDropdown} onOpenChange={(open) => {
+    // Mark as seen when closing the dropdown
+    if (!open && showProductNotifDropdown) {
+      markBidNotificationsAsSeen();
+    }
+    setShowProductNotifDropdown(open);
+  }}>
     <PopoverTrigger>
       <div
-      
         className="cursor-pointer relative  bg-transparent border-0 shadow-none"
       >
         <Bell className="w-5 h-5 text-gray-600 " />
@@ -898,15 +963,25 @@ console.log(bidNotifications,"bidNotifications")
       ) : (
         <div className="max-h-80 overflow-y-auto">
           {/* Bid Notifications */}
-          {bidNotifications.length > 0 &&
-  bidNotifications.map((notif, idx) => (
+          {bidNotifications.filter(n => n.seen === false).length > 0 &&
+  bidNotifications.filter(n => n.seen === false).slice(0, 5).map((notif, idx) => (
     <div
       key={`bid-${idx}`}
       onClick={() => {
-        setBidNotifications((prev) => prev.filter((_, i) => i !== idx));
-        if (notif.requirementId) {
-            navigate(`/account/bid`);
+        // Mark this notification as seen
+        if (notif._id && notif.seen === false) {
+          RequirementService.markNotificationsSeen([notif._id])
+            .then(() => {
+              setBidNotifications((prev) => 
+                prev.map(n => n._id === notif._id ? { ...n, seen: true } : n)
+              );
+            })
+            .catch((err) => {
+              console.error('Failed to mark notification as seen:', err);
+            });
         }
+        
+        navigate(`/account/bid`);
         setShowProductNotifDropdown(false);
       }}
       className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
@@ -917,7 +992,7 @@ console.log(bidNotifications,"bidNotifications")
 
       <div className="flex-1 min-w-0">
         <p className="font-semibold">
-          {notif.product?.title || "New Quote"}
+          {notif.product?.title || notif.productId?.title || "New Quote"}
         </p>
 
         <p className="text-sm text-gray-600 truncate">
@@ -932,6 +1007,22 @@ console.log(bidNotifications,"bidNotifications")
       </div>
     </div>
   ))}
+
+          {/* View All Notifications Button for Bid Notifications */}
+          {bidNotifications.filter(n => n.seen === false).length > 5 && (
+            <div className="border-t border-gray-200 pt-2">
+              <button
+                onClick={() => {
+                  markBidNotificationsAsSeen();
+                  navigate('/account/notification');
+                  setShowProductNotifDropdown(false);
+                }}
+                className="w-full text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
+              >
+                View All Notifications
+              </button>
+            </div>
+          )}
 
 
           {/* Product Notifications */}
