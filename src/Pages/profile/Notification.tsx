@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../Components/ui/button';
-import { ListFilter } from 'lucide-react';
+import { ArrowUpDown, ListFilter, Trash2 } from 'lucide-react';
 import RequirementService from '../../services/requirement.service';
 import { sortByDate } from '@/helper/sortByDate';
+import AlertPopup from '@/Components/Popup/AlertPopup';
 
 
 interface BidNotification {
@@ -33,8 +34,15 @@ const Notification = () => {
   const [notifications, setNotifications] = useState<BidNotification[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  const[_,setIsAscSorting] = useState(false) 
+  const[_,setIsAscSorting] = useState(false)
+  const message = {
+    title: 'Warning',
+    message: 'This action cannot be undone. This will permanently delete your notification.',
+  } 
   useEffect(() => {
     setLoading(true);
     RequirementService.getBidNotifications()
@@ -54,12 +62,41 @@ const Notification = () => {
       const isAsc = !prev;
         setNotifications((prevState: any) => {
         if (!Array.isArray(prevState)) return prevState;
-        const sorted = sortByDate(prevState, isAsc,'bidDate');
-        return sorted
+        const sorted = [...prevState].sort((a, b) => {
+          const aDate = new Date(a.createdAt).getTime();
+          const bDate = new Date(b.createdAt).getTime();
+          return isAsc ? aDate - bDate : bDate - aDate;
+        });
+        return sorted;
       });
       return isAsc
     });
   };
+
+  const handleDeleteClick = (notificationId: string) => {
+    setNotificationToDelete(notificationId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!notificationToDelete) return;
+    
+    setDeleteLoading(true);
+    try {
+      await RequirementService.deleteNotification(notificationToDelete);
+      // Remove the deleted notification from state
+      setNotifications(prev => prev.filter(n => n._id !== notificationToDelete));
+      setDeleteDialogOpen(false);
+      setNotificationToDelete(null);
+    } catch (err) {
+      console.error('Failed to delete notification:', err);
+      setError('Failed to delete notification');
+    } finally {
+      setDeleteLoading(false);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   console.log({notifications})
   return (
     <div className='grid space-y-5'>
@@ -81,7 +118,9 @@ const Notification = () => {
       {!loading && !error && notifications?.flatMap((notif, idx) => {
         // Capitalize first letter of product title
         const productTitle =
-          notif.product?.title
+          (notif.productId && typeof notif.productId === 'object' && (notif.productId as any).title)
+            ? (notif.productId as any).title.charAt(0).toUpperCase() + (notif.productId as any).title.slice(1)
+            : notif.product?.title
             ? notif.product.title.charAt(0).toUpperCase() + notif.product.title.slice(1)
             : 'Product';
 
@@ -100,15 +139,25 @@ const Notification = () => {
 
             // For navigation, prefer notif.productId, else notif.product._id
             const productId =
-              notif.productId
+              notif.productId && typeof notif.productId === 'object'
+                ? (notif.productId as { _id?: string })._id
+                : typeof notif.productId === 'string'
                 ? notif.productId
                 : notif.product && (notif.product as { _id?: string })._id
                   ? (notif.product as { _id: string })._id
                   : '';
 
             return (
-              <div key={`${notif.requirementId}-${bidIdx}`}>
-                <div className={`p-4 grid ${bidIdx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2`}>
+              <div key={`${notif._id}-${bidIdx}`}>
+                <div className={`p-4 grid ${bidIdx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2 relative group`}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    onClick={() => handleDeleteClick(notif._id || '')}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                   <div className='grid grid-cols-3 items-center gap-5'>
                     <p className='text-md font-bold text-gray-800 capitalize col-span-2'>
                       New Bid Received
@@ -157,15 +206,25 @@ const Notification = () => {
             : '';
 
         const productId =
-          notif.productId
+          notif.productId && typeof notif.productId === 'object'
+            ? (notif.productId as { _id?: string })._id
+            : typeof notif.productId === 'string'
             ? notif.productId
             : notif.product && (notif.product as { _id?: string })._id
               ? (notif.product as { _id: string })._id
               : '';
 
         return (
-          <div key={notif.requirementId}>
-            <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2`}>
+          <div key={notif._id}>
+            <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2 relative group`}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={() => handleDeleteClick(notif._id || '')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
               <div className='grid grid-cols-3 items-center gap-5'>
                 <p className='text-md font-bold text-gray-800 capitalize col-span-2'>
                   New Quote Received
@@ -200,6 +259,15 @@ const Notification = () => {
           </div>
         );
       })}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertPopup
+        loading={deleteLoading}
+        setOpen={setDeleteDialogOpen}
+        open={deleteDialogOpen}
+        message={message}
+        deleteFunction={handleDeleteConfirm}
+      />
     </div>
   );
 }
