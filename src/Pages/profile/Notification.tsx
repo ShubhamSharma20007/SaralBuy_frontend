@@ -153,10 +153,10 @@ const Notification = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300 absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 cursor-pointer"
                     onClick={() => handleDeleteClick(notif._id || '')}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className=" h-4 w-4  text-red-500 cursor-pointer rounded-full" />
                   </Button>
                   <div className='grid grid-cols-3 items-center gap-5'>
                     <p className='text-md font-bold text-gray-800 capitalize col-span-2'>
@@ -220,10 +220,10 @@ const Notification = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300 absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 cursor-pointer"
                 onClick={() => handleDeleteClick(notif._id || '')}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4  text-red-500 cursor-pointer rounded-full" />
               </Button>
               <div className='grid grid-cols-3 items-center gap-5'>
                 <p className='text-md font-bold text-gray-800 capitalize col-span-2'>

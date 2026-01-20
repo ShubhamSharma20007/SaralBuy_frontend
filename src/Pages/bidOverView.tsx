@@ -73,37 +73,39 @@ const bidsColumns: ColumnDef<any>[] = [
     accessorKey: "your_quote",
     header: "Your Quote",
   },
-   {
-            accessorKey: "status",
-            header: "Status",
-            cell: ({ row }) => {
-                const diff =row.original.status;
-                console.log(diff)
-                if (diff <= 0) {
-                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>
-                } else {
-                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge>
-                }
-            }
-        },
-        {
-            accessorKey: "action",
-            header: "Action",
-            cell: ({ row }) => {
-                return <div className="flex items-center gap-2">
-                      <Button
-                      onClick={()=>{
-                        navigate('/chat')
-                      }}
-          className="text-sm cursor-pointer text-orange-600 underline"
-          variant="link"
+  //  {
+  //           accessorKey: "status",
+  //           header: "Status",
+  //           cell: ({ row }) => {
+  //               const diff =row.original.status;
+  //               if (diff <= 0) {
+  //                   return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>
+  //               } else {
+  //                   return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge>
+  //               }
+  //           }
+  //       },
+  //       {
+  //           accessorKey: "action",
+  //           header: "Action",
+  //           cell: ({ row }) => {
+             
+  //               return <div className="flex items-center gap-2">
+  //                     <Button
+  //                     onClick={()=>{
+  //                       if(!bidRes) return;
+  //                       handleChatNavigate(bidRes?.sellers[0]?.seller?._id, mergeName(bidRes?.sellers[0]?.seller), bidRes?.sellers[0]?.seller?.profileImage)
+                 
+  //                     }}
+  //         className="text-sm cursor-pointer text-orange-600 underline"
+  //         variant="link"
         
-        >
-          Chat Now
-        </Button>
-                </div>
-            }
-        },
+  //       >
+  //         Chat Now
+  //       </Button>
+  //               </div>
+  //           }
+  //       },
 
 
 ];
@@ -129,7 +131,7 @@ useEffect(()=>{
       quote_submssion_date:dateFormatter(item?.createdAt),
       // date: dateFormatter(item?.createdAt),
       your_quote: item?.budgetQuation,
-      status:diff
+      status:diff,
       })
     }) || [];
       setSellers(mappedSellers);

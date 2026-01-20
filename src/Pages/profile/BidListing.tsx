@@ -66,8 +66,8 @@ const BidListing = () => {
         },
 
         {
-            accessorKey: "seller",
-            header: "Seller",
+            accessorKey: "buyer",
+            header: "Buyer",
         },
         {
             accessorKey: "product",
@@ -167,7 +167,7 @@ const BidListing = () => {
                 return {
                     _id: item._id,
                     date: dateFormatter(item.createdAt),
-                    seller: mergeName(item.seller),
+                    buyer: mergeName(item.buyer),
                     avatar: item?.product?.image,
                     product: item.product.title,
                     productId: mainProductId,
