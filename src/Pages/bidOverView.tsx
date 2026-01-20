@@ -73,18 +73,18 @@ const bidsColumns: ColumnDef<any>[] = [
     accessorKey: "your_quote",
     header: "Your Quote",
   },
-  //  {
-  //           accessorKey: "status",
-  //           header: "Status",
-  //           cell: ({ row }) => {
-  //               const diff =row.original.status;
-  //               if (diff <= 0) {
-  //                   return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>
-  //               } else {
-  //                   return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge>
-  //               }
-  //           }
-  //       },
+   {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const diff =row.original.status;
+                if (diff <= 0) {
+                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>
+                } else {
+                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge>
+                }
+            }
+        },
   //       {
   //           accessorKey: "action",
   //           header: "Action",
