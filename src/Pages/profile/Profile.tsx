@@ -52,7 +52,7 @@ const tags = [
     title: "Requirements (Posted / Draft)",
     value: 'requirements'
   }, {
-    title: "Your Deal",
+    title: "Closed Deals",
     value: 'your_deal'
   },
   {

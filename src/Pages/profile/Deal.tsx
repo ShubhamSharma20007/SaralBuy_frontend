@@ -181,7 +181,7 @@ const Deal = () => {
       <div className='grid space-y-5 w-full'>
         <div className='flex justify-between items-center font-semibold w-full mb-3'>
           <p className="font-bold text-xl whitespace-nowrap   tracking-tight text-gray-600">
-            Your Deals
+            Closed Deals
           </p>
         </div>
 
