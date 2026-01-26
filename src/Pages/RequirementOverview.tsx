@@ -10,6 +10,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import requirementService from '@/services/requirement.service'
 import { Skeleton } from '@/Components/ui/skeleton'
 import { CategoryFormSkeleton } from '@/const/CustomSkeletons'
+import { Badge } from '@/Components/ui/badge'
 
 const RequirementOverview = () => {
   const location = useLocation()
@@ -21,8 +22,8 @@ const RequirementOverview = () => {
   const [iterateData, setIterateData] = useState<any[]>([])
   const [requirementData, setRequirementData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-   const [timeLeft, setTimeLeft] = useState<string>('');
-   let intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [timeLeft, setTimeLeft] = useState<string>('');
+  let intervalRef = useRef<NodeJS.Timeout | null>(null)
 
 
   useEffect(() => {
@@ -68,7 +69,9 @@ const RequirementOverview = () => {
             bid_amount: seller.budgetAmount ? `₹${seller.budgetAmount}` : "N/A",
             chat_message: seller.message || "Interested in your requirement",
             action: "chat",
-            sellerId: seller.seller?._id || seller._id || seller.userId
+            sellerId: seller.seller?._id || seller._id || seller.userId,
+            location: seller.seller?.currentLocation || seller.seller?.address,
+            status: seller.seller?.status
           }))
           setBidData(transformedBids)
         }
@@ -82,7 +85,7 @@ const RequirementOverview = () => {
         buyerId: currentProduct.buyer?._id,
         sellerId: sellerId
       }))
-      
+
       navigate('/chat', {
         state: {
           productId: currentProduct.product?._id,
@@ -128,16 +131,27 @@ const RequirementOverview = () => {
     },
     {
       accessorKey: "bid_buy",
-      header: "Quote By",
+      header: "Seller",
     },
     {
       accessorKey: "bid_amount",
-      header: "Quote Amount",
+      header: "Quoted Price",
     },
+    // {
+    //   accessorKey: "chat_message",
+    //   header: "Chat Message",
+    // },
     {
-      accessorKey: "chat_message",
-      header: "Chat Message",
+      accessorKey: "location",
+      header: "Location",
     },
+    // {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   cell: ({ row }) => {
+    //     return (row.original?.status === 'active' ? <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge> : <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>)
+    //   }
+    // },
     {
       accessorKey: "action",
       header: "Action",
@@ -154,43 +168,43 @@ const RequirementOverview = () => {
   ]
 
   useEffect(() => {
-  if (!requirementData?.createdAt || !requirementData?.product?.bidActiveDuration) return;
+    if (!requirementData?.createdAt || !requirementData?.product?.bidActiveDuration) return;
 
 
-  const createdAt = new Date(requirementData.createdAt).getTime();
-  const durationDays = Number(requirementData.product.bidActiveDuration); 
-  const expiryTime = createdAt + durationDays * 24 * 60 * 60 * 1000;
+    const createdAt = new Date(requirementData.createdAt).getTime();
+    const durationDays = Number(requirementData.product.bidActiveDuration);
+    const expiryTime = createdAt + durationDays * 24 * 60 * 60 * 1000;
 
-  const updateTimer = () => {
-    const now = Date.now();
-    const diff = expiryTime - now;
+    const updateTimer = () => {
+      const now = Date.now();
+      const diff = expiryTime - now;
 
-    if (diff <= 0) {
-      setTimeLeft('Expired');
+      if (diff <= 0) {
+        setTimeLeft('Expired');
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+    };
+
+    // Initial call
+    updateTimer();
+
+    intervalRef.current = setInterval(updateTimer, 1000);
+
+    return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-  };
-
-  // Initial call
-  updateTimer();
-
-  intervalRef.current = setInterval(updateTimer, 1000);
-
-  return () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
-}, [requirementData]);
+    };
+  }, [requirementData]);
 
   if (loading) {
     return (
-      <CategoryFormSkeleton/>
+      <CategoryFormSkeleton />
     )
   }
 
@@ -222,10 +236,10 @@ const RequirementOverview = () => {
           {/* Image */}
           <div className="lg:col-span-4 bg-gray-100 flex justify-center items-center rounded-lg p-4 h-48">
             <img
-              src={ item.image ||"/no-image.webp"}
+              src={item.image || "/no-image.webp"}
               alt={item.title || "Product"}
               className="object-contain h-full w-full rounded-lg mix-blend-darken"
-           
+
             />
           </div>
 
@@ -234,29 +248,29 @@ const RequirementOverview = () => {
             <h2 className="text-sm font-medium mb-2">
               Date: {dateFormatter(item.createdAt) || 'N/A'}
             </h2>
-             {loading || !timeLeft ? (
-                <Skeleton className="h-8 w-24 rounded-full float-end" />
-              ) : timeLeft !== 'Expired' ? (
-                <Button
-                  variant="ghost"
-                  className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
-                >
-                  {timeLeft}
-                </Button>
-              ) : (
-                <Button
-                  variant="ghost"
-                  className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
-                >
-                  Expired
-                </Button>
-               
-              )}
+            {loading || !timeLeft ? (
+              <Skeleton className="h-8 w-24 rounded-full float-end" />
+            ) : timeLeft !== 'Expired' ? (
+              <Button
+                variant="ghost"
+                className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
+              >
+                {timeLeft}
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                className="float-end border rounded-full hover:bg-orange-700 hover:text-white text-sm bg-orange-700 text-white"
+              >
+                Expired
+              </Button>
+
+            )}
 
             <h2 className="text-xl font-bold capitalize">
               {item.title || 'N/A'}
             </h2>
-            
+
             <p className="text-sm text-gray-600">
               {item.description || 'No description available'}
             </p>
@@ -275,20 +289,20 @@ const RequirementOverview = () => {
                   <span className="capitalize">Delivery By:</span>
                 </div>
                 <span className='font-semibold'>
-                  {item.paymentAndDelivery?.ex_deliveryDate 
-                    ? dateFormatter(item.paymentAndDelivery.ex_deliveryDate) 
+                  {item.paymentAndDelivery?.ex_deliveryDate
+                    ? dateFormatter(item.paymentAndDelivery.ex_deliveryDate)
                     : 'N/A'}
                 </span>
               </div>
             </div>
-            
+
             {item.brand && (
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium">Brand:</span>
                 <span className="text-gray-600 capitalize">{item.brand}</span>
               </div>
             )}
-            
+
             {item.conditionOfProduct && (
               <div className="flex items-center gap-2 text-sm">
                 <span className="font-medium">Condition:</span>
@@ -302,12 +316,12 @@ const RequirementOverview = () => {
       {/* Table Listing */}
 
       <div className='bg-orange-50 p-4 rounded-md'>
-          <TableListing
+        <TableListing
           data={bidData}
           columns={columns}
           filters={false}
           // (${bidData.length})
-          title={`Available Bids `}
+          title={`Quote Recevied `}
           target="requirementOverview"
           colorPalette="orange"
         />

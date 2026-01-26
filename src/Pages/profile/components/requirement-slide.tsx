@@ -139,11 +139,11 @@ function handleSubmitDraft(targetProduct: any) {
             <Button
             onClick={() => handleNavigate(product)}
              size={'default'} className='cursor-pointer text-xs  bc'>
-              Total Bids: <span className='font-bold'>{product?.product?.totalBidCount || 0}</span>
+              Total Quotes: <span className='font-bold'>{product?.product?.totalBidCount || 0}</span>
               <MoveRight className='w-5 h-5' />
             </Button>
           ) : target === "drafts" ? (
-            <button></button>
+            <></>
             // <Button size={'default'} className='cursor-pointer text-xs bc' onClick={()=>{
             //   handleSubmitDraft(product)
             // }}>

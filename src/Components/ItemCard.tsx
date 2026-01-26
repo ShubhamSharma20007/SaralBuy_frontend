@@ -70,7 +70,7 @@ const sortedSubCategories = useMemo(() => {
           />
         </div>
         <div className="py-2 text-center flex justify-between items-center">
-          <p className="text-[13px] pl-1 capitalize font-medium ">{categoryName === "beauty" ? 'Personal Care' : categoryName === "electronics" ? 'Mobile, Tablet and Wearables' : categoryName === "sports" ? 'Sports & Stationary' : categoryName === 'home' ? 'Home and Electrical Appliances' : categoryName === 'industrial' ? "Industrial & Construction Material" : categoryName === 'furniture' ? 'furniture and decor' : categoryName}</p>
+          <p className="text-[13px] pl-1 capitalize font-medium ">{categoryName === "beauty" ? 'Personal Care' : categoryName === "electronics" ? 'Mobile, Tablet and Wearables' : categoryName === "sports" ? 'Sports & Stationery' : categoryName === 'home' ? 'Home and Electrical Appliances' : categoryName === 'industrial' ? "Industrial & Construction Material" : categoryName === 'furniture' ? 'furniture and decor' : categoryName}</p>
           <ChevronDown
             className={`w-5 h-5 text-gray-500 transition-transform duration-300 flex-shrink-0 ${open ? "rotate-180" : ""
               }`}
@@ -186,7 +186,7 @@ export default ItemCard;
 //         />
 //         </div>
 //         <div className="py-2 text-center flex justify-between items-center">
-//           <p className="text-[13px] pl-1 capitalize font-medium ">{categoryName === "beauty" ? 'Personal Care' : categoryName === "electronics" ? 'Electronics Appliances' : categoryName  === "sports" ? 'Sports & Stationary' : categoryName === 'home' ? 'Home and Electrical Appliances' : categoryName  === 'industrial' ?"Industrial & Construction Material" : categoryName}</p>
+//           <p className="text-[13px] pl-1 capitalize font-medium ">{categoryName === "beauty" ? 'Personal Care' : categoryName === "electronics" ? 'Electronics Appliances' : categoryName  === "sports" ? 'Sports & Stationery' : categoryName === 'home' ? 'Home and Electrical Appliances' : categoryName  === 'industrial' ?"Industrial & Construction Material" : categoryName}</p>
 //           <ChevronDown
 //             className={`w-5 h-5 text-gray-500 transition-transform duration-300 flex-shrink-0 ${
 //               open ? "rotate-180" : ""

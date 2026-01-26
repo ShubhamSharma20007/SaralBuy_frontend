@@ -101,7 +101,7 @@ export default function ContactVerification() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">
-                      Stationary
+                      Stationery
                     </span>
                     <span className="text-xs text-gray-600">Qty: 10</span>
                   </div>

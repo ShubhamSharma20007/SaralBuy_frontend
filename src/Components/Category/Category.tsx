@@ -270,7 +270,7 @@ const CategoryForm = ({
         <div className="col-span-2 md:col-span-2 flex flex-col gap-3">
           <div className=" rounded-[5px] p-6  bg-gray-200/50">
           {/* Product Details */}
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Service Details</h3>
+            {/* <h3 className="text-lg font-semibold text-gray-700 mb-4">Service Details</h3> */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <Input
                 type="text"
@@ -1246,7 +1246,7 @@ const Category = () => {
                 </BreadcrumbPage>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="capitalize font-semibold text-orange-600">
-                  {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Mobile, Tablet and Wearables' : currentCategoryName === "sports" ? 'Sports & Stationary' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" : currentCategoryName === 'furniture' ? 'furniture and decor' : currentCategoryName}
+                  {currentCategoryName === "beauty" ? 'Personal Care' : currentCategoryName === "electronics" ? 'Mobile, Tablet and Wearables' : currentCategoryName === "sports" ? 'Sports & Stationery' : currentCategoryName === 'home' ? 'Home Appliances' : currentCategoryName === 'industrial' ? "Industrial & Construction Material" : currentCategoryName === 'furniture' ? 'furniture and decor' : currentCategoryName}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>

@@ -5,8 +5,9 @@ import bidService from "@/services/bid.service";
 import { RequirementCardSkeleton } from "@/const/CustomSkeletons";
 import productService from "@/services/product.service";
 import TooltipComp from "@/utils/TooltipComp";
-import { SquarePen, X } from "lucide-react";
+import { MoveRight, SquarePen, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
 
 type Props = {
   state: any;
@@ -136,23 +137,27 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
               contentChildren={<p>Delete Requirement</p>}
             ></TooltipComp>
           </div>
+          
         }
-          {/* {
+          {
             target === 'drafts' && (
-              <div
-                className='absolute top-1 right-1 z-10 bg-orange-50 text-orange-400 border-[2px] shadow shadow-orange-200 border-dotted rounded-sm p-1 cursor-pointer'
+              // <TooltipComp
+              //     hoverChildren={<SquarePen className='h-4 w-4' />}
+              //     contentChildren={<p>Edit Draft</p>}
+              //   />
+               <Button
+            className='absolute bottom-5 right-5 z-10 cursor-pointer text-xs  bc'
                 onClick={() => navigate('/update-draft/' + item._id)}
-              >
-                <TooltipComp
-                  hoverChildren={<SquarePen className='h-4 w-4' />}
-                  contentChildren={<p>Edit Draft</p>}
-                />
-              </div>
+             size={'default'} >
+              Edit Draft 
+              <MoveRight className='w-5 h-5' />
+            </Button>
             )
-          } */}
+          }
          <div onClick={() =>{
-          if(target ==='drafts')  navigate('/update-draft/' + item._id);
-         }}>
+          // if(target ==='drafts')  navigate('/update-draft/' + item._id);
+         }}
+         >
            <RequirementSlider product={item} target={target} tab={tab} />
          </div>
         </div>

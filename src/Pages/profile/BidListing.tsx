@@ -144,7 +144,7 @@ const BidListing = () => {
                             }}
                             className="hover:bg-red-100 p-1 rounded-md ease-in-out transition-all duration-300">
                             <Trash2Icon className="h-4 w-4  text-red-500 cursor-pointer rounded-full" /></div>}
-                        contentChildren={<p>Delete Bid</p>}
+                        contentChildren={<p>Delete Quote</p>}
                     ></TooltipComp>
 
                 </div>
@@ -217,7 +217,7 @@ const BidListing = () => {
                     data={data}
                     columns={columns}
                     filters={true}
-                    title="Quotes Received"
+                    title="Quotes Submitted"
                     colorPalette="gray"
                     page={page}
                     setPage={setPage}

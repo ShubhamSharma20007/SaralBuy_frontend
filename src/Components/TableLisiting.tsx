@@ -113,14 +113,14 @@ const totalPages = Math.ceil(total / limit);
        </div>
       )
      }
-     {
+     {/* {
       target === "requirementOverview" &&(
          <Button variant={'ghost'} size={'icon'} className=' w-24 flex gap-2 items-center justify-center text-sm font-medium  text-gray-700 bg-transparent border-1 hover:bg-transparent cursor-pointer border-gray-700'>
             Date
             <ListFilter className='w-5 h-5' />
           </Button>
       )
-     }
+     } */}
       </div>
    
       <div className={`overflow-hidden max-h-[600px] rounded-md ${colorPalette ? `bg-${colorPalette}-50  rounded-lg` : ''}`} >
