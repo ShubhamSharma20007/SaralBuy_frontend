@@ -773,13 +773,13 @@ const ChatArea = ({
             return (
               <React.Fragment key={message.id}>
                 {/* Date Separator */}
-                {showDateSeparator && (message.timestamp || message.time) && (
+                {/* {showDateSeparator && (message.timestamp || message.time) && (
                   <div className="flex items-center justify-center my-4">
                     <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
                       {message.timestamp ? getDateLabel(message.timestamp) : getDateLabel(new Date())}
                     </div>
                   </div>
-                )}
+                )} */}
                 
                 <div
                   className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
