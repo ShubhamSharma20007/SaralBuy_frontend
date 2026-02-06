@@ -549,7 +549,7 @@
     }, [user?._id]);
 /* Removed effect that clears bid notifications on dropdown open */
 
-console.log(bidNotifications,"bidNotifications")
+// console.log(bidNotifications,"bidNotifications")
     // Show/hide chat notification dropdown (do NOT clear notifications here)
     const handleBellClick = () => {
       setShowNotifDropdown((prev) => !prev);

@@ -58,6 +58,12 @@ saveAsDraft(payload:any[],isMultiple:boolean){
   }).then(res => res.data?.data|| res.data)
 }
 
+deleteDraft(productId:string){
+  return instance.delete(`/product/delete-draft-product/${productId}`,{
+    withCredentials:true
+  }).then(res => res.data?.data|| res.data)
+}
+
 
 }
 export default new ProductService();

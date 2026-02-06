@@ -17,6 +17,7 @@ type Props = {
   setState?:any
   setSelectedTileId?:React.Dispatch<React.SetStateAction<string>>;
   setOpen?:React.Dispatch<React.SetStateAction<boolean>>;  // this is for shadcn 
+  
 };
 
 const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' ,setState,setSelectedTileId,setOpen}) => {
@@ -141,17 +142,31 @@ const ScrollablePagination: React.FC<Props> = ({ state, target, limit, tab = '' 
         } */}
           {
             target === 'drafts' && (
-              // <TooltipComp
-              //     hoverChildren={<SquarePen className='h-4 w-4' />}
-              //     contentChildren={<p>Edit Draft</p>}
-              //   />
-               <Button
+              <>
+
+               <div className='absolute top-2 right-2 z-10 bg-orange-100 text-orange-500 rounded-sm  p-1 cursor-pointer'
+          onClick={()=>{
+            console.log(item)
+            setOpen?.(true)
+            setSelectedTileId?.(item._id)
+          }}
+          >
+            <TooltipComp
+              hoverChildren={<X className='h-4 w-4' />}
+              contentChildren={<p>Delete Draft</p>}
+            ></TooltipComp>
+          </div>
+                <Button
             className='absolute bottom-5 right-5 z-10 cursor-pointer text-xs  bc'
                 onClick={() => navigate('/update-draft/' + item._id)}
              size={'default'} >
               Edit Draft 
               <MoveRight className='w-5 h-5' />
             </Button>
+              
+              </>
+
+             
             )
           }
          <div onClick={() =>{

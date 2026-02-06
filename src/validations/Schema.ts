@@ -53,11 +53,12 @@ export const ProfileSchema = z.object({
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),
   email: z.string().email("Invalid email"),
-  phone: z.string().min(10, "Phone number is required"),
+  phone: z.string().optional(),
   address: z.string().min(1, "Address is required").min(3, "Address is too short"),
   aadhaarNumber: z.string().refine((value) => !value || /^[2-9]{1}[0-9]{11}$/.test(value), {
     message: 'Invalid Aadhaar Number'
-  })
+  }),
+  businessName:z.string().optional(),
 })
 
 export const productOverviewBidSchema = z.object({

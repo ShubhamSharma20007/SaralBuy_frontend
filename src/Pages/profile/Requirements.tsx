@@ -14,14 +14,15 @@ const limit = 10;
 const Requirement = () => {
   const [tab, setTab] = useState('requirements')
   const { fn: getDrafts, data: getDraftsRes, loading: getDraftLoading,setData: setGetDraftsRes } = useFetch(productService.getDrafts)
+    const { fn: deletDraft, data: deleteDraftRes, loading: deleteDraftResLoading} = useFetch(productService.deleteDraft)
   const { fn: getMyRequirements, data: getMyRequirementsRes, loading: getMyRequirementsLoading ,setData:setGetMyRequirementsRes} = useFetch(bidService.getMyRequirements)
   const [drafts, setDrafts] = useState<any>([])
-  const [selectedRequirementId,setSelectedRequirementId] = useState<any>(null)
+  const [selectedId,setSelectedtId] = useState<any>(null)
   const [open, setOpen] = useState(false);
   const[_,setIsAscSorting] = useState(false) ;
     const message = {
         title: 'Warning',
-        message: 'This action cannot be undone. This Requirement will permanently delete your account.',
+        message: `This action cannot be undone. This ${tab === 'requirements' ? 'Requirement' :'Draft'} will permanently delete your account.`,
     }
   useEffect(() => {
     if (tab === 'requirements') {
@@ -70,17 +71,39 @@ const Requirement = () => {
   });
 };
 
-const handleDeleteRequirement =(requirementId:string)=>{
-  alert(requirementId)
+const handleDeleteRequirement =(_id:string)=>{
+  if(tab === 'requirements'){
+    //  delete the requirement process
+  }else{
+    // delete the draft process
+    deletDraft(_id)
+  }
 }
+
+useEffect(()=>{
+  if(deleteDraftRes){
+    console.log(deleteDraftRes)
+    setGetDraftsRes((prevState: any) => {
+      if (!Array.isArray(prevState?.data)) return prevState;
+
+      const filtered = prevState.data.filter((item: any) => item._id !== selectedId);
+
+      return {
+        ...prevState,
+        data: filtered
+      };
+    });
+    setSelectedtId(null)
+  }
+},[deleteDraftRes])
 
   return (
     <>
      <AlertPopup
-                loading={false}
+                loading={deleteDraftResLoading}
                 setOpen={setOpen} open={open} message={message}
                 deleteFunction={() => {
-                    handleDeleteRequirement(selectedRequirementId!)
+                    handleDeleteRequirement(selectedId!)
                 }}
             />
     
@@ -118,7 +141,7 @@ const handleDeleteRequirement =(requirementId:string)=>{
                 state={getMyRequirementsRes}
                 setState={setGetMyRequirementsRes}
                 limit={limit}
-                setSelectedTileId={setSelectedRequirementId}
+                setSelectedTileId={setSelectedtId}
                 setOpen={setOpen}
               />
             ) : (
@@ -137,6 +160,8 @@ const handleDeleteRequirement =(requirementId:string)=>{
                 target="drafts"
                 state={getDraftsRes}
                 limit={limit}
+                setSelectedTileId={setSelectedtId}
+                setOpen={setOpen}
               />
               // drafts.map((item: any, idx: number) => (
               //   <div key={idx} className='border-2 border-gray-300 p-4 rounded-md w-full mb-2 relative'>

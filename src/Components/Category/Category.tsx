@@ -10,7 +10,7 @@ import {
 import { Button } from "../../Components/ui/button";
 import { Input } from "../../Components/ui/input";
 import { Textarea } from "../../Components/ui/textarea";
-import { PlusIcon, FileUp, MoveLeft, XIcon, Trash2, CloudUpload } from "lucide-react";
+import { PlusIcon, FileUp, MoveLeft, XIcon, Trash2, CloudUpload, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -37,6 +37,7 @@ import { getCategorySpecificFields } from "@/const/categoriesFormdataFields";
 import Authentication from "../auth/Authentication";
 import PlaceRequirementPopup from "../Popup/PlaceRequirementPopup";
 import { ImageSizeIncrease } from "@/helper/imageSizer";
+import TooltipComp from "@/utils/TooltipComp";
 
 const innerFormImages = {
   automobile: "automobileFormImage.png",
@@ -779,54 +780,107 @@ const CategoryForm = ({
                 {image && (
                   <p className="text-xs mt-2 text-green-600">{(image as any)?.name}</p>
                 )}
-                {
-                  image && <div className="absolute h-16 w-16 right-2 top-2 rounded-lg shadow  select-none z-10">
-                    <img  onMouseEnter={(e:any)=>ImageSizeIncrease(e.target)}  onMouseLeave={(e:any)=>ImageSizeIncrease(e.target)}  src={URL.createObjectURL(image)} className="h-full w-full bg-white object-contain imageSizer"  alt="" />
-                  </div>
-                }
+                
+              {image && (
+  <div 
+    className="absolute h-16 w-16 right-2 top-2 rounded-lg shadow select-none z-10 group"
+    onMouseEnter={(e: any) => ImageSizeIncrease(e.currentTarget.querySelector('img'))}
+    onMouseLeave={(e: any) => ImageSizeIncrease(e.currentTarget.querySelector('img'))}
+  >
+    <img 
+      src={URL.createObjectURL(image)} 
+      className="h-full w-full bg-white object-contain imageSizer rounded-sm"  
+      alt="" 
+    />
+    {/* Overlay with X icon */}
+    <div 
+      className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200  flex items-center justify-center cursor-pointer rounded-lg"
+      onClick={(e) => {
+        e.stopPropagation();
+        setImage(null);
+        if (imageRef.current) (imageRef as any).current.value = '';
+        const currentFormData = {
+          ...getValues(),
+          image: null,
+          document: fileDoc,
+          formIndex: formIndex
+        };
+        onFormDataChange(formIndex, currentFormData);
+      }}
+    >
+      <XIcon className="h-6 w-6 text-white" />
+    </div>
+  </div>
+)}
               </div>
 
-              <div
-                onClick={() => fileDocRef.current?.click()}
-                className="border-2 border-dashed border-gray-300 rounded-lg flex bg-transparent flex-col items-center justify-center p-6 cursor-pointer"
-              >
-                <FileUp className="h-6 w-6 mb-2 text-gray-500" />
-                <span className="text-sm text-muted-foreground text-center ">
-                  <span className="font-semibold">Browse From Device</span> <br /><span className="text-xs">to upload your doc/pdf (max 5 MB)</span>
-                </span>
-      
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  hidden
-                  ref={fileDocRef}
+             <div
+  onClick={() => fileDocRef.current?.click()}
+  className="border-2 border-dashed relative border-gray-300 rounded-lg flex bg-transparent flex-col items-center justify-center p-6 cursor-pointer"
+>
+  <FileUp className="h-6 w-6 mb-2 text-gray-500" />
+  <span className="text-sm text-muted-foreground text-center ">
+    <span className="font-semibold">Browse From Device</span> <br />
+    <span className="text-xs">to upload your doc/pdf (max 5 MB)</span>
+  </span>
 
-                  onChange={(e: any) => {
-                    if (e.target.files?.[0]) {
-                      const newDocument = e.target.files[0];
-                      if (newDocument.size === 0) {
-                        toast.error("Invalid Doc");
-                        return;
-                      }
-                      if (newDocument.size > 5 * 1024 * 1024) {
-                        toast.info("Document size should not exceed 5MB");
-                        return;
-                      }
-                      setFileDoc(newDocument);
-                      const currentFormData = {
-                        ...getValues(),
-                        image: image,
-                        document: newDocument,
-                        formIndex: formIndex
-                      };
-                      onFormDataChange(formIndex, currentFormData);
-                    }
-                  }}
-                />
-                {fileDoc && (
-                  <p className="text-xs mt-2 text-green-600">{(fileDoc as any).name}</p>
-                )}
-              </div>
+  <input
+    type="file"
+    accept=".pdf,.doc,.docx"
+    hidden
+    ref={fileDocRef}
+    onChange={(e: any) => {
+      if (e.target.files?.[0]) {
+        const newDocument = e.target.files[0];
+        if (newDocument.size === 0) {
+          toast.error("Invalid Doc");
+          return;
+        }
+        if (newDocument.size > 5 * 1024 * 1024) {
+          toast.info("Document size should not exceed 5MB");
+          return;
+        }
+        setFileDoc(newDocument);
+        const currentFormData = {
+          ...getValues(),
+          image: image,
+          document: newDocument,
+          formIndex: formIndex
+        };
+        onFormDataChange(formIndex, currentFormData);
+      }
+    }}
+  />
+  
+  {fileDoc && (
+    <p className="text-xs mt-2 text-green-600">{(fileDoc as any).name}</p>
+  )}
+
+  {/* Delete button overlay for document */}
+  {fileDoc && (
+
+    <div className='absolute top-2 right-2 z-10 bg-orange-100 text-orange-500 rounded-sm  p-1 cursor-pointer'
+           onClick={(e) => {
+        e.stopPropagation();
+        setFileDoc(null);
+        if (fileDocRef.current) fileDocRef.current.value = '';
+        const currentFormData = {
+          ...getValues(),
+          image: image,
+          document: null,
+          formIndex: formIndex
+        };
+        onFormDataChange(formIndex, currentFormData);
+      }}
+          >
+            <TooltipComp
+              hoverChildren={<X className='h-4 w-4' />}
+              contentChildren={<p>Remove Doc</p>}
+            ></TooltipComp>
+          </div>
+  
+  )}
+</div>
             </div>
             <Textarea
               placeholder="Description*"
@@ -1033,13 +1087,22 @@ const Category = () => {
   };
 
   const handleSubmitAllForms = async (isDraft: boolean, isPlaceRequirementPopup?: boolean) => {
-    setButtonType(isDraft ? true : false)
+    
+
     if (!user) {
       setOpen(true);
       return;
     }
 
+    // check the user deatils exisiting or not
+    if(!user?.firstName.trim() || !user?.lastName.trim() || !user?.email.trim() || !user?.phone.trim()){
+      toast.info('Please update your profile first before add the quotes')
+      navigate('/account')
+      return;
+    }
+    
 
+    setButtonType(isDraft ? true : false)
     const formsArray = Object.values(formsData) as any;
     const hasValidForms = isValidForms(formsArray, isDraft);
 
@@ -1252,13 +1315,13 @@ const Category = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          <Button
+          {/* <Button
 
             className="bg-orange-700 cursor-pointer w-32 text-[12px] hover:bg-orange-600 text-white  flex items-center gap-1 underline"
             onClick={handleAddForm}
           >
             <PlusIcon className="h-3 w-3" />Add Product
-          </Button>
+          </Button> */}
         </div>
 
         {/* Forms Counter */}

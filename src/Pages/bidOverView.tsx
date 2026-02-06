@@ -175,6 +175,14 @@ useEffect(() => {
   };
 }, [bidRes?.createdAt, bidRes?.product?.bidActiveDuration]);
 
+const Info = ({ label, value }: any) => (
+  <div className="flex gap-2">
+    <span className="text-gray-900 w-24 ">{label} :</span>
+    <span className="text-gray-600 font-medium truncate capitalize">
+      {value || "—"}
+    </span>
+  </div>
+);
 
 
   return (
@@ -295,9 +303,22 @@ useEffect(() => {
               )}
 
                 </div>
-                <p className="text-sm text-gray-500 mt-2 ">
-                 {bidRes?.product?.description}
-                </p>
+             <div className="mt-4 grid sm:grid-cols-2 gap-x-8 gap-y-2 text-xs text-gray-600">
+
+  <Info label="Category" value={bidRes?.product?.categoryId?.categoryName} />
+  <Info label="Brand" value={bidRes?.product?.brand || bidRes?.product?.brandName} />
+  <Info label="Product Type" value={bidRes?.product?.productType} />
+  <Info label="Type" value={bidRes?.product?.typeOfProduct} />
+  <Info label="Payment" value={bidRes?.product?.paymentAndDelivery?.paymentMode} />
+  <Info label="Org" value={bidRes?.product?.paymentAndDelivery?.organizationName} />
+  <Info label="GST" value={bidRes?.product?.paymentAndDelivery?.gstNumber} />
+  <Info label="Address" value={bidRes?.product?.paymentAndDelivery?.organizationAddress} />
+  <Info label="Bids" value={bidRes?.product?.totalBidCount} />
+  <Info label="Duration" value={`${bidRes?.product?.bidActiveDuration} days`} />
+
+</div>
+
+
               </div>
               <div className="mt-10 ">
                  <p className="font-bold text-lg whitespace-nowrap   tracking-tight text-orange-700/90">

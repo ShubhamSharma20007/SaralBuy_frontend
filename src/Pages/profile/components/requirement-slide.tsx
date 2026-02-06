@@ -87,7 +87,7 @@ function handleSubmitDraft(targetProduct: any) {
         {modifiedProducts.map((prt: any) => (
           <div
             key={prt._id}
-            className={`keen-slider__slide ${(target === 'requirement' || target === 'drafts') ? 'cursor-pointer' : ''}`}
+            className={`keen-slider__slide ${(target === 'requirement' || target === 'drafts') ? '' : ''}`}
             onClick={() => handleNavigate(prt)}
           >
             <ProductCard product={prt} target={target} />

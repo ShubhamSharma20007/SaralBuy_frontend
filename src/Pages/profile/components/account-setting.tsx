@@ -34,6 +34,7 @@ export function AccountSettings() {
       phone: '',
       address: "",
       aadhaarNumber: "",
+      businessName:''
     },
   })
 
@@ -48,6 +49,7 @@ export function AccountSettings() {
         email: "",
         address: "",
         aadhaarNumber: "",
+        businessName:''
         
       })
     }
@@ -62,19 +64,31 @@ export function AccountSettings() {
         email: (user as any)?.email || "",
         address: (user as any)?.address || "",
         aadhaarNumber: (user as any)?.aadhaarNumber || "",
+        businessName :(user as any)?.businessName || "",
 
       })
     }
   }, [user, reset])
 
+  function senitizeField(str:string,fieldName:string){
+    if(str.replace(/\s/g, '') === ''){
+      return toast.error(fieldName+' is required')
+    } 
+  }
+
   async function onSubmit(data: any) {
     const formData = new FormData()
+    senitizeField(data.firstName,'First Name')
+    senitizeField(data.lastName,'Last Name')
+    senitizeField(data.email,'Email')
+    // senitizeField(data.phone,'Phone')
     formData.append("firstName", data.firstName)
     formData.append("lastName", data.lastName)
     formData.append("email", data.email)
-    formData.append("phone", data.phone)
+    // formData.append("phone", data.phone)
     formData.append("address", data.address)
     formData.append("aadhaarNumber", data.aadhaarNumber)
+    formData.append('businessName',data.businessName)
 
     // Append file if selected
     if (fileDoc) {
@@ -124,7 +138,7 @@ export function AccountSettings() {
             <div className="grid grid-cols-2 gap-4">
               
               <div className="space-y-2">
-                <Label className="text-gray-600" htmlFor="first-name" >First Name</Label>
+                <Label className="text-gray-600 gap-0" htmlFor="first-name"  >First Name<span className="text-red-500">*</span></Label>
                 <Input
                   id="first-name"
                   placeholder="Enter first name"
@@ -133,7 +147,7 @@ export function AccountSettings() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-600" htmlFor="last-name">Last Name</Label>
+                <Label className="text-gray-600 gap-0" htmlFor="last-name" >Last Name<span className="text-red-500">*</span></Label>
                 <Input
                   id="last-name"
                   placeholder="Enter last name"
@@ -150,7 +164,7 @@ export function AccountSettings() {
                     id="business"
                     type="text"
                     placeholder="Business Name"
-                 
+                    {...register('businessName')}
                     className="pr-16 bg-transparent"
                   />
                 
@@ -160,7 +174,7 @@ export function AccountSettings() {
             </div>
             <div className="grid grid-cols-2 gap-4 ">
               <div className="space-y-2">
-                <Label className="text-gray-600" htmlFor="email">Email</Label>
+                <Label className="text-gray-600 gap-0" htmlFor="email">Email<span className="text-red-500">*</span></Label>
                 <div className="flex items-center gap-2 relative">
                   <Input
                     id="email"
@@ -179,19 +193,21 @@ export function AccountSettings() {
                   </Button>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-gray-600" htmlFor="phone">Phone</Label>
+              <div className="space-y-2 cursor-not-allowed">
+                <Label className="text-gray-600 gap-0 " htmlFor="phone">Phone<span className="text-red-500">*</span></Label>
                 <Input
-                  id="phone"
+                disabled
+                  type="text"  inputMode="numeric"
                   className="bg-transparent"
                   placeholder="Enter phone number "
+                 
                   {...register("phone")}
                 />
               </div>
             </div>
            
             <div className="space-y-2">
-              <Label className="text-gray-600" htmlFor="address">Address</Label>
+              <Label className="text-gray-600 gap-0" htmlFor="address">Address<span className="text-red-500">*</span></Label>
              <div className="relative">
                <Textarea
                cols={10}

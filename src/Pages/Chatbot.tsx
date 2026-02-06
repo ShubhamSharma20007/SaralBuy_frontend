@@ -817,7 +817,7 @@ const ChatArea = ({
                     {message.text && <p className="text-sm">{message.text}</p>}
                   </div>
                  <span className="text-xs text-muted-foreground mt-1">
-            {message.time
+           {message.time
               ? new Date(`1970-01-01T${message.time}`).toLocaleTimeString('en-IN', {
                   hour: '2-digit',
                   minute: '2-digit',

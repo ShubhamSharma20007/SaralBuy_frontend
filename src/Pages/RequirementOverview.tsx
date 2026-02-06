@@ -10,7 +10,6 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import requirementService from '@/services/requirement.service'
 import { Skeleton } from '@/Components/ui/skeleton'
 import { CategoryFormSkeleton } from '@/const/CustomSkeletons'
-import { Badge } from '@/Components/ui/badge'
 
 const RequirementOverview = () => {
   const location = useLocation()
@@ -23,7 +22,7 @@ const RequirementOverview = () => {
   const [requirementData, setRequirementData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [timeLeft, setTimeLeft] = useState<string>('');
-  let intervalRef = useRef<NodeJS.Timeout | null>(null)
+  let intervalRef = useRef<any|null>(null)
 
 
   useEffect(() => {
