@@ -13,7 +13,7 @@ import { useChatStore } from '@/zustand/chatStore'
 import { useLocation } from 'react-router-dom'
 import { toast } from "sonner"
 import requirementService from '@/services/requirement.service'
-
+import BudgetInputDialog from '@/Components/BudgetPopup';
 // Sidebar component to display recent chats
 const ContactsList = ({
   onSelectContact,
@@ -183,7 +183,7 @@ const ChatArea = ({
   const [isClosingDeal, setIsClosingDeal] = useState(false);
   const [isDealClosed, setIsDealClosed] = useState(false);
   const [budgetAmount, setBudgetAmount] = useState<number | null>(null);
-
+const [showBudgetDialog, setShowBudgetDialog] = useState(false);
   // Rating popup state
   const [showRatingPopup, setShowRatingPopup] = useState(false);
   const [ratingLoading, setRatingLoading] = useState(false);
@@ -548,77 +548,156 @@ const ChatArea = ({
     }, 100);
   };
 
-  const handleCloseDeal = async () => {
-    // Always use IDs from selectedContact for robustness
-    const sc = selectedContact;
-    if (!sc?.productId || !sc?.sellerId || !sc?.buyerId) {
-      toast.error("Missing required parameters to close deal.");
-      return;
-    }
-    let amount = budgetAmount;
-    if (amount === null || isNaN(amount)) {
-      const input = window.prompt("Enter the agreed budget amount to close the deal:");
-      if (!input) return;
-      amount = Number(input);
-      if (isNaN(amount)) {
-        toast.error("Invalid budget amount.");
-        return;
-      }
-      setBudgetAmount(amount);
-    }
-    setIsClosingDeal(true);
-    try {
-      await requirementService.closeDeal({
-        productId: sc.productId,
-        sellerId: sc.sellerId,
-        buyerId: sc.buyerId,
-        finalBudget: amount!,
-      });
-      
-      toast.success("Deal closed successfully!");
-      
-      // Re-check deal status immediately
-      checkDealStatus();
-      
-      // Debug log for chat object and _id
-      console.log("handleCloseDeal: selectedContact (sc):", sc);
-      console.log("handleCloseDeal: sc._id:", sc._id);
-      
-      // If sc._id is missing (optimistic chat), try to find it from recent chats
-      let chatIdForRating = sc._id;
-      if (!chatIdForRating) {
-        console.log("Chat ID missing, attempting to fetch from recent chats...");
-        // Retrieve recent chats to find the newly created/updated chat
-        chatService.getRecentChats(currentUserId, (data) => {
-          if (data && Array.isArray(data.chats)) {
-             const foundChat = data.chats.find((c: any) => 
-               (c.roomId === sc.roomId) || 
-               (c.product?._id === sc.productId && c.seller?._id === sc.sellerId && c.buyer?._id === sc.buyerId)
-             );
-             if (foundChat) {
-               console.log("Found chat for rating:", foundChat);
-               setLastClosedChatId(foundChat._id);
-               // Also update selectedContact with the real ID so future actions work
-               setSelectedContact((prev: any) => ({ ...prev, _id: foundChat._id }));
 
-               // Only open rating popup if we found a valid chat ID
-               setShowRatingPopup(true);
-             } else {
-               console.warn("Could not find chat in recent chats after deal close.");
-               toast.error("Could not find chat data for rating.");
-             }
+  const processDealClose = async (amount: number) => {
+  const sc = selectedContact;
+  if (!sc?.productId || !sc?.sellerId || !sc?.buyerId) {
+    toast.error("Missing required parameters to close deal.");
+    return;
+  }
+
+  setBudgetAmount(amount);
+  setIsClosingDeal(true);
+  
+  try {
+    await requirementService.closeDeal({
+      productId: sc.productId,
+      sellerId: sc.sellerId,
+      buyerId: sc.buyerId,
+      finalBudget: amount,
+    });
+    
+    toast.success("Deal closed successfully!");
+    setShowBudgetDialog(false); // Close dialog
+    checkDealStatus();
+
+    console.log("handleCloseDeal: selectedContact (sc):", sc);
+    console.log("handleCloseDeal: sc._id:", sc._id);
+
+    let chatIdForRating = sc._id;
+    if (!chatIdForRating) {
+      console.log("Chat ID missing, attempting to fetch from recent chats...");
+      chatService.getRecentChats(currentUserId, (data) => {
+        if (data && Array.isArray(data.chats)) {
+          const foundChat = data.chats.find((c: any) =>
+            (c.roomId === sc.roomId) ||
+            (c.product?._id === sc.productId && c.seller?._id === sc.sellerId && c.buyer?._id === sc.buyerId)
+          );
+          if (foundChat) {
+            console.log("Found chat for rating:", foundChat);
+            setLastClosedChatId(foundChat._id);
+            setSelectedContact((prev: any) => ({
+              ...prev,
+              _id: foundChat._id
+            }));
+            setShowRatingPopup(true);
+          } else {
+            console.warn("Could not find chat in recent chats after deal close.");
+            toast.error("Could not find chat data for rating.");
           }
-        });
-      } else {
-        setLastClosedChatId(chatIdForRating);
-        setShowRatingPopup(true);
-      }
-    } catch (err: any) {
-      toast.error("Failed to close deal.");
-    } finally {
-      setIsClosingDeal(false);
+        }
+      });
+    } else {
+      setLastClosedChatId(chatIdForRating);
+      setShowRatingPopup(true);
     }
-  };
+  } catch (err: any) {
+    toast.error("Failed to close deal.");
+  } finally {
+    setIsClosingDeal(false);
+  }
+};
+
+  // const handleCloseDeal = async () => {
+  //   // Always use IDs from selectedContact for robustness
+  //   const sc = selectedContact;
+  //   if (!sc?.productId || !sc?.sellerId || !sc?.buyerId) {
+  //     toast.error("Missing required parameters to close deal.");
+  //     return;
+  //   }
+  //   let amount = budgetAmount;
+  //   if (amount === null || isNaN(amount)) {
+  //     const input = window.prompt("Enter the agreed budget amount to close the deal:");
+  //     if (!input) return;
+  //     amount = Number(input);
+  //     if (isNaN(amount)) {
+  //       toast.error("Invalid budget amount.");
+  //       return;
+  //     }
+  //     setBudgetAmount(amount);
+  //   }
+  //   setIsClosingDeal(true);
+  //   try {
+  //     await requirementService.closeDeal({
+  //       productId: sc.productId,
+  //       sellerId: sc.sellerId,
+  //       buyerId: sc.buyerId,
+  //       finalBudget: amount!,
+  //     });
+      
+  //     toast.success("Deal closed successfully!");
+      
+  //     // Re-check deal status immediately
+  //     checkDealStatus();
+      
+  //     // Debug log for chat object and _id
+  //     console.log("handleCloseDeal: selectedContact (sc):", sc);
+  //     console.log("handleCloseDeal: sc._id:", sc._id);
+      
+  //     // If sc._id is missing (optimistic chat), try to find it from recent chats
+  //     let chatIdForRating = sc._id;
+  //     if (!chatIdForRating) {
+  //       console.log("Chat ID missing, attempting to fetch from recent chats...");
+  //       // Retrieve recent chats to find the newly created/updated chat
+  //       chatService.getRecentChats(currentUserId, (data) => {
+  //         if (data && Array.isArray(data.chats)) {
+  //            const foundChat = data.chats.find((c: any) => 
+  //              (c.roomId === sc.roomId) || 
+  //              (c.product?._id === sc.productId && c.seller?._id === sc.sellerId && c.buyer?._id === sc.buyerId)
+  //            );
+  //            if (foundChat) {
+  //              console.log("Found chat for rating:", foundChat);
+  //              setLastClosedChatId(foundChat._id);
+  //              // Also update selectedContact with the real ID so future actions work
+  //              setSelectedContact((prev: any) => ({ ...prev, _id: foundChat._id }));
+
+  //              // Only open rating popup if we found a valid chat ID
+  //              setShowRatingPopup(true);
+  //            } else {
+  //              console.warn("Could not find chat in recent chats after deal close.");
+  //              toast.error("Could not find chat data for rating.");
+  //            }
+  //         }
+  //       });
+  //     } else {
+  //       setLastClosedChatId(chatIdForRating);
+  //       setShowRatingPopup(true);
+  //     }
+  //   } catch (err: any) {
+  //     toast.error("Failed to close deal.");
+  //   } finally {
+  //     setIsClosingDeal(false);
+  //   }
+  // };
+
+  const handleCloseDeal = async () => {
+  // Always use IDs from selectedContact for robustness
+  const sc = selectedContact;
+  if (!sc?.productId || !sc?.sellerId || !sc?.buyerId) {
+    toast.error("Missing required parameters to close deal.");
+    return;
+  }
+
+  let amount = budgetAmount;
+  if (amount === null || isNaN(amount)) {
+    // Show dialog instead of window.prompt
+    setShowBudgetDialog(true);
+    return;
+  }
+
+  await processDealClose(amount);
+};
+
 
   // Handle rating submit
   const handleSubmitRating = async (chatId: string, rating: number) => {
@@ -659,6 +738,12 @@ const ChatArea = ({
   const isSelfChat = (currentUserId === actualBuyerId && currentUserId === actualSellerId) || actualBuyerId === actualSellerId;
   return (
     <>
+    <BudgetInputDialog
+  open={showBudgetDialog}
+  setOpen={setShowBudgetDialog}
+  onConfirm={processDealClose}
+  loading={isClosingDeal}
+/>
       <div className="flex-1 flex flex-col border-1 rounded-md w-full min-h-0">
         {/* Chat Header */}
         <div className="border-b border-chat-border bg-background">
@@ -700,11 +785,11 @@ const ChatArea = ({
                         size="sm"
                         className={`${
                             (waitingSellerApproval && isSeller) || (waitingSellerApproval && isBuyer) 
-                                ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
+                                ? "bg-orange-600 hover:bg-orange-700 text-white border-orange-600" 
                                 : isDealRejected 
                                     ? "bg-red-100 text-red-600 border-red-200 hover:bg-red-100 cursor-not-allowed"
                                     : "text-orange-600 hover:text-orange-600 bg-transparent cursor-pointer hover:bg-transparent border-orange-600"
-                        } w-24 sm:w-auto px-4 text-sm font-medium`}
+                        } w-24 sm:w-auto px-4 text-sm font-medium cursor-pointer`}
                         onClick={waitingSellerApproval && isSeller ? () => setShowApprovalPopup(true) : handleCloseDeal}
                         disabled={isClosingDeal || (isDealClosed && !(waitingSellerApproval && isSeller)) || messages.length === 0 || isDealRejected}
                       >
@@ -1429,12 +1514,12 @@ const Chatbot = () => {
       }
       
       // Show toast notification only to the other party
-      if (currentUserId && ratedBy && currentUserId !== ratedBy) {
-        toast.info(`Rating Update`, {
-          description: message || `${raterName} rated this chat ${rating} stars`,
-          duration: 4000,
-        });
-      }
+      // if (currentUserId && ratedBy && currentUserId !== ratedBy) {
+      //   toast.info(`Rating Update`, {
+      //     description: message || `${raterName} rated this chat ${rating} stars`,
+      //     duration: 4000,
+      //   });
+      // }
     };
 
 

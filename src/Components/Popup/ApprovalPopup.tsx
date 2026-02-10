@@ -45,7 +45,7 @@ const ApprovalPopup: React.FC<Props> = ({ open, setOpen, dealId, budget, partner
                 {loading ? "Processing..." : "Reject Deal"}
               </Button>
               <Button
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold disabled:opacity-50"
+                className="bg-orange-600 cursor-pointer hover:bg-orange-700 text-white px-6 py-2 rounded font-semibold disabled:opacity-50"
                 onClick={() => handleAction('accept')}
                 disabled={loading}
               >

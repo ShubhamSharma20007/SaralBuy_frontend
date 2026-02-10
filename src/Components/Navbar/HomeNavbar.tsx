@@ -496,10 +496,10 @@
             ...prev
         ]);
         
-        toast.info("Deal Request", {
-            description: message || "Buyer requested to close the deal",
-            duration: 5000,
-        });
+        // toast.info("Deal Request", {
+        //     description: message || "Buyer requested to close the deal",
+        //     duration: 5000,
+        // });
       };
 
       const handleDealResolution = (data: any) => {
