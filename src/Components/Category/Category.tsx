@@ -1095,7 +1095,7 @@ const Category = () => {
     }
 
     // check the user deatils exisiting or not
-    if(!user?.firstName.trim() || !user?.lastName.trim() || !user?.email.trim() || !user?.phone.trim()){
+    if(!user?.firstName?.trim() || !user?.lastName?.trim() || !user?.email?.trim() || !user?.phone?.trim()){
       toast.info('Please update your profile first before add the quotes')
       navigate('/account')
       return;

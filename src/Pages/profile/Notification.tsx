@@ -50,8 +50,13 @@ const Notification = () => {
         setNotifications(Array.isArray(data) ? data : []);
         setLoading(false);
       })
-      .catch((err) => {
-        setError('Failed to load notifications');
+      .catch((error) => {
+        error = error?.response?.data?.message || error?.response?.data?.error?.message || error.message as string || error;
+            console.log(error)
+            if(error === "Token not found"){
+                // error = 'Session expired, please login again'
+                window.dispatchEvent(new CustomEvent('session-expired'))
+            }
         setLoading(false);
       });
   }, []);
@@ -113,7 +118,11 @@ const Notification = () => {
       {loading && <div className="text-center text-gray-500">Loading...</div>}
       {error && <div className="text-center text-red-500">{error}</div>}
       {!loading && !error && notifications.length === 0 && (
-        <div className="text-center text-gray-500">No notifications found.</div>
+
+        <div className="text-center text-gray-500 h-[60vh] flex  justify-center items-center flex-col" >
+          <img alt="" className="h-28 w-28" src="/empty-cart.webp"></img>
+            <p className='text-md text-center'> No notifications found.</p>
+          </div>
       )}
       {!loading && !error && notifications?.flatMap((notif, idx) => {
         // Capitalize first letter of product title
