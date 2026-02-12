@@ -148,11 +148,23 @@
     const [notificationCount, setNotificationCount] = useState(0);
 
     useEffect(() => {
-        const unseenBidCount = bidNotifications.filter(n => n.seen === false).length;
+        // Filter out chat ratings and deals from bidNotifications for accurate counting
+        const actualBidNotifications = bidNotifications.filter(n => {
+          const titleLower = n.title?.toLowerCase() || '';
+          const isChatRating = titleLower.includes('chat rated');
+          const isDeal = titleLower.includes('deal accepted') || 
+                        titleLower.includes('deal rejected') || 
+                        titleLower.includes('close deal request') ||
+                        titleLower.includes('deal request');
+          return !isChatRating && !isDeal;
+        });
+        
+        const unseenBidCount = actualBidNotifications.filter(n => n.seen === false).length;
+        const unseenChatRatingCount = chatRatingNotifications.filter(n => n.seen === false).length;
         setNotificationCount(
             unseenBidCount + 
             productNotifications.length + 
-            chatRatingNotifications.length + 
+            unseenChatRatingCount + 
             dealNotifications.length
         );
     }, [bidNotifications, productNotifications, chatRatingNotifications, dealNotifications]);
@@ -193,8 +205,48 @@
           RequirementService.getBidNotifications()
             .then((data) => {
               if (Array.isArray(data)) {
-                // On initial load, just set the notifications from API
-                setBidNotifications(data);
+                // Separate notifications by type based on title
+                const chatRatings: any[] = [];
+                const deals: any[] = [];
+                const bids: any[] = [];
+                
+                data.forEach((notif) => {
+                  const titleLower = notif.title?.toLowerCase() || '';
+                  
+                  if (titleLower.includes('chat rated')) {
+                    // Add to chat rating notifications with proper structure
+                    chatRatings.push({
+                      ...notif,
+                      chatId: notif._id,
+                      timestamp: notif.createdAt,
+                      receivedAt: Date.now(),
+                      seen: notif.seen || false
+                    });
+                  } else if (
+                    titleLower.includes('deal accepted') || 
+                    titleLower.includes('deal rejected') || 
+                    titleLower.includes('close deal request') ||
+                    titleLower.includes('deal request')
+                  ) {
+                    // Deal notifications stay in bidNotifications for now
+                    // (they'll be filtered out when combining for display)
+                    bids.push(notif);
+                  } else {
+                    // Regular bid notifications
+                    bids.push(notif);
+                  }
+                });
+                
+                // Set the separated notifications
+                setBidNotifications(bids);
+                
+                // Merge chat ratings from API with any existing socket-based ones
+                setChatRatingNotifications((prev) => {
+                  // Avoid duplicates by checking _id
+                  const existingIds = new Set(prev.map(n => n._id || n.chatId));
+                  const newRatings = chatRatings.filter(n => !existingIds.has(n._id));
+                  return [...prev, ...newRatings];
+                });
               }
             })
             .catch((err) => {
@@ -455,12 +507,23 @@
         
         // Add to notifications list
         setChatRatingNotifications((prev) => {
-          // Prevent duplicates
-          const exists = prev.some((n) => n.chatId === chatId && n.timestamp === timestamp);
-          if (exists) return prev;
+          // Prevent duplicates - check both socket-based and API-based notifications
+          const exists = prev.some((n) => {
+            // Check if same notification from socket (chatId + timestamp match)
+            const sameSocket = n.chatId === chatId && n.timestamp === timestamp;
+            // Check if same notification from API (_id match)
+            const sameAPI = n._id && data._id && n._id === data._id;
+            return sameSocket || sameAPI;
+          });
+          
+          if (exists) {
+            console.log("🚫 Duplicate chat rating notification, ignoring");
+            return prev;
+          }
           
           return [
             {
+              _id: data._id, // Include _id if available from socket
               chatId,
               roomId,
               rating,
@@ -468,6 +531,9 @@
               message,
               timestamp,
               receivedAt: Date.now(),
+              seen: false, // Mark as unseen initially
+              title: `Chat rated ${rating} stars`,
+              description: message || `${raterName} rated ${rating} star${rating !== 1 ? 's' : ''}`,
             },
             ...prev,
           ];
@@ -956,205 +1022,295 @@
     </PopoverTrigger>
 
     <PopoverContent className="mt-2 w-80 p-2 rounded-xl shadow-lg border border-gray-200 bg-white empty:p-0">
-      {notificationCount === 0 ? (
-        <p className="text-sm text-center text-gray-500 py-4">
-          No new notifications
-        </p>
-      ) : (
-        <div className="max-h-80 overflow-y-auto">
-          {/* Bid Notifications */}
-          {bidNotifications.filter(n => n.seen === false).length > 0 &&
-  bidNotifications.filter(n => n.seen === false).slice(0, 5).map((notif, idx) => (
-    <div
-      key={`bid-${idx}`}
-      onClick={() => {
-        // Mark this notification as seen
-        if (notif._id && notif.seen === false) {
-          RequirementService.markNotificationsSeen([notif._id])
-            .then(() => {
-              setBidNotifications((prev) => 
-                prev.map(n => n._id === notif._id ? { ...n, seen: true } : n)
-              );
-            })
-            .catch((err) => {
-              console.error('Failed to mark notification as seen:', err);
-            });
+      {(() => {
+        // Combine ALL notifications (seen and unseen) and limit to 5 total
+        // Filter out chat ratings and deals from bidNotifications since they're handled separately
+        const filteredBidNotifications = bidNotifications.filter(n => {
+          const titleLower = n.title?.toLowerCase() || '';
+          const isChatRating = titleLower.includes('chat rated');
+          const isDeal = titleLower.includes('deal accepted') || 
+                        titleLower.includes('deal rejected') || 
+                        titleLower.includes('close deal request') ||
+                        titleLower.includes('deal request');
+          return !isChatRating && !isDeal;
+        });
+        
+        const allNotifications = [
+          ...filteredBidNotifications.map(n => ({ ...n, notifType: 'bid' })),
+          ...chatRatingNotifications.map(n => ({ ...n, notifType: 'chatRating' })),
+          ...productNotifications.map(n => ({ ...n, notifType: 'product' })),
+          ...dealNotifications.map(n => ({ ...n, notifType: 'deal' }))
+        ];
+        
+        // Sort by timestamp/receivedAt and take only first 5
+        const sortedNotifications = allNotifications
+          .sort((a, b) => {
+            const timeA = a.receivedAt || a.timestamp || a.latestBid?.date || a.createdAt || Date.now();
+            const timeB = b.receivedAt || b.timestamp || b.latestBid?.date || b.createdAt || Date.now();
+            return new Date(timeB).getTime() - new Date(timeA).getTime();
+          })
+          .slice(0, 5);
+        
+        if (sortedNotifications.length === 0) {
+          return (
+            <p className="text-sm text-center text-gray-500 py-4">
+              No notifications
+            </p>
+          );
         }
         
-        navigate(`/account/bid`);
-        setShowProductNotifDropdown(false);
-      }}
-      className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-    >
-      <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
-        <Gavel className="w-4 h-4" />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold">
-          {notif.product?.title || notif.productId?.title || "New Quote"}
-        </p>
-
-        <p className="text-sm text-gray-600 truncate">
-         You have new Quote on your requirement.
-        </p>
-
-        {notif.latestBid?.date && (
-          <span className="text-xs text-gray-400">
-            {format(new Date(notif.latestBid.date), "hh:mm a").toLowerCase()}
-          </span>
-        )}
-      </div>
-    </div>
-  ))}
-
-          {/* View All Notifications Button for Bid Notifications */}
-          {bidNotifications.filter(n => n.seen === false).length > 5 && (
-            <div className="border-t border-gray-200 pt-2">
-              <button
-                onClick={() => {
-                  markBidNotificationsAsSeen();
-                  navigate('/account/notification');
-                  setShowProductNotifDropdown(false);
-                }}
-                className="w-full text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
-              >
-                View All Notifications
-              </button>
-            </div>
-          )}
-
-
-          {/* Product Notifications */}
-          {productNotifications.map((notif, idx) => (
-            <div
-              key={`prod-${idx}`}
-              onClick={() => {
-                // Remove from list
-                setProductNotifications((prev) =>
-                  prev.filter((_, i) => i !== idx)
+        return (
+          <div className="max-h-80 overflow-y-auto">
+            {sortedNotifications.map((notif, idx) => {
+              // Determine notification type from title or notifType
+              // Check most specific patterns first to avoid misidentification
+              const titleLower = notif.title?.toLowerCase() || '';
+              const isChatRating = notif.notifType === 'chatRating' || titleLower.includes('chat rated');
+              const isDealAccepted = titleLower.includes('deal accepted');
+              const isDealRejected = titleLower.includes('deal rejected');
+              const isDealRequest = titleLower.includes('close deal request') || titleLower.includes('deal request');
+              const isDealFromAPI = isDealRequest || isDealAccepted || isDealRejected;
+              const isBid = !isChatRating && !isDealFromAPI && (notif.notifType === 'bid' || titleLower.includes('bid'));
+              const isProduct = notif.notifType === 'product';
+              const isDealFromSocket = notif.notifType === 'deal';
+              
+              if (isChatRating) {
+                return (
+                  <div
+                    key={`rating-${notif._id || idx}`}
+                    onClick={() => {
+                      // Mark as seen instead of removing
+                      setChatRatingNotifications((prev) =>
+                        prev.map((n) => 
+                          n.chatId === notif.chatId && n.timestamp === notif.timestamp 
+                            ? { ...n, seen: true } 
+                            : n
+                        )
+                      );
+                      // Navigate to chat (no roomId check needed, just navigate)
+                      navigate('/chat');
+                      // Close Popover
+                      setShowProductNotifDropdown(false);
+                    }}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+                  >
+                    <div className="bg-yellow-500 p-2 rounded-full text-white flex-shrink-0">
+                      <Star className="w-4 h-4 fill-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold">Chat Rated</p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {notif.description || notif.title || 'Chat rating notification'}
+                      </p>
+                      <span className="text-xs text-gray-400">
+                        {notif.timestamp
+                          ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase()
+                          : notif.createdAt
+                          ? format(new Date(notif.createdAt), "hh:mm a").toLowerCase()
+                          : ""}
+                      </span>
+                    </div>
+                  </div>
                 );
-                // Navigate
-                if (notif.productId) {
-                  navigate(
-                    `/product-overview?productId=${encodeURIComponent(
-                      notif.productId
-                    )}`
-                  );
-                } else {
-                  toast.error("Product ID missing in notification.");
-                }
-                // Close Popover
-                setShowProductNotifDropdown(false);
-              }}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-            >
-              <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
-                <Box className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold">{notif.title}</p>
-                <p className="text-sm text-gray-600 truncate">
-                  {notif.description}
-                </p>
-                <span className="text-xs text-gray-400">
-                  {notif.receivedAt
-                    ? format(new Date(notif.receivedAt), "hh:mm a").toLowerCase()
-                    : ""}
-                </span>
-              </div>
-            </div>
-          ))}
+              } else if (isDealFromAPI) {
+                // Deal notification from API (based on title)
+                return (
+                  <div 
+                    key={`deal-api-${notif._id || idx}`}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+                    onClick={() => {
+                      // Mark as seen
+                      if (notif._id && notif.seen === false) {
+                        RequirementService.markNotificationsSeen([notif._id])
+                          .then(() => {
+                            setBidNotifications((prev) => 
+                              prev.map(n => n._id === notif._id ? { ...n, seen: true } : n)
+                            );
+                          })
+                          .catch((err) => {
+                            console.error('Failed to mark notification as seen:', err);
+                          });
+                      }
+                      navigate('/chat');
+                      setShowProductNotifDropdown(false);
+                    }}
+                  >
+                    <div className={`p-2 rounded-full text-white flex-shrink-0 ${
+                      isDealRequest ? 'bg-blue-500' :
+                      isDealAccepted ? 'bg-green-500' : 
+                      'bg-red-500'
+                    }`}>
+                      {isDealRequest ? <FileText className="w-4 h-4 fill-white" /> : 
+                       isDealAccepted ? <CheckCircle className="w-4 h-4" /> : 
+                       <XCircle className="w-4 h-4" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold">
+                        {isDealRequest ? 'Deal Requested' : 
+                         isDealAccepted ? 'Deal Accepted' : 'Deal Rejected'}
+                      </p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {notif.description || notif.title}
+                      </p>
+                      <span className="text-xs text-gray-400">
+                        {notif.createdAt
+                          ? format(new Date(notif.createdAt), "hh:mm a").toLowerCase()
+                          : ""}
+                      </span>
+                    </div>
+                  </div>
+                );
+              } else if (isBid) {
+                return (
+                  <div
+                    key={`bid-${idx}`}
+                    onClick={() => {
+                      // Mark this notification as seen
+                      if (notif._id && notif.seen === false) {
+                        RequirementService.markNotificationsSeen([notif._id])
+                          .then(() => {
+                            setBidNotifications((prev) => 
+                              prev.map(n => n._id === notif._id ? { ...n, seen: true } : n)
+                            );
+                          })
+                          .catch((err) => {
+                            console.error('Failed to mark notification as seen:', err);
+                          });
+                      }
+                      
+                      navigate(`/account/bid`);
+                      setShowProductNotifDropdown(false);
+                    }}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+                  >
+                    <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
+                      <Gavel className="w-4 h-4" />
+                    </div>
 
-          {/* Deal Notifications */}
-          {dealNotifications.map((notif, index) => (
-            <div 
-                key={`deal-${index}`}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-                onClick={() => {
-                    // Navigate to chat if deal info available
-                    if (notif.deal) {
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold">
+                        {notif.product?.title || notif.productId?.title || "New Quote"}
+                      </p>
+
+                      <p className="text-sm text-gray-600 truncate">
+                       You have new Quote on your requirement.
+                      </p>
+
+                      {(notif.latestBid?.date || notif.createdAt) && (
+                        <span className="text-xs text-gray-400">
+                          {format(new Date(notif.latestBid?.date || notif.createdAt), "hh:mm a").toLowerCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              } else if (isProduct) {
+                return (
+                  <div
+                    key={`prod-${idx}`}
+                    onClick={() => {
+                      // Remove from list
+                      setProductNotifications((prev) =>
+                        prev.filter((n) => n.productId !== notif.productId || n.receivedAt !== notif.receivedAt)
+                      );
+                      // Navigate
+                      if (notif.productId) {
+                        navigate(
+                          `/product-overview?productId=${encodeURIComponent(
+                            notif.productId
+                          )}`
+                        );
+                      } else {
+                        toast.error("Product ID missing in notification.");
+                      }
+                      // Close Popover
+                      setShowProductNotifDropdown(false);
+                    }}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+                  >
+                    <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
+                      <Box className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold">{notif.title}</p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {notif.description}
+                      </p>
+                      <span className="text-xs text-gray-400">
+                        {notif.receivedAt
+                          ? format(new Date(notif.receivedAt), "hh:mm a").toLowerCase()
+                          : ""}
+                      </span>
+                    </div>
+                  </div>
+                );
+              } else if (isDealFromSocket) {
+                return (
+                  <div 
+                    key={`deal-socket-${notif.timestamp || idx}`}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
+                    onClick={() => {
+                      // Navigate to chat if deal info available
+                      if (notif.deal) {
                         navigate('/chat', {
-                            state: {
-                                productId: notif.deal.productId, 
-                                sellerId: notif.deal.sellerDetails?.sellerId || notif.deal.sellerId,
-                                buyerId: notif.deal.buyerId
-                            }
+                          state: {
+                            productId: notif.deal.productId, 
+                            sellerId: notif.deal.sellerDetails?.sellerId || notif.deal.sellerId,
+                            buyerId: notif.deal.buyerId
+                          }
                         });
-                    }
-                    setDealNotifications(prev => prev.filter((_, i) => i !== index));
-                    setShowNotifDropdown(false); // Close Popover (matching showProductNotifDropdown usage if that was the name, but here it seems to be showProductNotifDropdown for everything?? No wait, looking at code it seems showProductNotifDropdown is used for this popover?
-                    // Wait, let's check what popover this is.
-                    // Lines 34-37 imported Popover.
-                    // Lines 998: </PopoverContent>
-                    // Line 937: setShowProductNotifDropdown(false);
-                    // It seems the MAIN bell icon uses showProductNotifDropdown? 
-                    // Let's check the Trigger.
-                    setShowProductNotifDropdown(false);
-                }}
-            >
-                <div className={`p-2 rounded-full text-white flex-shrink-0 ${
-                    notif.type === 'request' ? 'bg-blue-500' :
-                    notif.action === 'accept' ? 'bg-green-500' : 
-                    'bg-red-500'
-                }`}>
-                    {notif.type === 'request' ? <FileText className="w-4 h-4 fill-white" /> : 
-                     notif.action === 'accept' ? <CheckCircle className="w-4 h-4" /> : 
-                     <XCircle className="w-4 h-4" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="font-semibold">
-                        {notif.type === 'request' ? 'Deal Requested' : 
+                      }
+                      setDealNotifications(prev => prev.filter((n) => n.timestamp !== notif.timestamp));
+                      setShowProductNotifDropdown(false);
+                    }}
+                  >
+                    <div className={`p-2 rounded-full text-white flex-shrink-0 ${
+                      notif.action === 'request' ? 'bg-blue-500' :
+                      notif.action === 'accept' ? 'bg-green-500' : 
+                      'bg-red-500'
+                    }`}>
+                      {notif.action === 'request' ? <FileText className="w-4 h-4 fill-white" /> : 
+                       notif.action === 'accept' ? <CheckCircle className="w-4 h-4" /> : 
+                       <XCircle className="w-4 h-4" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold">
+                        {notif.action === 'request' ? 'Deal Requested' : 
                          notif.action === 'accept' ? 'Deal Accepted' : 'Deal Rejected'}
-                    </p>
-                    <p className="text-sm text-gray-600 truncate">
+                      </p>
+                      <p className="text-sm text-gray-600 truncate">
                         {notif.message}
-                    </p>
-                    <span className="text-xs text-gray-400">
-                        {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
-                    </span>
-                </div>
-            </div>
-          ))}
-
-          {/* Chat Rating Notifications */}
-          {chatRatingNotifications.map((notif, idx) => (
-            <div
-              key={`rating-${idx}`}
-              onClick={() => {
-                // Remove from list
-                setChatRatingNotifications((prev) =>
-                  prev.filter((_, i) => i !== idx)
+                      </p>
+                      <span className="text-xs text-gray-400">
+                        {notif.timestamp
+                          ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase()
+                          : ""}
+                      </span>
+                    </div>
+                  </div>
                 );
-                // Navigate to chat
-                if (notif.roomId) {
-                  navigate('/chat');
-                } else {
-                  toast.error("Chat information missing in notification.");
-                }
-                // Close Popover
-                setShowProductNotifDropdown(false);
-              }}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-            >
-              <div className="bg-yellow-500 p-2 rounded-full text-white flex-shrink-0">
-                <Star className="w-4 h-4 fill-white" />
+              }
+              return null;
+            })}
+
+            {/* View All Notifications Button */}
+            {allNotifications.length > 5 && (
+              <div className="border-t border-gray-200 pt-2">
+                <button
+                  onClick={() => {
+                    markBidNotificationsAsSeen();
+                    navigate('/account/notification');
+                    setShowProductNotifDropdown(false);
+                  }}
+                  className="w-full text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
+                >
+                  View All Notifications
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold">Chat Rated</p>
-                <p className="text-sm text-gray-600 truncate">
-                  {notif.raterName} rated {notif.rating} star{notif.rating !== 1 ? 's' : ''}
-                </p>
-                <span className="text-xs text-gray-400">
-                  {notif.timestamp
-                    ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase()
-                    : ""}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            )}
+          </div>
+        );
+      })()}
     </PopoverContent>
   </Popover>
 

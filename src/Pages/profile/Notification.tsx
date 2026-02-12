@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../Components/ui/button';
-import { ArrowUpDown, ListFilter, Trash2 } from 'lucide-react';
+import { ArrowUpDown, ListFilter, Trash2, Star, FileText, CheckCircle, XCircle } from 'lucide-react';
 import RequirementService from '../../services/requirement.service';
 import { sortByDate } from '@/helper/sortByDate';
 import AlertPopup from '@/Components/Popup/AlertPopup';
@@ -12,7 +12,7 @@ import AlertPopup from '@/Components/Popup/AlertPopup';
 interface BidNotification {
   id?: string;
   requirementId?: string;
-  productId?: string;
+  productId?: any;
   product?: {
     title?: string;
     _id?: string;
@@ -26,7 +26,10 @@ interface BidNotification {
   };
   title?: string;
   message?: string;
+  description?: string;
   date?: string;
+  createdAt?: string;
+  seen?: boolean;
   [key: string]: any;
 }
 
@@ -125,6 +128,97 @@ const Notification = () => {
           </div>
       )}
       {!loading && !error && notifications?.flatMap((notif, idx) => {
+        // Check notification type based on title
+        // Check most specific patterns first to avoid misidentification
+        const titleLower = notif.title?.toLowerCase() || '';
+        const isChatRating = titleLower.includes('chat rated');
+        const isDealAccepted = titleLower.includes('deal accepted');
+        const isDealRejected = titleLower.includes('deal rejected');
+        const isDealRequest = titleLower.includes('close deal request') || titleLower.includes('deal request');
+        const isDeal = isDealRequest || isDealAccepted || isDealRejected;
+        
+        if (isChatRating) {
+          // Render chat rating notification
+          return (
+            <div key={notif._id}>
+              <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-yellow-100/50' : 'bg-transparent'} rounded-md space-y-2 relative group`}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                  onClick={() => handleDeleteClick(notif._id || '')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <div className='grid grid-cols-3 items-center gap-5'>
+                  <p className='text-md font-bold text-gray-800 capitalize col-span-2 flex items-center gap-2'>
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    {notif.title}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 items-center gap-5">
+                  <p className="text-sm font-medium text-gray-600 line-clamp-2 col-span-2">
+                    {notif.description}
+                  </p>
+                  <p
+                    className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
+                    onClick={() => {
+                      navigate('/chat');
+                    }}
+                  >
+                    View
+                  </p>
+                </div>
+              </div>
+              <div className='border-b-2 pt-2 mx-[0.5px]'></div>
+            </div>
+          );
+        }
+        
+        if (isDeal) {
+          // Render deal notification
+          const bgColor = isDealRequest ? 'bg-blue-100/50' : isDealAccepted ? 'bg-green-100/50' : 'bg-red-100/50';
+          const iconColor = isDealRequest ? 'text-blue-500' : isDealAccepted ? 'text-green-500' : 'text-red-500';
+          const fillColor = isDealRequest ? 'fill-blue-500' : isDealAccepted ? 'fill-green-500' : 'fill-red-500';
+
+          return (
+            <div key={notif._id}>
+              <div className={`p-4 grid ${idx % 2 === 0 ? bgColor : 'bg-transparent'} rounded-md space-y-2 relative group`}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                  onClick={() => handleDeleteClick(notif._id || '')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <div className='grid grid-cols-3 items-center gap-5'>
+                  <p className='text-md font-bold text-gray-800 capitalize col-span-2 flex items-center gap-2'>
+                    {isDealRequest && <FileText className={`w-5 h-5 ${iconColor} ${fillColor}`} />}
+                    {isDealAccepted && <CheckCircle className={`w-5 h-5 ${iconColor}`} />}
+                    {isDealRejected && <XCircle className={`w-5 h-5 ${iconColor}`} />}
+                    {notif.title}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 items-center gap-5">
+                  <p className="text-sm font-medium text-gray-600 line-clamp-2 col-span-2">
+                    {notif.description}
+                  </p>
+                  <p
+                    className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
+                    onClick={() => {
+                      navigate('/chat');
+                    }}
+                  >
+                    View
+                  </p>
+                </div>
+              </div>
+              <div className='border-b-2 pt-2 mx-[0.5px]'></div>
+            </div>
+          );
+        }
+        
         // Capitalize first letter of product title
         const productTitle =
           (notif.productId && typeof notif.productId === 'object' && (notif.productId as any).title)
