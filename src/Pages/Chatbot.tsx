@@ -14,6 +14,7 @@ import { useLocation } from 'react-router-dom'
 import { toast } from "sonner"
 import requirementService from '@/services/requirement.service'
 import BudgetInputDialog from '@/Components/BudgetPopup';
+import { mergeName } from '@/helper/mergeName';
 // Sidebar component to display recent chats
 const ContactsList = ({
   onSelectContact,
@@ -93,6 +94,7 @@ const ContactsList = ({
                     </Avatar>
                     {/* Online/Offline indicator - green for online, red for offline */}
                     {isOnline ? (
+
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                     ) : (
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full"></div>
@@ -102,9 +104,9 @@ const ContactsList = ({
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col">
                         <h3 className="font-semibold text-gray-600 truncate">{contact.name}</h3>
-                        <span className={`text-xs font-medium ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+                        {/* <span className={`text-xs font-medium ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
                           {isOnline ? 'Online' : 'Offline'}
-                        </span>
+                        </span> */}
                       </div>
                       <div className='flex flex-col items-end gap-1'>
                       <span className="text-xs text-muted-foreground ml-2">
@@ -187,10 +189,10 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
   // Rating popup state
   const [showRatingPopup, setShowRatingPopup] = useState(false);
   const [ratingLoading, setRatingLoading] = useState(false);
-
+  const {user} = getUserProfile();
   // Store last closed chatId for rating
   const [lastClosedChatId, setLastClosedChatId] = useState<string | null>(null);
-
+ const initialGreetingSentRef = useRef<Set<string>>(new Set());
   // Attachment state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
@@ -245,8 +247,59 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
             ? new Date(msg.timestamp).toLocaleTimeString()
             : "",
           attachment: msg.attachment || null,
+          timestamp:msg.timestamp
         }));
+        console.log(mappedMessages,324)
         setMessages(mappedMessages);
+
+         const roomId = selectedContact?.roomId || chatService.generateRoomId(actualProductId, actualBuyerId, actualSellerId);
+         if (mappedMessages.length === 0 && !initialGreetingSentRef.current.has(roomId)) {
+          initialGreetingSentRef.current.add(roomId);
+          
+          setTimeout(() => {
+            const senderId = currentUserId || (userType === "buyer" ? actualBuyerId : actualSellerId);
+            
+            console.log("Auto-sending initial greeting for new chat:", roomId);
+            const greetingMsg = `Hi this side ${mergeName(user)}. How i can help you?`
+            chatService.sendMessage(
+              actualProductId,
+              actualSellerId,
+              greetingMsg,
+              senderId,
+              userType,
+              actualBuyerId,
+              undefined
+            );
+            
+            const greetingMessage = {
+              id: Date.now().toString(),
+              text: greetingMsg,
+              senderId: senderId,
+              senderType: userType,
+              time: new Date().toLocaleTimeString(),
+              isOptimistic: true,
+              attachment: null,
+            };
+            
+            setMessages([greetingMessage]);
+            
+            // Update sidebar contact info
+            if (typeof onSidebarContactUpdate === "function" && selectedContact) {
+              onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
+                ...prev,
+                lastMessage: {
+                  message: greetingMsg,
+                  timestamp: new Date().toISOString(),
+                  senderId: senderId,
+                  senderType: userType,
+                },
+                buyerUnreadCount: userType === "buyer" ? 0 : prev.buyerUnreadCount,
+                sellerUnreadCount: userType === "seller" ? 0 : prev.sellerUnreadCount,
+              }));
+            }
+          }, 500); // Small delay to ensure socket is ready
+        }
+        
         // Scroll to bottom after messages are loaded
         setTimeout(() => scrollToBottom(), 100);
         // Update sidebar contact info with proper unread counts
@@ -858,13 +911,13 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
             return (
               <React.Fragment key={message.id}>
                 {/* Date Separator */}
-                {/* {showDateSeparator && (message.timestamp || message.time) && (
+                {showDateSeparator && (message.timestamp || message.time) && (
                   <div className="flex items-center justify-center my-4">
                     <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
                       {message.timestamp ? getDateLabel(message.timestamp) : getDateLabel(new Date())}
                     </div>
                   </div>
-                )} */}
+                )}
                 
                 <div
                   className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
@@ -901,23 +954,29 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
                     )}
                     {message.text && <p className="text-sm">{message.text}</p>}
                   </div>
-                 <span className="text-xs text-muted-foreground mt-1">
-           {message.time
-              ? new Date(`1970-01-01T${message.time}`).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-              : message.timestamp
-              ? new Date(message.timestamp).toLocaleTimeString('en-IN', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                })
-              : ""}
-            {" "}
-            {/* • {isMine ? 'You' : message.senderType} */}
-          </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                {message.timestamp ? (
+                  <>
+                    {/* ({new Date(message.timestamp).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })})
+                    {" • "} */}
+                    {new Date(message.timestamp).toLocaleTimeString('en-IN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
+                  </>
+                ) : message.time ? (
+                  new Date(`1970-01-01T${message.time}`).toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })
+                ) : ""}
+              </span>
 
                 </div>
               </React.Fragment>
@@ -1055,10 +1114,12 @@ const Chatbot = () => {
 
   const currentUserId = user?._id;
   const [recentChats, setRecentChats] = useState<any[]>([]);
+  const [temporaryChats, setTemporaryChats] = useState<any[]>([]);
   // Subscribe to Zustand chat store so socket-driven recent_chat_update updates UI
   useEffect(() => {
     // subscribe(listener) where listener receives the whole state
     const unsub = useChatStore.subscribe((state) => {
+      console.log(state.recentChats,234324)
       setRecentChats(state.recentChats || []);
     });
     // initialize from store if present
@@ -1542,6 +1603,7 @@ const Chatbot = () => {
       }
     };
   }, [currentUserId, selectedContact]);
+  
 
   // Clear chatIds from localStorage when leaving
   useEffect(() => {

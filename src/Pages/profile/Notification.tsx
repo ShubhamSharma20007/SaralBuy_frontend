@@ -330,20 +330,27 @@ const Notification = () => {
               </Button>
               <div className='grid grid-cols-3 items-center gap-5'>
                 <p className='text-md font-bold text-gray-800 capitalize col-span-2'>
-                  New Quote Received
+                  {notif.title}
                 </p>
                 <p className='text-sm text-orange-500 col-span-1 text-right'>
                   {bidDate}
                 </p>
               </div>
               <div className="grid grid-cols-3 items-center gap-5">
-                <p className="text-sm font-medium text-gray-600 line-clamp-1 col-span-2">
+                {
+                  notif.title?.match(/Deal Closed/) ?
+                  <p className="text-sm font-medium text-gray-600 line-clamp-1 col-span-2">
+                    {notif.description}
+                  </p>
+                  :
+                  <p className="text-sm font-medium text-gray-600 line-clamp-1 col-span-2">
                   You have got a new Quote on <span className="font-semibold decoration-red-500">
                     {productTitle}
                   </span> by <span className="font-semibold decoration-red-500">
                     {sellerName}
                   </span>.
                 </p>
+                }
                 <p
                   className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
                   onClick={() => {

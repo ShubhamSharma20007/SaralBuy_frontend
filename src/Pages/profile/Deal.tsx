@@ -188,8 +188,8 @@ const Deal = () => {
         {/* tabs */}
         <Tabs defaultValue="approved_bids" className='grid space-y-2 w-full bg-transparent overflow-hidden' onValueChange={(val) => setTab(val)} >
           <TabsList className='bg-transparent'>
-            <TabsTrigger value="approved_bids" className={`cursor-pointer min-w-40`}>Deals Awarded</TabsTrigger>
-            <TabsTrigger value="completed_requirements" className={`cursor-pointer `}><span className="hidden sm:inline-block">Requirements </span> Awarded</TabsTrigger>
+            <TabsTrigger value="approved_bids" className={`cursor-pointer min-w-40 mr-3`}>Requirements Awarded </TabsTrigger>
+            <TabsTrigger value="completed_requirements" className={`cursor-pointer `}> <span className="hidden sm:inline-block">Deals </span> Awarded</TabsTrigger>
           </TabsList>
 
           <TabsContent value="approved_bids" className='w-full overflow-hidden '>

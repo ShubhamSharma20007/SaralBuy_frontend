@@ -51,6 +51,7 @@ const ProductOverview = () => {
   const { fn: updateUserBidDets, data: updateUserBidDetsRes, loading: updateUserBidDetsLoading } = useFetch(bidService.updateUserBidDets)
   const { fn: getBidByProductIdFn, data: getBidByProductIdRes, loading: getBidByProductIdLoading } = useFetch(bidService.getbidByProductId)
   const { fn: createBidFn, data: createBidRes, loading: createBidLoading } = useFetch(bidService.createBid);
+  const { fn: createRequirementFn } = useFetch(bidService.createRequirement);
   const { fn: addToCartFn, data: addToCartRes, loading: addToCartLoading } = useFetch(cartService.addToCart)
   const [open, setOpen] = useState(false)
   const [sellerVerification, setSellerVerification] = useState(false)
@@ -154,10 +155,9 @@ const ProductOverview = () => {
       setSellerVerification(true)
     }
     try {
-      await Promise.all([
-        createBidFn(buyerId, productId, obj),
-        bidService.createRequirement({ productId, sellerId, buyerId, budgetAmount })
-      ])
+       await createBidFn(buyerId, productId, obj)
+
+     
     } catch (err) {
       console.log(err);
       toast.error('Failed to place Quote');
@@ -246,7 +246,19 @@ const ProductOverview = () => {
         console.log('main product is missing to update bid count');
       }
 
-      toast.success('Quote created successfully');
+
+       const buyerId = productResponse?.mainProduct.userId?._id;
+    const productId = productResponse?.mainProduct._id;
+    const sellerId = userProfile?.user._id;
+    const budgetAmount = Number(getValues().budgetQuation) || 0;
+      createRequirementFn({   
+        productId,
+        sellerId,
+        buyerId,
+        budgetAmount
+      });
+
+        toast.success('Quote created successfully');
       setSellerVerification(false);
       setBusinessType('');
       reset({
@@ -265,7 +277,11 @@ const ProductOverview = () => {
         sellerType:''
         
       });
+
     }
+
+    
+   
   }, [createBidRes]);
 
 
