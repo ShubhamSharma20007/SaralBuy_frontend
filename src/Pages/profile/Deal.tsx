@@ -105,13 +105,13 @@ const Deal = () => {
       accessorKey: "product",
       header: "Product",
     },
-    // {
-    //   accessorKey: "min_budget",
-    //   header: "Min Budget",
-    // },
     {
       accessorKey: "your_budget",
       header: "Final Price",
+    },
+    {
+      accessorKey: "dealStatus",
+      header: "Deal Status",
     },
 
     {
@@ -168,7 +168,8 @@ const Deal = () => {
           date: dateFormatter(item?.date),
           product: item?.product?.title,
           min_budget: item?.minBudget,
-          your_budget: item?.sellerDetails?.budgetAmount
+          your_budget: item?.sellerDetails?.budgetAmount,
+          dealStatus:(item?.closedDealStatus === 'waiting_seller_approval' || item?.closedDealStatus === 'pending' ? 'Waiting for seller approval' : item?.closedDealStatus === 'rejected' ? 'Rejected' : '')
         }))
         setApprovedRequirements(formattedData)
       }

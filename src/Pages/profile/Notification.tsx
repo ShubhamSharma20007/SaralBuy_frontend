@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../Components/ui/button';
-import { ArrowUpDown, ListFilter, Trash2, Star, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowUpDown, ListFilter, Trash2, Star, FileText, CheckCircle, XCircle, Handshake, Gavel } from 'lucide-react';
 import RequirementService from '../../services/requirement.service';
 import { sortByDate } from '@/helper/sortByDate';
 import AlertPopup from '@/Components/Popup/AlertPopup';
@@ -141,7 +141,7 @@ const Notification = () => {
           // Render chat rating notification
           return (
             <div key={notif._id}>
-              <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-yellow-100/50' : 'bg-transparent'} rounded-md space-y-2 relative group`}>
+              <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2 relative group`}>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -177,13 +177,13 @@ const Notification = () => {
         
         if (isDeal) {
           // Render deal notification
-          const bgColor = isDealRequest ? 'bg-blue-100/50' : isDealAccepted ? 'bg-green-100/50' : 'bg-red-100/50';
+          const bgColor = isDealRequest ? 'bg-blue-100/50' : isDealAccepted ? 'bg-green-100/40' : 'bg-red-100/40';
           const iconColor = isDealRequest ? 'text-blue-500' : isDealAccepted ? 'text-green-500' : 'text-red-500';
           const fillColor = isDealRequest ? 'fill-blue-500' : isDealAccepted ? 'fill-green-500' : 'fill-red-500';
 
           return (
             <div key={notif._id}>
-              <div className={`p-4 grid ${idx % 2 === 0 ? bgColor : 'bg-transparent'} rounded-md space-y-2 relative group`}>
+              <div className={`p-4 grid ${idx % 2 === 0 ? 'bg-orange-100/50' : 'bg-transparent'} rounded-md space-y-2 relative group`}>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -329,9 +329,14 @@ const Notification = () => {
                 <Trash2 className="h-4 w-4  text-red-500 cursor-pointer rounded-full" />
               </Button>
               <div className='grid grid-cols-3 items-center gap-5'>
-                <p className='text-md font-bold text-gray-800 capitalize col-span-2'>
-                  {notif.title}
-                </p>
+                <p className='text-md font-bold text-gray-800 capitalize col-span-2 flex items-center gap-2'>
+                   {
+                    notif.title === 'Deal Closed' ? 
+                     <Handshake className="w-5 h-5 text-yellow-500 fill-yellow-500" />: <Gavel className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                   }
+                    {notif.title}
+                  </p>
+  
                 <p className='text-sm text-orange-500 col-span-1 text-right'>
                   {bidDate}
                 </p>

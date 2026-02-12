@@ -1302,7 +1302,7 @@
                     navigate('/account/notification');
                     setShowProductNotifDropdown(false);
                   }}
-                  className="w-full text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
+                  className="w-full cursor-pointer text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
                 >
                   View All Notifications
                 </button>
