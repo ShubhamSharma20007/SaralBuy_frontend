@@ -104,7 +104,6 @@ const RequirementOverview = () => {
       size: 60,
       cell: ({ row }) => {
         const image = row.original.avtar
-        console.log(image)
         const name = row.original.bid_buy || "NA"
         const initials = name
           .split(" ")

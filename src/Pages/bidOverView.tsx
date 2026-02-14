@@ -281,9 +281,12 @@ const Info = ({ label, value }: any) => (
                   Date: {dateFormatter(bidRes?.createdAt)}
                 </h2>
                 <div className="flex justify-between items-center gap-10">
-                  <h2 className="text-xl font-bold capitalize item-center">
+                <div>
+                    <h2 className="text-xl font-bold capitalize item-center">
                    {bidRes?.product?.title}
                   </h2>
+                  <p className="text-sm mt-2">{bidRes?.product?.description}</p>
+                </div>
               {loading || !timeLeft ? (
                 <Skeleton className="h-8 w-24 rounded-full float-end" />
               ) : timeLeft !== 'Expired' ? (
