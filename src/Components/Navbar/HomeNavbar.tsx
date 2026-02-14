@@ -35,7 +35,11 @@
     PopoverContent,
     PopoverTrigger,
   } from "@/Components/ui/popover"
-  import RequirementService from "@/services/requirement.service";
+
+
+  // Custom Hook & Utils
+  import { useNotifications } from '@/hooks/useNotifications';
+  import { NotificationDeduplicator } from '@/utils/notification.utils';
 
   import { Badge } from "../ui/badge";
   import { format } from "date-fns";
@@ -119,7 +123,18 @@
     const { user } = getUserProfile();
     // Chat store
     const { recentChats, setRecentChats, markAsRead, setUserOnline, setUserOffline, isUserOnline } = useChatStore();
-    const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+    
+    // --- NEW NOTIFICATION HOOK ---
+    const { 
+      notifications, 
+      unseenCount, 
+      handleNotificationClick,
+      markAsSeen 
+    } = useNotifications();
+
+    const [showMessageDropdown, setShowMessageDropdown] = useState(false);
+    const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+    
     const location = useLocation();
     const isChatActive = location.pathname === '/chat' || (typeof window !== 'undefined' && localStorage.getItem('chatbot_active_user') === 'true');
     const unreadChatsCount = isChatActive ? 0 : recentChats
@@ -131,45 +146,8 @@
        return acc + (unreadCount > 0 ? 1 : 0);
     }, 0);
 
-    // Bid notifications
-    const [bidNotifications, setBidNotifications] = useState<any[]>([]);
 
-    // Product notifications
-    const [productNotifications, setProductNotifications] = useState<any[]>([]);
-    
-    // Chat rating notifications
-    // Chat rating notifications
-    const [chatRatingNotifications, setChatRatingNotifications] = useState<any[]>([]);
 
-    // Deal notifications
-    const [dealNotifications, setDealNotifications] = useState<any[]>([]);
-    
-    // Notification count
-    const [notificationCount, setNotificationCount] = useState(0);
-
-    useEffect(() => {
-        // Filter out chat ratings and deals from bidNotifications for accurate counting
-        const actualBidNotifications = bidNotifications.filter(n => {
-          const titleLower = n.title?.toLowerCase() || '';
-          const isChatRating = titleLower.includes('chat rated');
-          const isDeal = titleLower.includes('deal accepted') || 
-                        titleLower.includes('deal rejected') || 
-                        titleLower.includes('close deal request') ||
-                        titleLower.includes('deal request');
-          return !isChatRating && !isDeal;
-        });
-        
-        const unseenBidCount = actualBidNotifications.filter(n => n.seen === false).length;
-        const unseenChatRatingCount = chatRatingNotifications.filter(n => n.seen === false).length;
-        setNotificationCount(
-            unseenBidCount + 
-            productNotifications.length + 
-            unseenChatRatingCount + 
-            dealNotifications.length
-        );
-    }, [bidNotifications, productNotifications, chatRatingNotifications, dealNotifications]);
-
-    const [showProductNotifDropdown, setShowProductNotifDropdown] = useState(false);
     const { fn, data } = useFetch(ProductService.getSeachProduct)
     const [text, setText] = useState('');
     const [products, setProducts] = useState<ProductsType[]>([]);
@@ -191,67 +169,12 @@
       setText(value)
     }
 
-    // --- Chat notification logic ---
+    // --- Chat Service & Message Logic (Preserved) ---
     useEffect(() => {
       const chatService = ChatService.getInstance();
-      chatService.connect();
       
       const fetchRecentChats = () => {
         if (user?._id) {
-          chatService.identify(user._id);
-          chatService.getBidNotifications(user._id);
-          
-          // Fetch bid notifications from API on mount/refresh
-          RequirementService.getBidNotifications()
-            .then((data) => {
-              if (Array.isArray(data)) {
-                // Separate notifications by type based on title
-                const chatRatings: any[] = [];
-                const deals: any[] = [];
-                const bids: any[] = [];
-                
-                data.forEach((notif) => {
-                  const titleLower = notif.title?.toLowerCase() || '';
-                  
-                  if (titleLower.includes('chat rated')) {
-                    // Add to chat rating notifications with proper structure
-                    chatRatings.push({
-                      ...notif,
-                      chatId: notif._id,
-                      timestamp: notif.createdAt,
-                      receivedAt: Date.now(),
-                      seen: notif.seen || false
-                    });
-                  } else if (
-                    titleLower.includes('deal accepted') || 
-                    titleLower.includes('deal rejected') || 
-                    titleLower.includes('close deal request') ||
-                    titleLower.includes('deal request')
-                  ) {
-                    // Deal notifications stay in bidNotifications for now
-                    // (they'll be filtered out when combining for display)
-                    bids.push(notif);
-                  } else {
-                    // Regular bid notifications
-                    bids.push(notif);
-                  }
-                });
-                
-                // Set the separated notifications
-                setBidNotifications(bids);
-                
-                // Merge chat ratings from API with any existing socket-based ones
-                setChatRatingNotifications((prev) => {
-                  // Avoid duplicates by checking _id
-                  const existingIds = new Set(prev.map(n => n._id || n.chatId));
-                  const newRatings = chatRatings.filter(n => !existingIds.has(n._id));
-                  return [...prev, ...newRatings];
-                });
-              }
-            })
-            .catch((err) => {
-              console.error('Failed to fetch bid notifications:', err);
-            });
           
           // Fetch recent chats to populate store
           chatService.getRecentChats(user._id, (data) => {
@@ -303,94 +226,13 @@
       document.addEventListener('visibilitychange', handleVisibilityChange);
       window.addEventListener('focus', handleFocus);
       
-      // We rely on chatService.ts handling 'recent_chat_update' to update the store
-      // But we call identify above to ensure socket is ready
-
-      const handleProductNotification = (data: any) => {
-        setProductNotifications((prev) => {
-          // Remove existing if present to move to top
-          const filtered = prev.filter(
-            (n) =>
-              !(n.productId === data.productId &&
-                n.title === data.title &&
-                n.description === data.description)
-          );
-          return [
-            {
-              productId: data.productId,
-              title: data.title,
-              description: data.description,
-              receivedAt: Date.now(),
-            },
-            ...filtered,
-          ];
-        });
-      };
-
-      const handleBidNotificationList = (data: any) => {
-        if (Array.isArray(data)) {
-          setBidNotifications((prev) => {
-            // Merge socket data with existing, remove duplicates based on _id
-            const existingIds = new Set(prev.map(n => n._id).filter(Boolean));
-            const newNotifications = data.filter((n: any) => !n._id || !existingIds.has(n._id));
-            return [...newNotifications, ...prev];
-          });
-        }
-      };
-
-      const handleNewBid = (data: any) => {
-        console.log("socket NEW BID received in Navbar:", data);
-        setBidNotifications((prev) => {
-          // Check for duplicates using multiple fields: _id, bidId, or combination of requirementId + timestamp
-          const isDuplicate = prev.some((n) => {
-            // Check by _id if both exist
-            if (n._id && data._id && n._id === data._id) return true;
-            // Check by bidId if both exist
-            if (n.bidId && data.bidId && n.bidId === data.bidId) return true;
-            // Check by requirementId + productId combination
-            if (n.requirementId && data.requirementId && 
-                n.requirementId === data.requirementId &&
-                n.productId === data.productId) {
-              // If same requirement and product, check if timestamp is very close (within 1 second)
-              const timeDiff = Math.abs((n.latestBid?.date || 0) - (data.latestBid?.date || Date.now()));
-              if (timeDiff < 1000) return true;
-            }
-            return false;
-          });
-          
-          if (isDuplicate) {
-             console.log("Duplicate notification ignored");
-             return prev;
-          }
-
-          // Add the new notification to the top
-          return [
-            {
-              _id: data._id,
-              requirementId: data.requirementId,
-              productId: data.productId,
-              product: { title: data.productTitle, _id: data.productId },
-              totalBids: data.totalBids || 1, 
-              latestBid: { date: Date.now() },
-              allBids: [], 
-              seen: false,
-              ...data
-            },
-            ...prev,
-          ];
-        });
-      };
 
       const handleNewMessage = (data: any) => {
         console.log("New Message Notification in Navbar:", data);
-        console.log("Available fields:", Object.keys(data));
         
         // Extract senderType and message from lastMessage object
         const senderType = data.lastMessage?.senderType;
         const message = data.lastMessage?.message || 'New message';
-        
-        console.log("Sender type:", senderType);
-        console.log("Message:", message);
         
         // Determine sender's name - check multiple sources
         let senderName = 'User';
@@ -398,49 +240,35 @@
         // First, try direct fields from notification
         if (data.senderName) {
           senderName = data.senderName;
-          console.log("Using senderName:", senderName);
         } else if (senderType === 'buyer' && data.buyerName) {
           senderName = data.buyerName;
-          console.log("Using buyerName:", senderName);
         } else if (senderType === 'seller' && data.sellerName) {
           senderName = data.sellerName;
-          console.log("Using sellerName:", senderName);
         } 
         // If not found, try to get from recentChats store
         else if (data.roomId) {
           const chat = recentChats.find(c => c.roomId === data.roomId);
-          console.log("Found chat in recentChats:", chat);
           if (chat) {
             // Show the sender's name (the person who sent the message)
             if (senderType === 'buyer') {
-              // Message is from buyer - show buyer's name
-              // Use chat.name if current user is NOT the buyer (meaning chat.name is the buyer's name)
-              // Otherwise extract from buyer object
               senderName = chat.buyerId !== user?._id 
                 ? chat.name || 'Buyer'
                 : (chat.buyer?.firstName || chat.buyer?.lastName 
                     ? `${chat.buyer?.firstName || ''} ${chat.buyer?.lastName || ''}`.trim() 
                     : 'Buyer');
             } else if (senderType === 'seller') {
-              // Message is from seller - show seller's name
-              // Use chat.name if current user is NOT the seller (meaning chat.name is the seller's name)
-              // Otherwise extract from seller object
               senderName = chat.sellerId !== user?._id
                 ? chat.name || 'Seller'
                 : (chat.seller?.firstName || chat.seller?.lastName
                     ? `${chat.seller?.firstName || ''} ${chat.seller?.lastName || ''}`.trim()
                     : 'Seller');
             }
-            console.log("Using name from recentChats:", senderName);
           }
         }
         // Final fallback to senderType
         else if (senderType) {
           senderName = senderType.charAt(0).toUpperCase() + senderType.slice(1);
-          console.log("Using senderType fallback:", senderName);
         }
-        
-        console.log("Final sender name:", senderName);
         
         toast.message(`New message from ${senderName}`, {
            description: message,
@@ -470,219 +298,64 @@
         });
       };
 
-      // Listen for product notifications
-      chatService.onProductNotification(handleProductNotification);
-
-      // Listen for bid notifications
-      chatService.onBidNotification(handleBidNotificationList);
-
-      // Listen for new bid events (real-time)
-      chatService.onNewBid(handleNewBid);
-
       // Listen for new message notifications
       chatService.onNewMessageNotification(handleNewMessage);
 
       // Listen for user online/offline status
       const handleUserOnline = (data: any) => {
-        console.log("🟢 User came online:", data.userId);
         setUserOnline(data.userId);
       };
 
       const handleUserOffline = (data: any) => {
-        console.log("🔴 User went offline:", data.userId);
         setUserOffline(data.userId);
-      };
-
-      // Listen for chat rating notifications
-      const handleChatRating = (data: any) => {
-        console.log("⭐ Chat rating notification in Navbar:", data);
-        
-        const { rating, raterName, message, chatId, roomId, timestamp, ratedBy } = data;
-        
-        // Prevent showing notification to the person who gave the rating
-        if (user?._id && ratedBy && user._id === ratedBy) {
-            console.log("🚫 Ignoring self-rating notification");
-            return;
-        }
-        
-        // Add to notifications list
-        setChatRatingNotifications((prev) => {
-          // Prevent duplicates - check both socket-based and API-based notifications
-          const exists = prev.some((n) => {
-            // Check if same notification from socket (chatId + timestamp match)
-            const sameSocket = n.chatId === chatId && n.timestamp === timestamp;
-            // Check if same notification from API (_id match)
-            const sameAPI = n._id && data._id && n._id === data._id;
-            return sameSocket || sameAPI;
-          });
-          
-          if (exists) {
-            console.log("🚫 Duplicate chat rating notification, ignoring");
-            return prev;
-          }
-          
-          return [
-            {
-              _id: data._id, // Include _id if available from socket
-              chatId,
-              roomId,
-              rating,
-              raterName,
-              message,
-              timestamp,
-              receivedAt: Date.now(),
-              seen: false, // Mark as unseen initially
-              title: `Chat rated ${rating} stars`,
-              description: message || `${raterName} rated ${rating} star${rating !== 1 ? 's' : ''}`,
-            },
-            ...prev,
-          ];
-        });
-        
-        // Show toast notification
-        toast.info(`Chat Rated`, {
-          description: message || `${raterName} rated the chat ${rating} stars`,
-          duration: 4000,
-        });
-      };
-
-      // Handle Deal Notifications
-      const handleCloseDealRequest = (data: any) => {
-        console.log("📝 Close deal request in Navbar:", data);
-        const { deal, message } = data;
-        
-        setDealNotifications((prev) => [
-            {
-                type: 'request',
-                deal,
-                message: message || "New deal close request",
-                timestamp: Date.now(),
-                read: false
-            },
-            ...prev
-        ]);
-        
-        // toast.info("Deal Request", {
-        //     description: message || "Buyer requested to close the deal",
-        //     duration: 5000,
-        // });
-      };
-
-      const handleDealResolution = (data: any) => {
-        console.log("⚖️ Deal resolution in Navbar:", data);
-        const { deal, action, message } = data;
-        
-        setDealNotifications((prev) => [
-            {
-                type: 'resolution',
-                action,
-                deal,
-                message: message || `Deal was ${action}ed`,
-                timestamp: Date.now(),
-                read: false
-            },
-            ...prev
-        ]);
-
-        if (action === 'accept') {
-            toast.success("Deal Accepted", { description: message || "Seller accepted the deal" });
-        } else {
-            toast.error("Deal Rejected", { description: message || "Seller rejected the deal" });
-        }
       };
 
       chatService.onUserOnline(handleUserOnline);
       chatService.onUserOffline(handleUserOffline);
-      chatService.onChatRating(handleChatRating);
-      chatService.onCloseDealRequest(handleCloseDealRequest);
-      chatService.onDealResolution(handleDealResolution);
 
       return () => {
           document.removeEventListener('visibilitychange', handleVisibilityChange);
           window.removeEventListener('focus', handleFocus);
-          chatService.offProductNotification(handleProductNotification);
-          chatService.offBidNotification(handleBidNotificationList);
-          chatService.offNewBid(handleNewBid);
           chatService.offNewMessageNotification(handleNewMessage);
           chatService.offUserOnline(handleUserOnline);
           chatService.offUserOffline(handleUserOffline);
-          chatService.offChatRating(handleChatRating);
-          chatService.offCloseDealRequest(handleCloseDealRequest);
-          chatService.offDealResolution(handleDealResolution);
-          chatService.offCloseDealRequest(handleCloseDealRequest);
-          chatService.offDealResolution(handleDealResolution);
       };
-    }, [user?._id]);
-/* Removed effect that clears bid notifications on dropdown open */
+    }, [user?._id, recentChats]); 
 
-// console.log(bidNotifications,"bidNotifications")
-    // Show/hide chat notification dropdown (do NOT clear notifications here)
-    const handleBellClick = () => {
-      setShowNotifDropdown((prev) => !prev);
-      // Do not clear notifications here; let user see them in dropdown
+
+    // Show/hide chat notification dropdown
+    const handleMessageBellClick = () => {
+      setShowMessageDropdown((prev) => !prev);
     };
 
-    // Mark bid notifications as seen
-    const markBidNotificationsAsSeen = () => {
-      const unseenBidNotifications = bidNotifications.filter(n => n.seen === false);
-      if (unseenBidNotifications.length > 0) {
-        const notificationIds = unseenBidNotifications.map(n => n._id).filter(Boolean);
-        if (notificationIds.length > 0) {
-          // Mark as seen via API
-          RequirementService.markNotificationsSeen(notificationIds)
-            .then(() => {
-              // Update local state to mark as seen
-              setBidNotifications((prev) => 
-                prev.map(n => 
-                  notificationIds.includes(n._id) ? { ...n, seen: true } : n
-                )
-              );
-            })
-            .catch((err) => {
-              console.error('Failed to mark notifications as seen:', err);
-            });
-        }
-      }
-    };
-
-    // Show/hide product notification dropdown
-    // const handleProductBellClick = () => {
-    //   setShowProductNotifDropdown((prev) => !prev);
-    //   // Do not clear product notifications here; let user see them in dropdown
-    // };
-
-    // Remove notification on click and optionally navigate to chat
-    // Notification click: navigate to chat with all IDs, then clear notification
-    const handleNotificationClick = (notif: any) => {
+    const handleMessageClick = (chat: any) => {
       // Optimistically mark as read locally
-      if (notif.roomId && user?._id) {
-          markAsRead(notif.roomId, user._id);
+      if (chat.roomId && user?._id) {
+          markAsRead(chat.roomId, user._id);
       }
-      setShowNotifDropdown(false);
+      setShowMessageDropdown(false);
 
       // Defensive: Try to get all required IDs
-      let { productId, buyerId, sellerId, roomId } = notif;
+      let { productId, buyerId, sellerId, roomId } = chat;
 
       // Try to infer missing IDs from lastMessage or user context
       if (!buyerId) {
-        // Try from lastMessage or current user
-        buyerId = notif.lastMessage?.buyerId || (user?.role === "buyer" ? user._id : undefined);
+        buyerId = chat.lastMessage?.buyerId || (user?.role === "buyer" ? user._id : undefined);
       }
       if (!sellerId) {
-        sellerId = notif.lastMessage?.sellerId || (user?.role === "seller" ? user._id : undefined);
+        sellerId = chat.lastMessage?.sellerId || (user?.role === "seller" ? user._id : undefined);
       }
       if (!productId) {
-        productId = notif.lastMessage?.productId;
+        productId = chat.lastMessage?.productId;
       }
 
-      // If any required ID is missing, show alert and do not navigate
+      // If any required ID is missing, try to navigate generally to chat
       if (!productId || !buyerId || !sellerId) {
-        alert("Error: Missing chat parameters. Please try again later or contact support.");
-        console.warn("Missing chat parameters", { productId, buyerId, sellerId, notif });
+        navigate('/chat');
         return;
       }
 
-      // Store IDs in localStorage for Chatbot fallback
+      // Store IDs in localStorage
       localStorage.setItem('chatIds', JSON.stringify({
         productId,
         buyerId,
@@ -690,7 +363,7 @@
         roomId,
       }));
 
-      // Navigate to chat with state (for immediate use)
+      // Navigate to chat
       navigate('/chat', {
         state: {
           productId,
@@ -865,8 +538,8 @@
   {/*  messaging */}
              {
               user &&  <Popover
-                open={showNotifDropdown}
-                onOpenChange={setShowNotifDropdown}
+                open={showMessageDropdown}
+                onOpenChange={setShowMessageDropdown}
               >
                 <PopoverTrigger>
                     <div
@@ -876,7 +549,7 @@
                          if (recentChats.length === 0) {
                             navigate('/chat');
                          } else {
-                            handleBellClick();
+                            handleMessageBellClick();
                          }
                       }}
                     >
@@ -893,7 +566,7 @@
                 </PopoverTrigger>
 
               <PopoverContent className="mt-2 w-80  empty:p-0 p-0 rounded-xl shadow-lg border border-gray-200 bg-white">
-      {showNotifDropdown && (
+      {showMessageDropdown && (
       <>
         {recentChats.filter(chat => chat.lastMessage).length === 0 ? (
           <p className="text-sm text-center text-gray-500 py-4">
@@ -925,7 +598,7 @@
                  return (
                 <div
                   key={idx}
-                  onClick={() => handleNotificationClick(chat)}
+                  onClick={() => handleMessageClick(chat)}
                   className={`flex w-full items-center gap-3 p-2 rounded-lg transition cursor-pointer ${isUnread ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50'}`}
                 >
                   <div className="bg-orange-500 p-2 rounded-full text-white flex items-center justify-center shadow-sm flex-shrink-0 relative">
@@ -977,7 +650,7 @@
               <div className="border-t border-gray-200 p-2">
                 <button
                   onClick={() => {
-                    setShowNotifDropdown(false);
+                    setShowMessageDropdown(false);
                     navigate('/chat');
                   }}
                   className="w-full text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
@@ -997,320 +670,118 @@
 
 
   {/*  product + bid notification */}
-
-  <Popover open={showProductNotifDropdown} onOpenChange={(open) => {
-    // Mark as seen when closing the dropdown
-    if (!open && showProductNotifDropdown) {
-      markBidNotificationsAsSeen();
+  <Popover open={showNotificationDropdown} onOpenChange={(open) => {
+    // Mark all unseen as seen when closing dropdown
+    if (!open && showNotificationDropdown) {
+        const unseenIds = notifications
+            .filter(n => !n.seen && n._id)
+            .map(n => n._id!);
+        if (unseenIds.length > 0) {
+            markAsSeen(unseenIds);
+        }
     }
-    setShowProductNotifDropdown(open);
+    setShowNotificationDropdown(open);
   }}>
     <PopoverTrigger>
-      <div
-        className="cursor-pointer relative  bg-transparent border-0 shadow-none"
-      >
-        <Bell className="w-5 h-5 text-gray-600 " />
-        {notificationCount > 0 && (
+      <div className="cursor-pointer relative bg-transparent border-0 shadow-none">
+        <Bell className="w-5 h-5 text-gray-600" />
+        {unseenCount > 0 && (
           <Badge
             className="h-5 min-w-5 text-xs rounded-full px-1.5 py-0.5 flex items-center justify-center absolute -top-2 -right-2 shadow-md"
             variant="destructive"
           >
-            {notificationCount}
+            {unseenCount}
           </Badge>
         )}
       </div>
     </PopoverTrigger>
 
-    <PopoverContent className="mt-2 w-80 p-2 rounded-xl shadow-lg border border-gray-200 bg-white empty:p-0">
-      {(() => {
-        // Combine ALL notifications (seen and unseen) and limit to 5 total
-        // Filter out chat ratings and deals from bidNotifications since they're handled separately
-        const filteredBidNotifications = bidNotifications.filter(n => {
-          const titleLower = n.title?.toLowerCase() || '';
-          const isChatRating = titleLower.includes('chat rated');
-          const isDeal = titleLower.includes('deal accepted') || 
-                        titleLower.includes('deal rejected') || 
-                        titleLower.includes('close deal request') ||
-                        titleLower.includes('deal request');
-          return !isChatRating && !isDeal;
-        });
-        
-        const allNotifications = [
-          ...filteredBidNotifications.map(n => ({ ...n, notifType: 'bid' })),
-          ...chatRatingNotifications.map(n => ({ ...n, notifType: 'chatRating' })),
-          ...productNotifications.map(n => ({ ...n, notifType: 'product' })),
-          ...dealNotifications.map(n => ({ ...n, notifType: 'deal' }))
-        ];
-        
-        // Sort by timestamp/receivedAt and take only first 5
-        const sortedNotifications = allNotifications
-          .sort((a, b) => {
-            const timeA = a.receivedAt || a.timestamp || a.latestBid?.date || a.createdAt || Date.now();
-            const timeB = b.receivedAt || b.timestamp || b.latestBid?.date || b.createdAt || Date.now();
-            return new Date(timeB).getTime() - new Date(timeA).getTime();
-          })
-          .slice(0, 5);
-        
-        if (sortedNotifications.length === 0) {
-          return (
-            <p className="text-sm text-center text-gray-500 py-4">
-              No notifications
-            </p>
-          );
-        }
-        
-        return (
+    <PopoverContent className="mt-2 w-80 p-0 rounded-xl shadow-lg border border-gray-200 bg-white overflow-hidden">
+      {notifications.length === 0 ? (
+        <p className="text-sm text-center text-gray-500 py-4">
+          No notifications
+        </p>
+      ) : (
+        <>
           <div className="max-h-80 overflow-y-auto">
-            {sortedNotifications.map((notif, idx) => {
-              // Determine notification type from title or notifType
-              // Check most specific patterns first to avoid misidentification
-              const titleLower = notif.title?.toLowerCase() || '';
-              const isChatRating = notif.notifType === 'chatRating' || titleLower.includes('chat rated');
-              const isDealAccepted = titleLower.includes('deal accepted');
-              const isDealRejected = titleLower.includes('deal rejected');
-              const isDealRequest = titleLower.includes('close deal request') || titleLower.includes('deal request');
-              const isDealFromAPI = isDealRequest || isDealAccepted || isDealRejected;
-              const isBid = !isChatRating && !isDealFromAPI && (notif.notifType === 'bid' || titleLower.includes('bid'));
-              const isProduct = notif.notifType === 'product';
-              const isDealFromSocket = notif.notifType === 'deal';
-              
-              if (isChatRating) {
-                return (
-                  <div
-                    key={`rating-${notif._id || idx}`}
-                    onClick={() => {
-                      // Mark as seen instead of removing
-                      setChatRatingNotifications((prev) =>
-                        prev.map((n) => 
-                          n.chatId === notif.chatId && n.timestamp === notif.timestamp 
-                            ? { ...n, seen: true } 
-                            : n
-                        )
-                      );
-                      // Navigate to chat (no roomId check needed, just navigate)
-                      navigate('/chat');
-                      // Close Popover
-                      setShowProductNotifDropdown(false);
-                    }}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-                  >
-                    <div className="bg-yellow-500 p-2 rounded-full text-white flex-shrink-0">
-                      <Star className="w-4 h-4 fill-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold">Chat Rated</p>
-                      <p className="text-sm text-gray-600 truncate">
-                        {notif.description || notif.title || 'Chat rating notification'}
-                      </p>
-                      <span className="text-xs text-gray-400">
-                        {notif.timestamp
-                          ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase()
-                          : notif.createdAt
-                          ? format(new Date(notif.createdAt), "hh:mm a").toLowerCase()
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
-                );
-              } else if (isDealFromAPI) {
-                // Deal notification from API (based on title)
-                return (
-                  <div 
-                    key={`deal-api-${notif._id || idx}`}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-                    onClick={() => {
-                      // Mark as seen
-                      if (notif._id && notif.seen === false) {
-                        RequirementService.markNotificationsSeen([notif._id])
-                          .then(() => {
-                            setBidNotifications((prev) => 
-                              prev.map(n => n._id === notif._id ? { ...n, seen: true } : n)
-                            );
-                          })
-                          .catch((err) => {
-                            console.error('Failed to mark notification as seen:', err);
-                          });
-                      }
-                      navigate('/chat');
-                      setShowProductNotifDropdown(false);
-                    }}
-                  >
-                    <div className={`p-2 rounded-full text-white flex-shrink-0 ${
-                      isDealRequest ? 'bg-blue-500' :
-                      isDealAccepted ? 'bg-green-500' : 
-                      'bg-red-500'
-                    }`}>
-                      {isDealRequest ? <FileText className="w-4 h-4 fill-white" /> : 
-                       isDealAccepted ? <CheckCircle className="w-4 h-4" /> : 
-                       <XCircle className="w-4 h-4" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold">
-                        {isDealRequest ? 'Deal Requested' : 
-                         isDealAccepted ? 'Deal Accepted' : 'Deal Rejected'}
-                      </p>
-                      <p className="text-sm text-gray-600 truncate">
-                        {notif.description || notif.title}
-                      </p>
-                      <span className="text-xs text-gray-400">
-                        {notif.createdAt
-                          ? format(new Date(notif.createdAt), "hh:mm a").toLowerCase()
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
-                );
-              } else if (isBid) {
-                return (
-                  <div
-                    key={`bid-${idx}`}
-                    onClick={() => {
-                      // Mark this notification as seen
-                      if (notif._id && notif.seen === false) {
-                        RequirementService.markNotificationsSeen([notif._id])
-                          .then(() => {
-                            setBidNotifications((prev) => 
-                              prev.map(n => n._id === notif._id ? { ...n, seen: true } : n)
-                            );
-                          })
-                          .catch((err) => {
-                            console.error('Failed to mark notification as seen:', err);
-                          });
-                      }
-                      
-                      navigate(`/account/bid`);
-                      setShowProductNotifDropdown(false);
-                    }}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-                  >
-                    <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
-                      <Gavel className="w-4 h-4" />
-                    </div>
+            {notifications.slice(0, 5).map((notif) => {
+               // Determine icon and color based on type
+               let Icon = Bell;
+               let iconColorClass = "bg-gray-500";
+               let iconFill = "";
+               
+               if (notif.type === 'bid') {
+                   Icon = Gavel;
+                   iconColorClass = "bg-orange-500";
+               } else if (notif.type === 'chat_rating') {
+                   Icon = Star;
+                   iconColorClass = "bg-yellow-500";
+                   iconFill = "fill-white";
+               } else if (notif.type === 'deal_accepted') {
+                   Icon = CheckCircle;
+                   iconColorClass = "bg-green-500";
+               } else if (notif.type === 'deal_rejected') {
+                   Icon = XCircle;
+                   iconColorClass = "bg-red-500";
+               } else if (notif.type === 'deal_request') {
+                   Icon = FileText;
+                   iconColorClass = "bg-blue-500";
+                   iconFill = "fill-white";
+               } else if (notif.type === 'product') {
+                   Icon = Box;
+                   iconColorClass = "bg-orange-500";
+               }
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold">
-                        {notif.product?.title || notif.productId?.title || "New Quote"}
-                      </p>
-
-                      <p className="text-sm text-gray-600 truncate">
-                       You have new Quote on your requirement.
-                      </p>
-
-                      {(notif.latestBid?.date || notif.createdAt) && (
-                        <span className="text-xs text-gray-400">
-                          {format(new Date(notif.latestBid?.date || notif.createdAt), "hh:mm a").toLowerCase()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              } else if (isProduct) {
-                return (
-                  <div
-                    key={`prod-${idx}`}
+               return (
+                <div
+                    key={NotificationDeduplicator.generateKey(notif)}
                     onClick={() => {
-                      // Remove from list
-                      setProductNotifications((prev) =>
-                        prev.filter((n) => n.productId !== notif.productId || n.receivedAt !== notif.receivedAt)
-                      );
-                      // Navigate
-                      if (notif.productId) {
-                        navigate(
-                          `/product-overview?productId=${encodeURIComponent(
-                            notif.productId
-                          )}`
-                        );
-                      } else {
-                        toast.error("Product ID missing in notification.");
-                      }
-                      // Close Popover
-                      setShowProductNotifDropdown(false);
+                        handleNotificationClick(notif);
+                        setShowNotificationDropdown(false);
                     }}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-                  >
-                    <div className="bg-orange-500 p-2 rounded-full text-white flex-shrink-0">
-                      <Box className="w-4 h-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold">{notif.title}</p>
-                      <p className="text-sm text-gray-600 truncate">
-                        {notif.description}
-                      </p>
-                      <span className="text-xs text-gray-400">
-                        {notif.receivedAt
-                          ? format(new Date(notif.receivedAt), "hh:mm a").toLowerCase()
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
-                );
-              } else if (isDealFromSocket) {
-                return (
-                  <div 
-                    key={`deal-socket-${notif.timestamp || idx}`}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 cursor-pointer border-b last:border-b-0"
-                    onClick={() => {
-                      // Navigate to chat if deal info available
-                      if (notif.deal) {
-                        navigate('/chat', {
-                          state: {
-                            productId: notif.deal.productId, 
-                            sellerId: notif.deal.sellerDetails?.sellerId || notif.deal.sellerId,
-                            buyerId: notif.deal.buyerId
-                          }
-                        });
-                      }
-                      setDealNotifications(prev => prev.filter((n) => n.timestamp !== notif.timestamp));
-                      setShowProductNotifDropdown(false);
-                    }}
-                  >
-                    <div className={`p-2 rounded-full text-white flex-shrink-0 ${
-                      notif.action === 'request' ? 'bg-blue-500' :
-                      notif.action === 'accept' ? 'bg-green-500' : 
-                      'bg-red-500'
-                    }`}>
-                      {notif.action === 'request' ? <FileText className="w-4 h-4 fill-white" /> : 
-                       notif.action === 'accept' ? <CheckCircle className="w-4 h-4" /> : 
-                       <XCircle className="w-4 h-4" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold">
-                        {notif.action === 'request' ? 'Deal Requested' : 
-                         notif.action === 'accept' ? 'Deal Accepted' : 'Deal Rejected'}
-                      </p>
-                      <p className="text-sm text-gray-600 truncate">
-                        {notif.message}
-                      </p>
-                      <span className="text-xs text-gray-400">
-                        {notif.timestamp
-                          ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase()
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-
-            {/* View All Notifications Button */}
-            {allNotifications.length > 5 && (
-              <div className="border-t border-gray-200 pt-2">
-                <button
-                  onClick={() => {
-                    markBidNotificationsAsSeen();
-                    navigate('/account/notification');
-                    setShowProductNotifDropdown(false);
-                  }}
-                  className="w-full cursor-pointer text-center text-sm font-medium text-orange-600 hover:text-orange-700 py-2 rounded-lg hover:bg-orange-50 transition-colors"
+                    className={`flex items-center gap-3 p-3 hover:bg-orange-50 cursor-pointer border-b last:border-b-0 ${!notif.seen ? 'bg-orange-50/50' : ''}`}
                 >
-                  View All Notifications
-                </button>
-              </div>
-            )}
+                    <div className={`${iconColorClass} p-2 rounded-full text-white flex-shrink-0`}>
+                        <Icon className={`w-4 h-4 ${iconFill}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">
+                            {notif.title}
+                        </p>
+                        <p className="text-xs text-gray-600 line-clamp-2">
+                            {notif.description}
+                        </p>
+                        <span className="text-[10px] text-gray-400 mt-1 block">
+                            {notif.timestamp 
+                                ? format(new Date(notif.timestamp), "hh:mm a").toLowerCase() 
+                                : ""}
+                        </span>
+                    </div>
+                    {!notif.seen && (
+                        <div className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0" />
+                    )}
+                </div>
+               );
+            })}
           </div>
-        );
-      })()}
+
+          {notifications.length > 5 && (
+            <div className="border-t border-gray-200 p-2 bg-gray-50">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-orange-600 hover:text-orange-700 hover:bg-orange-100 h-8"
+                    onClick={() => {
+                        navigate('/account/notification');
+                        setShowNotificationDropdown(false);
+                    }}
+                >
+                    View All Notifications
+                </Button>
+            </div>
+          )}
+        </>
+      )}
     </PopoverContent>
   </Popover>
 

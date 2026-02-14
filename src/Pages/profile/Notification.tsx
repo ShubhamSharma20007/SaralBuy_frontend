@@ -131,7 +131,7 @@ const Notification = () => {
         // Check notification type based on title
         // Check most specific patterns first to avoid misidentification
         const titleLower = notif.title?.toLowerCase() || '';
-        const isChatRating = titleLower.includes('chat rated');
+        const isChatRating = titleLower.includes('rated chat');
         const isDealAccepted = titleLower.includes('deal accepted');
         const isDealRejected = titleLower.includes('deal rejected');
         const isDealRequest = titleLower.includes('close deal request') || titleLower.includes('deal request');
