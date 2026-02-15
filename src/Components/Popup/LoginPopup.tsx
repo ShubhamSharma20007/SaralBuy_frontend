@@ -11,6 +11,7 @@ import { useFetch } from "@/helper/use-fetch";
 import authService from "@/services/auth.service";
 import { toast } from "sonner";
 import { Spinner } from "../ui/shadcn-io/spinner";
+import { isValidNumber } from "@/helper/validsFuntions";
 type Props={
   open:boolean;
   setOpen:React.Dispatch<React.SetStateAction<boolean>>;
@@ -33,10 +34,16 @@ const LoginPopup:React.FC<Props> = ({open,setOpen,setNumber,setOtpPopup,setSessi
     }
   };
 
+
+
   const handleSendOTP = async(e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (mobileNumber.length !== 10) {
       toast.error("Enter a valid 10 digit mobile number");
+      return;
+    }
+    if(!isValidNumber(mobileNumber)){
+      toast.error("Invalid Number");
       return;
     }
     await fn(mobileNumber)
