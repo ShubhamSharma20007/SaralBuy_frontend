@@ -595,8 +595,11 @@ const ProductOverview = () => {
         const currentProduct = productResponse?.mainProduct;
         const sellerId = user._id;
         const buyerId = currentProduct?.userId?._id
-        console.log(user,currentProduct,324)
-        
+   
+       if(currentProduct?.dealStatus === 'completed'){
+        toast.error('This product has already been sold');
+        return;
+       } 
         
       localStorage.setItem('chatIds', JSON.stringify({
         productId: currentProduct._id,
