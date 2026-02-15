@@ -4,6 +4,7 @@ import { Button } from "../Components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Authentication from "./auth/Authentication";
+import { Merge } from "lucide-react";
 const ProductListingCard = ({product}:{product:any}) => {
   // let {user} = getUserProfile();
   const [open,setOpen] = useState(false)
@@ -23,7 +24,13 @@ const ProductListingCard = ({product}:{product:any}) => {
     <>
     <Authentication setOpen={setOpen} open={open}/>
       <div className='py-3 px-4 bg-white rounded-lg border shadow-sm '>
-      <span className="border-2 border-gray-600 text-gray-600 min-w-32 text-center rounded-full mb-4 inline-block p-1  max-w-fit px-3 text-sm font-semibold capitalize">{product?.categoryId?.categoryName || 'No Type'}</span>
+        <div className="flex justify-between items-center  mb-4 ">
+        <span className="border-2 border-gray-600 rounded-full text-gray-700 inline-block p-1  text-center px-4 text-sm font-medium capitalize"> {product?.categoryId?.categoryName || 'No Type'}</span>
+        {
+          product?.isMergeQuote && <Merge className="w-9 h-9  bg-orange-100 text-orange-500 rounded-full p-2"/>
+        }
+      </div>
+    
       {/* image */}
       <div className='flex flex-row justify-start items-center gap-x-8'>
         <div className="w-28 h-28 flex-shrink-0">
@@ -66,7 +73,11 @@ const ProductListingCard = ({product}:{product:any}) => {
   product?.createdAt && <p className="text-sm text-gray-600 font-semibold ">Date: {format(product?.createdAt, "dd/MM/yyyy")}</p>
 }
      <Button onClick={handleSendOtp} variant="ghost" size="lg" className="border rounded-sm  font-semibold shadow-orange-500 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white cursor-pointer">
-          Place Quote
+          
+          {
+            product?.isMergeQuote ? 'Chat Now' : 'Place Quote'
+          }
+          
     </Button>
     </div>
      </div>

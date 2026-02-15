@@ -163,6 +163,7 @@ interface ChatAreaProps {
   onSidebarContactUpdate: (roomId: string, updater: (prev: any) => any) => void;
   setSelectedContact: React.Dispatch<any>;
   isOnline: boolean;
+  mergeQuoteMessage?:string
 }
 
 const ChatArea = ({
@@ -178,6 +179,7 @@ const ChatArea = ({
   onSidebarContactUpdate,
   setSelectedContact,
   isOnline,
+  mergeQuoteMessage
 }: ChatAreaProps) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messageText, setMessageText] = useState('');
@@ -260,7 +262,7 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
             const senderId = currentUserId || (userType === "buyer" ? actualBuyerId : actualSellerId);
             
             console.log("Auto-sending initial greeting for new chat:", roomId);
-            const greetingMsg = `Hi this side ${mergeName(user)}. How i can help you?`
+            const greetingMsg = mergeQuoteMessage ||  `Hi this side ${mergeName(user)}. How i can help you?`
             chatService.sendMessage(
               actualProductId,
               actualSellerId,
@@ -1097,6 +1099,7 @@ const Chatbot = () => {
   let productId = location.state?.productId;
   let buyerId = location.state?.buyerId;
   let sellerId = location.state?.sellerId;
+  let mergeQuoteMessage = location.state.message
 
   if (!productId || !buyerId || !sellerId) {
     try {
@@ -1832,6 +1835,7 @@ const Chatbot = () => {
                   const otherPersonId = userType === 'buyer' ? selectedContact.sellerId : selectedContact.buyerId;
                   return isUserOnline(otherPersonId);
                 })()}
+                mergeQuoteMessage={mergeQuoteMessage}
               />
             ) : (
               <div className="flex-1 flex items-center justify-center bg-background">

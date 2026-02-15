@@ -12,7 +12,7 @@ import { Label } from "../Components/ui/label";
 import { DatePicker } from "@/utils/DatePicker";
 import { useFetch } from "@/helper/use-fetch";
 import productService from "@/services/product.service";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent, type FormEventHandler } from "react";
 import cartService from "@/services/cart.service";
 import { mergeName } from "@/helper/mergeName";
 import { currencyConvertor } from "@/helper/currencyConvertor";
@@ -61,8 +61,8 @@ const ProductOverview = () => {
     company_reg_num: '',
     gst_num: ''
   })
-  const navigate = useNavigate()
 
+  const navigate = useNavigate()
 
 
   const { handleSubmit, formState: { errors }, register, reset, control, getValues,setValue } = useForm({
@@ -584,6 +584,66 @@ const ProductOverview = () => {
     )
   }
 
+  const MergeBidForm =()=>{
+     const {user} = getUserProfile()
+      const [mergeFormState,setMergeFormState]= useState({
+          message:''
+        })
+
+      function handleSendMessage(e:FormEvent<HTMLFormElement>){
+        e.preventDefault();
+        const currentProduct = productResponse?.mainProduct;
+        const sellerId = user._id;
+        const buyerId = currentProduct?.userId?._id
+        console.log(user,currentProduct,324)
+        
+        
+      localStorage.setItem('chatIds', JSON.stringify({
+        productId: currentProduct._id,
+        buyerId: buyerId,
+        sellerId: sellerId
+      }))
+
+      navigate('/chat', {
+        state: {
+          productId: currentProduct._id,
+          buyerId: buyerId,
+          sellerId: sellerId,
+          partnerName: mergeName(user),
+          partnerAvatar: user?.profileImage,
+          message:mergeFormState.message
+        }
+      })
+  
+
+      }
+
+    return(
+         <form className="lg:col-span-5 bg-gray-200/80 rounded-lg p-6 space-y-4" onSubmit={handleSendMessage}>
+        <h3 className="font-semibold text-orange-600">Merge Quote</h3>
+       <div className="w-full col-span-2">
+            <Label htmlFor="ab" className="mb-2 text-sm">
+              Note for Buyer
+            </Label>
+          <Textarea
+          value={mergeFormState.message}
+          onInput={(e)=>{
+            setMergeFormState({message:e.currentTarget.value})
+          }}
+           placeholder="Short message (hard limit: 300 characters)"  className="bg-white w-full min-h-32"  />
+          </div>
+            <Button
+              type="submit"
+             disabled={productResponse?.mainProduct?.userId?._id === userProfile?.user?._id  || mergeFormState.message.trim().length < 2}
+              variant={'ghost'} className="w-32 float-end border text-xs bg-orange-700  transition-all ease-in-out duration-300 hover:bg-orange-600 text-white hover:text-white cursor-pointer">
+              Chat Now
+            </Button>
+      </form>
+    )
+  }
+
+   const  isMergeQuote =  productResponse?.mainProduct?.isMergeQuote ;
+
   return (
 
     <>
@@ -672,7 +732,8 @@ const ProductOverview = () => {
 
 
                       {/* Buttons */}
-                      <div className="flex items-center gap-4 mt-5 ">
+                      {
+                        !isMergeQuote &&   <div className="flex items-center gap-4 mt-5 ">
                         <Button
                           disabled={getBidByProductIdLoading || (bidOverviewRes ? bidOverviewRes.product?.totalBidCount : productResponse?.mainProduct?.totalBidCount) === 0}
                           // onClick={()=>{
@@ -701,6 +762,8 @@ const ProductOverview = () => {
                           )
                         }
                       </div>
+                      }
+                   
                     </div>
                   </div>
 
@@ -763,7 +826,9 @@ const ProductOverview = () => {
                     </div>
 
                     {/* Right: Form */}
-                    <SellerForm/>
+                    {
+                      isMergeQuote ? <MergeBidForm></MergeBidForm> : <SellerForm/>
+                    }
                   </div>
                 </div>
                 :

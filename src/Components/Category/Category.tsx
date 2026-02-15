@@ -992,6 +992,7 @@ const Category = () => {
   const [buttonType, setButtonType] = useState<boolean | null>(null)
   const [bidDuration, setBidDuration] = useState<number | undefined>(undefined)
   const [bidPopUpOpen, setBidPopUpOpen] = useState(false)
+  const [isMergeQuote, setIsMergeQuote] = useState(false)
   useEffect(() => {
     (async () => {
       await getCatByIdFn(categoryId);
@@ -1086,8 +1087,8 @@ const Category = () => {
     }));
   };
 
-  const handleSubmitAllForms = async (isDraft: boolean, isPlaceRequirementPopup?: boolean) => {
-    
+  const handleSubmitAllForms = async (isDraft: boolean, isPlaceRequirementPopup?: boolean,shouldMergeQuote ?:boolean) => {
+
 
     if (!user) {
       setOpen(true);
@@ -1110,6 +1111,7 @@ const Category = () => {
     if (!hasValidForms) return
 
     if (hasValidForms && isPlaceRequirementPopup) {
+      setIsMergeQuote(shouldMergeQuote || false);
       setBidPopUpOpen(true);
       return;
     }
@@ -1199,7 +1201,7 @@ const Category = () => {
         formDataToSend.append('products', JSON.stringify(productsData));
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
         formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
-
+        formDataToSend.append('isMergeQuote', isMergeQuote  ? 'true' : 'false');
 
         // Send all products at once
         await fn(categoryId, formsArray[0].subCategoryId || subCategoryId, formDataToSend, true);
@@ -1258,7 +1260,7 @@ const Category = () => {
 
         formDataToSend.append('draft', isDraft ? 'true' : 'false');
         formDataToSend.append('bidActiveDuration', bidDuration ? bidDuration.toString() : '0');
-
+        formDataToSend.append('isMergeQuote', isMergeQuote ? 'true' : 'false');
         await fn(categoryId, formData.subCategoryId || subCategoryId, formDataToSend, false);
       }
 
@@ -1269,6 +1271,7 @@ const Category = () => {
         setForms([0]);
         setFormsData({});
         setResetForms(false);
+        setIsMergeQuote(false);
       }, 100);
       // window.scrollTo(0, 0);
 
@@ -1358,6 +1361,14 @@ const Category = () => {
 
         {/* Global Actions - Single Submit and Draft buttons for all forms */}
         <div className="flex justify-end gap-3 my-5">
+          <Button
+            type="button"
+            disabled={loading}
+            className="text-white w-32 cursor-pointer bc   border-primary-btn border-2"
+            onClick={() => handleSubmitAllForms(false, true,true)}
+          >
+            Merge Quote
+          </Button>
           <Button
             type="button"
             variant="outline"
