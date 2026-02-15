@@ -258,11 +258,45 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
          if (mappedMessages.length === 0 && !initialGreetingSentRef.current.has(roomId)) {
           initialGreetingSentRef.current.add(roomId);
           
+          // Send greeting immediately without delay
+          const senderId = currentUserId || (userType === "buyer" ? actualBuyerId : actualSellerId);
+          const timestamp = new Date().toISOString();
+          
+          console.log("Auto-sending initial greeting for new chat:", roomId);
+          const userName = user ? mergeName(user) : (userType === "buyer" ? "Buyer" : "Seller");
+          const greetingMsg = mergeQuoteMessage ||  `Hi this side ${userName}. How i can help you?`
+          
+          // Set message immediately (no setTimeout)
+          const greetingMessage = {
+            id: Date.now().toString(),
+            text: greetingMsg,
+            senderId: senderId,
+            senderType: userType,
+            time: new Date().toLocaleTimeString(),
+            timestamp: timestamp,
+            isOptimistic: true,
+            attachment: null,
+          };
+          
+          setMessages([greetingMessage]);
+          
+          // Update sidebar immediately with consistent timestamp
+          if (typeof onSidebarContactUpdate === "function" && selectedContact) {
+            onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
+              ...prev,
+              lastMessage: {
+                message: greetingMsg,
+                timestamp: timestamp,
+                senderId: senderId,
+                senderType: userType,
+              },
+              buyerUnreadCount: userType === "buyer" ? 0 : prev.buyerUnreadCount,
+              sellerUnreadCount: userType === "seller" ? 0 : prev.sellerUnreadCount,
+            }));
+          }
+          
+          // Send to server after optimistic update
           setTimeout(() => {
-            const senderId = currentUserId || (userType === "buyer" ? actualBuyerId : actualSellerId);
-            
-            console.log("Auto-sending initial greeting for new chat:", roomId);
-            const greetingMsg = mergeQuoteMessage ||  `Hi this side ${mergeName(user)}. How i can help you?`
             chatService.sendMessage(
               actualProductId,
               actualSellerId,
@@ -272,40 +306,15 @@ const [showBudgetDialog, setShowBudgetDialog] = useState(false);
               actualBuyerId,
               undefined
             );
-            
-            const greetingMessage = {
-              id: Date.now().toString(),
-              text: greetingMsg,
-              senderId: senderId,
-              senderType: userType,
-              time: new Date().toLocaleTimeString(),
-              isOptimistic: true,
-              attachment: null,
-            };
-            
-            setMessages([greetingMessage]);
-            
-            // Update sidebar contact info
-            if (typeof onSidebarContactUpdate === "function" && selectedContact) {
-              onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
-                ...prev,
-                lastMessage: {
-                  message: greetingMsg,
-                  timestamp: new Date().toISOString(),
-                  senderId: senderId,
-                  senderType: userType,
-                },
-                buyerUnreadCount: userType === "buyer" ? 0 : prev.buyerUnreadCount,
-                sellerUnreadCount: userType === "seller" ? 0 : prev.sellerUnreadCount,
-              }));
-            }
-          }, 500); // Small delay to ensure socket is ready
+          }, 100);
         }
         
         // Scroll to bottom after messages are loaded
         setTimeout(() => scrollToBottom(), 100);
-        // Update sidebar contact info with proper unread counts
-        if (typeof onSidebarContactUpdate === "function" && selectedContact) {
+        
+        // For new chats (empty messages), the greeting already updated the sidebar optimistically
+        // Don't overwrite with server data (which has null lastMessage) to avoid flickering
+        if (mappedMessages.length > 0 && typeof onSidebarContactUpdate === "function" && selectedContact) {
           onSidebarContactUpdate(selectedContact.roomId, (prev: any) => ({
             ...prev,
             lastMessage: data.lastMessage,
@@ -1122,7 +1131,7 @@ const Chatbot = () => {
   useEffect(() => {
     // subscribe(listener) where listener receives the whole state
     const unsub = useChatStore.subscribe((state) => {
-      console.log(state.recentChats,234324)
+      // console.log(state.recentChats,234324)
       setRecentChats(state.recentChats || []);
     });
     // initialize from store if present
@@ -1151,6 +1160,9 @@ const Chatbot = () => {
 
     const chatService = ChatService.getInstance();
     chatService.connect();
+    
+    // Request initial list of online users
+    chatService.getOnlineUsers(currentUserId);
     
     // Calculate userType locally for initialization logic to avoid dependency loop
     const initUserType = (currentUserId === buyerId) ? 'buyer' : 'seller';
@@ -1666,6 +1678,12 @@ const Chatbot = () => {
               userType: contact.userType,
               buyerId: contact.buyerId,
             });
+            
+            // Request online status of the other user
+            const otherUserId = contact.userType === 'buyer' ? contact.sellerId : contact.buyerId;
+            if (otherUserId) {
+              chatService.getUserOnlineStatus(currentUserId, otherUserId);
+            }
           }
 
           // schedule mark-as-read with throttle to avoid race between tabs

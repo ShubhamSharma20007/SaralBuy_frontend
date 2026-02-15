@@ -74,9 +74,19 @@ export function useNotifications() {
    * Handle notification click - navigate to appropriate page
    */
   const handleNotificationClick = useCallback((notif: UnifiedNotification) => {
-    // Mark as seen if has _id
+    // Mark as seen if has _id (call API)
     if (notif._id && !notif.seen) {
         markAsSeen([notif._id]);
+    } else if (!notif._id && !notif.seen) {
+        // Real-time notification without _id - mark optimistically locally
+        // These are new notifications that haven't been saved to DB yet
+        setNotifications(prev => 
+            prev.map(n => 
+                (n === notif || (n.timestamp === notif.timestamp && n.type === notif.type)) 
+                    ? { ...n, seen: true } 
+                    : n
+            )
+        );
     }
     
     // Remove if type is PRODUCT
@@ -87,8 +97,32 @@ export function useNotifications() {
     // Navigate based on type:
     switch (notif.type) {
       case NotificationType.BID:
-        // Go to /account/bid
-        navigate('/account/bid');
+        // Extract IDs from notification
+        let bidProductId = notif.productId;
+        let bidBuyerId = notif.buyerId;
+        let bidSellerId = notif.sellerId;
+
+        // If missing IDs, try to find in recentChats
+        if (!bidProductId || !bidBuyerId || !bidSellerId) {
+            const recentChats = useChatStore.getState().recentChats;
+            const matchingChat = recentChats.find(c => 
+                (c.productId as any)?._id === bidProductId || c.productId === bidProductId
+            );
+            if (matchingChat) {
+                bidProductId = (matchingChat.productId as any)?._id || matchingChat.productId;
+                bidBuyerId = (matchingChat.buyerId as any)?._id || matchingChat.buyerId;
+                bidSellerId = (matchingChat.sellerId as any)?._id || matchingChat.sellerId;
+            }
+        }
+
+        if (bidProductId && bidBuyerId && bidSellerId) {
+            const roomId = generateRoomId(bidProductId, bidBuyerId, bidSellerId);
+            const chatParams = { productId: bidProductId, buyerId: bidBuyerId, sellerId: bidSellerId, roomId };
+            localStorage.setItem('chatIds', JSON.stringify(chatParams));
+            navigate('/chat', { state: chatParams });
+        } else {
+            navigate('/chat');
+        }
         break;
         
       case NotificationType.CHAT_RATING:

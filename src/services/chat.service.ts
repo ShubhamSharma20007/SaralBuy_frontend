@@ -164,11 +164,23 @@ class ChatService {
         }
       });
 
-      // Listen for user_offline events
+  // Listen for user_offline events
       this.socket.on("user_offline", (data) => {
         console.log("🔴 User went offline:", data);
         if (this._userOfflineListeners) {
           this._userOfflineListeners.forEach((cb) => cb(data));
+        }
+      });
+
+      // Listen for online_users_list (initial online status)
+      this.socket.on("online_users_list", (data) => {
+        // console.log("📋 Online users list received:", data);
+        if (data && Array.isArray(data.userIds)) {
+          data.userIds.forEach((userId: string) => {
+            if (this._userOnlineListeners) {
+              this._userOnlineListeners.forEach((cb) => cb({ userId }));
+            }
+          });
         }
       });
 
@@ -440,6 +452,20 @@ class ChatService {
   public offUserOffline(cb: (data: any) => void) {
     if (this._userOfflineListeners) {
       this._userOfflineListeners = this._userOfflineListeners.filter((l) => l !== cb);
+    }
+  }
+
+  // Request list of online users from server
+  public getOnlineUsers(userId: string) {
+    if (this.socket && userId) {
+      this.socket.emit("get_online_users", { userId });
+    }
+  }
+
+  // Request online status of a specific user
+  public getUserOnlineStatus(userId: string, targetUserId: string) {
+    if (this.socket && userId && targetUserId) {
+      this.socket.emit("get_user_status", { userId, targetUserId });
     }
   }
 

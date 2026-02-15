@@ -7,6 +7,49 @@ import { ArrowUpDown, ListFilter, Trash2, Star, FileText, CheckCircle, XCircle, 
 import RequirementService from '../../services/requirement.service';
 import { sortByDate } from '@/helper/sortByDate';
 import AlertPopup from '@/Components/Popup/AlertPopup';
+import { useChatStore } from '@/zustand/chatStore';
+
+// Helper to generate roomId (same format as chat system)
+const generateRoomId = (productId: string, buyerId: string, sellerId: string): string => {
+  return `product_${productId}_buyer_${buyerId}_seller_${sellerId}`;
+};
+
+// Helper to navigate to chat with proper params
+const navigateToChat = (notif: any, navigate: any) => {
+  // Extract IDs from notification
+  let productId = notif.productId?._id || notif.productId;
+  let buyerId = notif.buyerId?._id || notif.buyerId;
+  let sellerId = notif.sellerId?._id || notif.sellerId;
+  
+  // Try to get from deal object if not at top level
+  if (!productId && notif.deal?.productId) productId = notif.deal.productId;
+  if (!buyerId && notif.deal?.buyerId) buyerId = notif.deal.buyerId;
+  if (!sellerId && notif.deal?.sellerId) sellerId = notif.deal.sellerId || notif.deal?.sellerDetails?.sellerId;
+  
+  // If still missing, try to find in recentChats
+  if (!productId || !buyerId || !sellerId) {
+    const recentChats = useChatStore.getState().recentChats;
+    const matchingChat = recentChats.find(c => 
+      (c.productId as any)?._id === notif.productId || c.productId === notif.productId
+    );
+    if (matchingChat) {
+      productId = (matchingChat.productId as any)?._id || matchingChat.productId;
+      buyerId = (matchingChat.buyerId as any)?._id || matchingChat.buyerId;
+      sellerId = (matchingChat.sellerId as any)?._id || matchingChat.sellerId;
+    }
+  }
+  
+  // If we have valid IDs, navigate to chat
+  if (productId && buyerId && sellerId) {
+    const roomId = generateRoomId(productId, buyerId, sellerId);
+    const chatParams = { productId, buyerId, sellerId, roomId };
+    localStorage.setItem('chatIds', JSON.stringify(chatParams));
+    navigate('/chat', { state: chatParams });
+  } else {
+    // Fallback to generic chat
+    navigate('/chat');
+  }
+};
 
 
 interface BidNotification {
@@ -162,9 +205,7 @@ const Notification = () => {
                   </p>
                   <p
                     className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
-                    onClick={() => {
-                      navigate('/chat');
-                    }}
+                    onClick={() => navigateToChat(notif, navigate)}
                   >
                     View
                   </p>
@@ -206,9 +247,7 @@ const Notification = () => {
                   </p>
                   <p
                     className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
-                    onClick={() => {
-                      navigate('/chat');
-                    }}
+                    onClick={() => navigateToChat(notif, navigate)}
                   >
                     View
                   </p>
@@ -279,13 +318,7 @@ const Notification = () => {
                     </p>
                     <p
                       className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
-                      onClick={() => {
-                        if (productId) {
-                          navigate(
-                            `/product-overview?productId=${encodeURIComponent(productId)}`
-                          );
-                        }
-                      }}
+                      onClick={() => navigateToChat(notif, navigate)}
                     >
                       View
                     </p>
@@ -359,10 +392,10 @@ const Notification = () => {
                 <p
                   className="text-sm text-gray-600 col-span-1 text-right underline cursor-pointer"
                   onClick={() => {
-                    if (productId) {
-                      navigate(
-                        `/product-overview?productId=${encodeURIComponent(productId)}`
-                      );
+                    if (notif.title?.match(/Deal Closed/)) {
+                      navigateToChat(notif, navigate);
+                    } else {
+                      navigateToChat(notif, navigate);
                     }
                   }}
                 >
