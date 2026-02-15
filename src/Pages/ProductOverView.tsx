@@ -619,7 +619,7 @@ const ProductOverview = () => {
       }
 
     return(
-         <form className="lg:col-span-5 bg-gray-200/80 rounded-lg p-6 space-y-4" onSubmit={handleSendMessage}>
+         <form className="lg:col-span-5 bg-gray-200/80 rounded-lg p-6 space-y-4 my-auto h-fit" onSubmit={handleSendMessage}>
         <h3 className="font-semibold text-orange-600">Merge Quote</h3>
        <div className="w-full col-span-2">
             <Label htmlFor="ab" className="mb-2 text-sm">

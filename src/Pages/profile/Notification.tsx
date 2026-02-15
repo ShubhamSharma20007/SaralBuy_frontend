@@ -124,7 +124,7 @@ const Notification = () => {
 
         <div className="text-center text-gray-500 h-[60vh] flex  justify-center items-center flex-col" >
           <img alt="" className="h-28 w-28" src="/empty-cart.webp"></img>
-            <p className='text-md text-center'> No notifications found.</p>
+            <p className='text-gray-500 text-sm'> No notifications found.</p>
           </div>
       )}
       {!loading && !error && notifications?.flatMap((notif, idx) => {

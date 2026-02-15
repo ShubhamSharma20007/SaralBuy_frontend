@@ -168,7 +168,7 @@ const totalPages = Math.ceil(total / limit);
       <TableCell colSpan={columns.length} className={`${filters ? 'h-[285px]' :'h-[310px]'}  text-center`}>
         <div className='flex justify-center items-center h-full flex-col space-y-2'>
                         <img src="/empty-cart.webp" alt="" className='h-28 w-28' />
-                        <p className='text-md  text-center'>No Item Found</p>
+                        <p className='text-gray-500 text-sm'>No Item Found</p>
                       </div>
       </TableCell>
     </TableRow>
