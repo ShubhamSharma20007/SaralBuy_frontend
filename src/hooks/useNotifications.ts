@@ -102,6 +102,10 @@ export function useNotifications() {
         let bidBuyerId = notif.buyerId;
         let bidSellerId = notif.sellerId;
 
+        if (!bidBuyerId && user?._id) {
+            bidBuyerId = user._id;
+        }
+
         // If missing IDs, try to find in recentChats
         if (!bidProductId || !bidBuyerId || !bidSellerId) {
             const recentChats = useChatStore.getState().recentChats;
@@ -196,7 +200,7 @@ export function useNotifications() {
         navigate(`/product-overview?productId=${encodeURIComponent(notif.productId)}`);
         break;
     }
-  }, [navigate, markAsSeen, removeNotification]);
+  }, [navigate, markAsSeen, removeNotification, user?._id]);
   
   /**
    * Fetch initial notifications from API
