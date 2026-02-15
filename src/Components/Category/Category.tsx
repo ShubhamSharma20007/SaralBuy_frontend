@@ -1361,14 +1361,7 @@ const Category = () => {
 
         {/* Global Actions - Single Submit and Draft buttons for all forms */}
         <div className="flex justify-end gap-3 my-5">
-          <Button
-            type="button"
-            disabled={loading}
-            className="text-white w-32 cursor-pointer bc   border-primary-btn border-2"
-            onClick={() => handleSubmitAllForms(false, true,true)}
-          >
-            Merge Quote
-          </Button>
+        
           <Button
             type="button"
             variant="outline"
@@ -1378,6 +1371,14 @@ const Category = () => {
           >
             {loading && buttonType ? <Spinner className="w-5 h-5 animate-spin" /> : ' Save as Draft'}
 
+          </Button>
+            <Button
+            type="button"
+            disabled={loading}
+            className="text-white w-32 cursor-pointer bc   border-primary-btn border-2"
+            onClick={() => handleSubmitAllForms(false, true,true)}
+          >
+            Merge Quote
           </Button>
           <Button
             type="button"

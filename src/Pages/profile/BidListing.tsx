@@ -180,7 +180,7 @@ const BidListing = () => {
                     location: item?.location || item.product?.paymentAndDelivery?.organizationAddress || 'N/A',
                     min_budget: item?.product?.minimumBudget,
                     your_budget: item?.budgetQuation,
-                    status: item?.closeDealStatus 
+                    status: item?.closedDealStatus === 'waiting_seller_approval' || item?.closedDealStatus === 'pending' ? 'Waiting for seller approval' : item?.closedDealStatus === 'rejected' ? 'Rejected' : 'Deal Closed'
                 };
             });
 

@@ -67,9 +67,9 @@ const Deal = () => {
                     return <Badge className="bg-transparent text-black rounded-full px-2 w-20 text-md">N/A</Badge>
                 }
                 else if (diff) {
-                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Rejected</Badge>
+                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 ">Rejected</Badge>
                 } else {
-                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">{row.original?.dealStatus}</Badge>
+                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 ">{row.original?.dealStatus}</Badge>
                 }
             }
     },
