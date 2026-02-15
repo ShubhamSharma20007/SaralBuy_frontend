@@ -17,6 +17,7 @@ import { useFetch } from "@/helper/use-fetch";
 import { dateFormatter } from "@/helper/dateFormatter";
 import { mergeName } from "@/helper/mergeName";
 import { fallBackName } from "@/helper/fallBackName";
+import { Badge } from "@/Components/ui/badge";
 
 
 
@@ -55,6 +56,22 @@ const Deal = () => {
     {
       accessorKey: "final_budget",
       header: "Final Budget",
+    },
+     {
+      accessorKey: "dealStatus",
+      header: "Deal Status",
+       cell: ({ row }) => {
+                // const diff = row.getValue("status") as number;
+                const diff = row.original?.dealStatus?.toLowerCase()  === 'rejected'
+                if(!row.original?.dealStatus){
+                    return <Badge className="bg-transparent text-black rounded-full px-2 w-20 text-md">N/A</Badge>
+                }
+                else if (diff) {
+                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Rejected</Badge>
+                } else {
+                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">{row.original?.dealStatus}</Badge>
+                }
+            }
     },
     {
       accessorKey: "action",
@@ -112,6 +129,18 @@ const Deal = () => {
     {
       accessorKey: "dealStatus",
       header: "Deal Status",
+       cell: ({ row }) => {
+                // const diff = row.getValue("status") as number;
+                const diff = row.original?.dealStatus?.toLowerCase()  === 'rejected'
+                if(!row.original?.dealStatus){
+                    return <Badge className="bg-transparent text-black rounded-full px-2 w-20 text-md">N/A</Badge>
+                }
+                else if (diff) {
+                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Rejected</Badge>
+                } else {
+                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">{row.original?.dealStatus}</Badge>
+                }
+            }
     },
 
     {
@@ -154,6 +183,7 @@ const Deal = () => {
           requirement: item?.product?.title,
           your_budget: item?.product?.minimumBudget,
           final_budget: item?.finalBudget,
+              dealStatus:(item?.closedDealStatus === 'waiting_seller_approval' || item?.closedDealStatus === 'pending' ? 'Waiting for seller approval' : item?.closedDealStatus === 'rejected' ? 'Rejected' : 'Deal Closed')
         }))
         setCompleteRequirements(formattedData)
       }
@@ -169,7 +199,7 @@ const Deal = () => {
           product: item?.product?.title,
           min_budget: item?.minBudget,
           your_budget: item?.sellerDetails?.budgetAmount,
-          dealStatus:(item?.closedDealStatus === 'waiting_seller_approval' || item?.closedDealStatus === 'pending' ? 'Waiting for seller approval' : item?.closedDealStatus === 'rejected' ? 'Rejected' : '')
+          dealStatus:(item?.closedDealStatus === 'waiting_seller_approval' || item?.closedDealStatus === 'pending' ? 'Waiting for seller approval' : item?.closedDealStatus === 'rejected' ? 'Rejected' : 'Deal Closed')
         }))
         setApprovedRequirements(formattedData)
       }
@@ -189,7 +219,7 @@ const Deal = () => {
         {/* tabs */}
         <Tabs defaultValue="approved_bids" className='grid space-y-2 w-full bg-transparent overflow-hidden' onValueChange={(val) => setTab(val)} >
           <TabsList className='bg-transparent'>
-            <TabsTrigger value="approved_bids" className={`cursor-pointer min-w-40 mr-3`}>Requirements Awarded </TabsTrigger>
+            <TabsTrigger value="approved_bids" className={`cursor-pointer min-w-40 pr-3`}>Requirements Awarded </TabsTrigger>
             <TabsTrigger value="completed_requirements" className={`cursor-pointer `}> <span className="hidden sm:inline-block">Deals </span> Awarded</TabsTrigger>
           </TabsList>
 

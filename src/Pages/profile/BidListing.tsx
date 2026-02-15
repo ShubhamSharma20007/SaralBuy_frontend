@@ -103,11 +103,15 @@ const BidListing = () => {
             accessorKey: "status",
             header: "Status",
             cell: ({ row }) => {
-                const diff = row.getValue("status") as number;
-                if (diff <= 0) {
-                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Inactive</Badge>
+                // const diff = row.getValue("status") as number;
+                const diff = row.original?.status?.toLowerCase()  === 'rejected'
+                if(!row.original?.status){
+                     return <Badge className="bg-green-100 text-green-500 rounded-full px-2 w-20">Pending</Badge>
+                }
+                else if (diff) {
+                    return <Badge className="bg-red-100 text-red-500 rounded-full px-2 w-20">Rejected</Badge>
                 } else {
-                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">Active</Badge>
+                    return <Badge className="bg-green-100 text-green-500 rounded-full capitalize px-3 w-20">{row.original?.status}</Badge>
                 }
             }
         },
@@ -176,7 +180,7 @@ const BidListing = () => {
                     location: item?.location || item.product?.paymentAndDelivery?.organizationAddress || 'N/A',
                     min_budget: item?.product?.minimumBudget,
                     your_budget: item?.budgetQuation,
-                    status: diff
+                    status: item?.closeDealStatus 
                 };
             });
 
