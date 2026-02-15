@@ -1099,7 +1099,7 @@ const Chatbot = () => {
   let productId = location.state?.productId;
   let buyerId = location.state?.buyerId;
   let sellerId = location.state?.sellerId;
-  let mergeQuoteMessage = location.state.message
+  let mergeQuoteMessage = location.state?.message || ''
 
   if (!productId || !buyerId || !sellerId) {
     try {
