@@ -35,16 +35,18 @@ const Home = () => {
  const { data:categories} = useCategoriesStore();
   const { fn: getLatestThreeBidsFn, data: getLatestBidandDrafts, loading: bidResponseLoading } = useFetch(bidService.getThreeLatestBids);
   const {fn,data}= useFetch(productService.getHomeCards)
+  const {fn:trendingFn,data:trendingRes}= useFetch(productService.getTrendingCategory)
   const [bids, setBids] = useState<any>([])
   const [drafts, setDrafts] = useState([
 
   ])
 
-
+console.log(trendingRes)
 
   useEffect(() => {
  getLatestThreeBidsFn()
- fn()
+ fn(),
+ trendingFn()
   }, [])
 
   useEffect(() => {
@@ -108,7 +110,7 @@ const Home = () => {
       {/* trending Section */}
       <div className="mt-10 relative mx-auto px-4 w-full pt-10">
         
-        <TrendingCategory  categories={categories}/>
+        <TrendingCategory  categories={trendingRes}/>
         <img src="All In One Market Place that Fits You.png" className="absolute -top-5 mt-7 left-0 w-full">
 
         </img>

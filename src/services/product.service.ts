@@ -64,6 +64,12 @@ deleteDraft(productId:string){
   }).then(res => res.data?.data|| res.data)
 }
 
+getTrendingCategory(){
+  return instance.get('/product/get-trending-category',{
+    withCredentials:true
+  }).then(res => res.data?.data|| res.data)
+}
+
 
 }
 export default new ProductService();
