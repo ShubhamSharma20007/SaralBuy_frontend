@@ -148,7 +148,6 @@ const Notification = () => {
     }
   };
 
-  console.log({notifications})
   return (
     <div className='grid space-y-5'>
       <div className={`flex justify-between items-center mb-3`}>

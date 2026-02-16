@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { Merge } from "lucide-react";
 const RecentProductCard = ({item}:{item:any}) => {
   const navigate = useNavigate()
-  console.log(item,234324)
   return (
       <div className='p-5 bg-white rounded-[5px] shadow-lg '>
       <div className="flex justify-between items-center  mb-4 ">
