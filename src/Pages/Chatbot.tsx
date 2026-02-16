@@ -1518,6 +1518,20 @@ const Chatbot = () => {
         // If this update matches the current room, try to append the lastMessage
         if (selectedContact && roomIdFromData === selectedContact.roomId && data.lastMessage) {
             console.log("Updating messages from recent_chat_update");
+            
+            // Update selectedContact name if it's still generic (using buyerName/sellerName from socket)
+            if (data.buyerName || data.sellerName) {
+                const currentUserType = currentUserId === data.buyerId ? 'buyer' : 'seller';
+                const partnerName = currentUserType === 'buyer' ? data.sellerName : data.buyerName;
+                
+                if (partnerName && selectedContact.name !== partnerName) {
+                    setSelectedContact((prev: any) => ({
+                        ...prev,
+                        name: partnerName
+                    }));
+                }
+            }
+            
             setMessages((prev) => {
                 const msg = data.lastMessage;
                 
