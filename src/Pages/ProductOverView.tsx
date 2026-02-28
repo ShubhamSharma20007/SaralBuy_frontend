@@ -776,56 +776,144 @@ const ProductOverview = () => {
                     <div className="lg:col-span-7  rounded-lg p-6 space-y-3 ">
                       <h3 className="font-semibold text-orange-600 text-xl">Requirement Specifications</h3>
                       <div className="text-sm space-y-2 text-gray-600 ">
-                        <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Product Condition:</span> {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : productResponse?.mainProduct?.categoryId?.categoryName) || "N/A"}</p>
-                        <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold">Brand:</span> {(bidOverviewRes ? otherBrandValue(bidOverviewRes?.product) : otherBrandValue(productResponse?.mainProduct)) || "N/A"}</p>
-                        {productResponse?.mainProduct?.categoryId?.categoryName === "industrial" && (
+  <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+    <span className="font-semibold">Product Condition:</span>
+    {(bidOverviewRes ? bidOverviewRes?.product?.subCategory?.name : productResponse?.mainProduct?.categoryId?.categoryName) || "N/A"}
+  </p>
 
-                          <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Construction Tool Type:</span> Industrial Tool</p>
-                        )}
-                        {
-                          (bidOverviewRes?.product?.minimumBudget || productResponse?.mainProduct?.minimumBudget) && (
+  <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+    <span className="font-semibold">Brand:</span>
+    {(bidOverviewRes ? otherBrandValue(bidOverviewRes?.product) : otherBrandValue(productResponse?.mainProduct)) || "N/A"}
+  </p>
 
-                            <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Budget:</span> {currencyConvertor(bidOverviewRes ? bidOverviewRes?.product?.minimumBudget
-                              : productResponse?.mainProduct?.minimumBudget)}</p>
-                          )
-                        }
+        {/* Model */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.model : productResponse?.mainProduct?.model) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Model:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.model : productResponse?.mainProduct?.model) || "N/A"}
+          </p>
+        )}
 
+        {/* Product Type */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.productType : productResponse?.mainProduct?.productType) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Product Type:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.productType : productResponse?.mainProduct?.productType)?.replace("_", " ") || "N/A"}
+          </p>
+        )}
 
+        {/* Fuel Type */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.fuelType : productResponse?.mainProduct?.fuelType) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Fuel Type:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.fuelType : productResponse?.mainProduct?.fuelType) || "N/A"}
+          </p>
+        )}
 
-                        {/* <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Budget:</span> {currencyConvertor(bidOverviewRes ? bidOverviewRes?.product?.budget
-                        : productResponse?.mainProduct?.budget || 0) || 'N/A'}</p> */}
+        {/* Transmission */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.transmission : productResponse?.mainProduct?.transmission) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Transmission:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.transmission : productResponse?.mainProduct?.transmission) || "N/A"}
+          </p>
+        )}
 
+        {/* Old Product Value */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.oldProductValue : productResponse?.mainProduct?.oldProductValue) && (
+          <p className="flex items-center justify-between py-2 border-b-2">
+            <span className="font-semibold">Old Product In Year:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.oldProductValue?.min : productResponse?.mainProduct?.oldProductValue?.min) || 0}
+            {" - "}
+            {(bidOverviewRes ? bidOverviewRes?.product?.oldProductValue?.max : productResponse?.mainProduct?.oldProductValue?.max) || 0}
+          </p>
+        )}
 
-                        {/* <p className="flex items-center justify-between py-2 border-b-2 capitalize "><span className="font-semibold capitalize">Additional Delivery & Packaging:</span> {(bidOverviewRes ? bidOverviewRes?.product?.additionalDeliveryAndPackage : productResponse?.mainProduct?.additionalDeliveryAndPackage) || "N/A"}</p> */}
+        {productResponse?.mainProduct?.categoryId?.categoryName === "industrial" && (
+          <p className="flex items-center justify-between py-2 border-b-2">
+            <span className="font-semibold">Construction Tool Type:</span> Industrial Tool
+          </p>
+        )}
 
-                        <p className="flex items-center justify-between py-2 border-b-2 "><span className="font-semibold">Required Delivery Date:</span> {dateFormatter(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.ex_deliveryDate : productResponse?.mainProduct?.paymentAndDelivery?.ex_deliveryDate) || 'N/A'}</p>
+        {(bidOverviewRes?.product?.minimumBudget || productResponse?.mainProduct?.minimumBudget) && (
+          <p className="flex items-center justify-between py-2 border-b-2">
+            <span className="font-semibold">Budget:</span>
+            {currencyConvertor(bidOverviewRes ? bidOverviewRes?.product?.minimumBudget : productResponse?.mainProduct?.minimumBudget)}
+          </p>
+        )}
 
-                        {
-                          (bidOverviewRes ? bidOverviewRes?.product?.color : productResponse?.mainProduct?.color) && <p className="flex items-center justify-between py-2 border-b-2 capitalize"><span className="font-semibold">Color:</span> {(bidOverviewRes ? bidOverviewRes?.product?.color : productResponse?.mainProduct?.color) || 'N/A'}</p>
+        <p className="flex items-center justify-between py-2 border-b-2">
+          <span className="font-semibold">Required Delivery Date:</span>
+          {dateFormatter(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.ex_deliveryDate : productResponse?.mainProduct?.paymentAndDelivery?.ex_deliveryDate) || "N/A"}
+        </p>
 
-                        }
+        {/* Bid Active Duration */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.bidActiveDuration : productResponse?.mainProduct?.bidActiveDuration) && (
+          <p className="flex items-center justify-between py-2 border-b-2">
+            <span className="font-semibold">Bid Active Duration:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.bidActiveDuration : productResponse?.mainProduct?.bidActiveDuration)} day(s)
+          </p>
+        )}
 
-                        {
-                          (bidOverviewRes ? bidOverviewRes?.product?.typeOfVehicle : productResponse?.mainProduct?.typeOfVehicle) && <p className="flex items-center justify-between py-2 border-b-2 capitalize"><span className="font-semibold">Type of Vehicle:</span> {(bidOverviewRes ? bidOverviewRes?.product?.typeOfVehicle : productResponse?.mainProduct?.typeOfVehicle) || 'N/A'}</p>
+        {(bidOverviewRes ? bidOverviewRes?.product?.color : productResponse?.mainProduct?.color) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Color:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.color : productResponse?.mainProduct?.color) || "N/A"}
+          </p>
+        )}
 
-                        }
+        {(bidOverviewRes ? bidOverviewRes?.product?.typeOfVehicle : productResponse?.mainProduct?.typeOfVehicle) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Type of Vehicle:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.typeOfVehicle : productResponse?.mainProduct?.typeOfVehicle) || "N/A"}
+          </p>
+        )}
 
+        {(bidOverviewRes ? bidOverviewRes?.product?.typeOfProduct : productResponse?.mainProduct?.typeOfProduct) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Type of Product:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.typeOfProduct : productResponse?.mainProduct?.typeOfProduct) || "N/A"}
+          </p>
+        )}
 
-                        {
-                          (bidOverviewRes ? bidOverviewRes?.product?.typeOfProduct : productResponse?.mainProduct?.typeOfProduct) && <p className="flex items-center justify-between py-2 border-b-2 capitalize"><span className="font-semibold">Type of Product:</span> {(bidOverviewRes ? bidOverviewRes?.product?.typeOfProduct : productResponse?.mainProduct?.typeOfProduct) || 'N/A'}</p>
+        <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+          <span className="font-semibold">Payment Mode:</span>
+          {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.paymentMode : productResponse?.mainProduct?.paymentAndDelivery?.paymentMode) || "N/A"}
+        </p>
 
-                        }
+        {/* Organization Name */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.organizationName : productResponse?.mainProduct?.paymentAndDelivery?.organizationName) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Organization Name:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.organizationName : productResponse?.mainProduct?.paymentAndDelivery?.organizationName) || "N/A"}
+          </p>
+        )}
 
+        {/* Organization Address */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.organizationAddress : productResponse?.mainProduct?.paymentAndDelivery?.organizationAddress) && (
+          <p className="flex items-center justify-between py-2 border-b-2 capitalize">
+            <span className="font-semibold">Organization Address:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.organizationAddress : productResponse?.mainProduct?.paymentAndDelivery?.organizationAddress) || "N/A"}
+          </p>
+        )}
 
-                        <p className="flex items-center justify-between py-2 border-b-2 capitalize"><span className="font-semibold">Payment Mode:</span> {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.paymentMode : productResponse?.mainProduct?.paymentAndDelivery?.paymentMode) || 'N/A'}</p>
-                        {/* <p className="flex items-center justify-between py-2 border-b-2  "><span className="font-semibold">Supporting Documents:</span>{(productResponse?.mainProduct?.document || bidOverviewRes?.product?.document) ? <a download target="_blank" href={productResponse?.mainProduct?.document || bidOverviewRes?.product?.document} className="flex gap-1 items-center hover:underline cursor-pointer"><Paperclip className="w-4 h-4 text-orange-600" />Download Document</a> : 'N/A'}</p> */}
-                        <p className="flex items-center justify-between py-2 border-b-2  "><span className="font-semibold">Supporting Documents:</span>{(productResponse?.mainProduct?.document || bidOverviewRes?.product?.document) ? <p
-                          onClick={() => handleDocumentDownload(
-                            productResponse?.mainProduct?.document || bidOverviewRes?.product?.document,
-                          )}
-                          className="flex gap-1 items-center hover:underline cursor-pointer"><Paperclip className="w-4 h-4 text-orange-600" />Download Document</p> : 'N/A'}</p>
+        {/* GST Number */}
+        {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.gstNumber : productResponse?.mainProduct?.paymentAndDelivery?.gstNumber) && (
+          <p className="flex items-center justify-between py-2 border-b-2">
+            <span className="font-semibold">GST Number:</span>
+            {(bidOverviewRes ? bidOverviewRes?.product?.paymentAndDelivery?.gstNumber : productResponse?.mainProduct?.paymentAndDelivery?.gstNumber) || "N/A"}
+          </p>
+        )}
 
-                      </div>
+        <p className="flex items-center justify-between py-2 border-b-2">
+          <span className="font-semibold">Supporting Documents:</span>
+          {(productResponse?.mainProduct?.document || bidOverviewRes?.product?.document)
+            ? <p onClick={() => handleDocumentDownload(productResponse?.mainProduct?.document || bidOverviewRes?.product?.document)}
+                className="flex gap-1 items-center hover:underline cursor-pointer">
+                <Paperclip className="w-4 h-4 text-orange-600" />Download Document
+              </p>
+            : "N/A"}
+        </p>
+      </div>
                     </div>
 
                     {/* Right: Form */}

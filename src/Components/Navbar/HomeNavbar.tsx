@@ -43,6 +43,9 @@
 
   import { Badge } from "../ui/badge";
   import { format } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { fallBackName } from "@/helper/fallBackName";
+import { mergeName } from "@/helper/mergeName";
   interface MenuItem {
     title: string;
     url: string;
@@ -809,9 +812,12 @@
               Post a requirement
               </Button>
               <Button onClick={handleProfileClick} size="icon" className="cursor-pointer bc">
+               {!user ?
                 <UserRound className="w-5 h-5" />
+                : fallBackName(mergeName(user))
+               }
               </Button>
-          
+
           </nav>
 
           {/* Mobile Menu */}

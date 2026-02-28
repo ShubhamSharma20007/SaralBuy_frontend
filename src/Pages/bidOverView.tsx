@@ -307,17 +307,29 @@ const Info = ({ label, value }: any) => (
 
                 </div>
              <div className="mt-4 grid sm:grid-cols-2 gap-x-8 gap-y-2 text-xs text-gray-600">
-
-  <Info label="Category" value={bidRes?.product?.categoryId?.categoryName} />
-  <Info label="Brand" value={bidRes?.product?.brand || bidRes?.product?.brandName} />
-  <Info label="Product Type" value={bidRes?.product?.productType} />
-  <Info label="Type" value={bidRes?.product?.typeOfProduct} />
-  <Info label="Payment" value={bidRes?.product?.paymentAndDelivery?.paymentMode} />
-  <Info label="Org" value={bidRes?.product?.paymentAndDelivery?.organizationName} />
-  <Info label="GST" value={bidRes?.product?.paymentAndDelivery?.gstNumber} />
-  <Info label="Address" value={bidRes?.product?.paymentAndDelivery?.organizationAddress} />
-  <Info label="Bids" value={bidRes?.product?.totalBidCount} />
-  <Info label="Duration" value={`${bidRes?.product?.bidActiveDuration} days`} />
+{bidRes?.product?.categoryId?.categoryName && <Info label="Category" value={bidRes?.product?.categoryId?.categoryName} />}
+{(bidRes?.product?.brand || bidRes?.product?.brandName) && <Info label="Brand" value={bidRes?.product?.brand || bidRes?.product?.brandName} />}
+{bidRes?.product?.productType && <Info label="Product Type" value={bidRes?.product?.productType?.replace("_", " ")} />}
+{bidRes?.product?.typeOfProduct && <Info label="Type" value={bidRes?.product?.typeOfProduct} />}
+{bidRes?.product?.model && <Info label="Model" value={bidRes?.product?.model} />}
+{bidRes?.product?.fuelType && <Info label="Fuel Type" value={bidRes?.product?.fuelType} />}
+{bidRes?.product?.transmission && <Info label="Transmission" value={bidRes?.product?.transmission} />}
+{bidRes?.product?.color && <Info label="Color" value={bidRes?.product?.color} />}
+{bidRes?.product?.typeOfVehicle && <Info label="Type of Vehicle" value={bidRes?.product?.typeOfVehicle} />}
+{bidRes?.product?.toolType && <Info label="Type of Vehicle" value={(bidRes?.product?.toolType)?.split("_")} />}
+{bidRes?.product?.oldProductValue?.min !== undefined && (
+  <Info label="Old Product Value" value={`₹${bidRes?.product?.oldProductValue?.min}L - ₹${bidRes?.product?.oldProductValue?.max}L`} />
+)}
+{bidRes?.product?.quantity && <Info label="Quantity" value={bidRes?.product?.quantity} />}
+{bidRes?.product?.minimumBudget && <Info label="Min Budget" value={currencyConvertor(bidRes?.product?.minimumBudget)} />}
+{bidRes?.product?.paymentAndDelivery?.ex_deliveryDate && <Info label="Delivery Date" value={dateFormatter(bidRes?.product?.paymentAndDelivery?.ex_deliveryDate)} />}
+{bidRes?.product?.paymentAndDelivery?.paymentMode && <Info label="Payment" value={bidRes?.product?.paymentAndDelivery?.paymentMode} />}
+{bidRes?.product?.paymentAndDelivery?.organizationName && <Info label="Org" value={bidRes?.product?.paymentAndDelivery?.organizationName} />}
+{bidRes?.product?.paymentAndDelivery?.gstNumber && <Info label="GST" value={bidRes?.product?.paymentAndDelivery?.gstNumber} />}
+{bidRes?.product?.paymentAndDelivery?.organizationAddress && <Info label="Address" value={bidRes?.product?.paymentAndDelivery?.organizationAddress} />}
+{bidRes?.product?.totalBidCount !== undefined && <Info label="Bids" value={bidRes?.product?.totalBidCount} />}
+{bidRes?.product?.bidActiveDuration && <Info label="Duration" value={`${bidRes?.product?.bidActiveDuration} days`} />}
+{bidRes?.product?.document && <Info label="Document" value="Available" />}
 
 </div>
 

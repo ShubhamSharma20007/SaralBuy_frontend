@@ -55,7 +55,7 @@ export default function AppRouters() {
       <Suspense
         fallback={
           <div className="h-screen flex items-center justify-center text-lg">
-            Loading page...
+           <div className="loader"></div>
           </div>
         }
       >
